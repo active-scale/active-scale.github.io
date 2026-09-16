@@ -127,3 +127,7 @@ footer > a { white-space: nowrap; }
   .contributions li { grid-template-columns: 36px 1fr; gap: 14px; }
   .contribution-number { font-size: 2.4rem; }
 }
+
+.author-notes { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 20px; margin: -10px 0 24px; color: var(--muted); font: 13px/1.7 var(--sans); }
+.author-notes > span { white-space: nowrap; }
+.authors > span { white-space: nowrap; }
