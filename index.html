@@ -10,7 +10,7 @@
 </head>
 <body>
 <a class="skip" href="#abstract">Skip to content</a>
-<nav class="toc" aria-label="Contents"><a class="toc-brand" href="#top">Active<span>Scale</span></a><p class="toc-label">CONTENTS</p><a href="#videos">Videos</a><a href="#contributions">Contributions</a><a href="#abstract">Abstract</a><a href="#hardware">AMP platform</a><a href="#method">Model</a><a href="#training">Training recipe</a><a href="#results">Results</a><a href="#citation">BibTeX</a></nav>
+<nav class="toc" aria-label="Contents"><a class="toc-brand" href="#top">Active<span>Scale</span></a><p class="toc-label">CONTENTS</p><a href="#videos">Videos</a><a href="#abstract">Abstract</a><a href="#contributions">Contributions</a><a href="#hardware">AMP platform</a><a href="#method">Model</a><a href="#training">Training recipe</a><a href="#results">Results</a><a href="#citation">BibTeX</a></nav>
 <main id="top">
 <header class="hero">
 <img class="wordmark" src="assets/logo.png" alt="ActiveScale — Scaling Active Perception" width="2169" height="725">
@@ -26,29 +26,35 @@
 <div class="rollout-grid">
 <div class="rollout-row row-3">
 <div class="rollout">
-<video controls muted playsinline preload="metadata" poster="assets/bag-poster.jpg?v=20260916-firstframe" width="1440" height="1080" aria-label="Bag — Autonomous rollout"><source src="assets/bag.mp4?v=20260916-trim15" type="video/mp4"></video>
+<video controls autoplay loop muted playsinline preload="auto" poster="assets/bag-poster.jpg?v=20260916-firstframe" width="1440" height="1080" aria-label="Bag — Autonomous rollout"><source src="assets/bag.mp4?v=20260916-trim15" type="video/mp4"></video>
 <div class="video-label"><h3>Bag</h3><p>Autonomous rollout</p></div>
 </div>
 <div class="rollout">
-<video controls muted playsinline preload="metadata" poster="assets/drawer-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Drawer — Autonomous rollout"><source src="assets/drawer.mp4?v=20260916-new" type="video/mp4"></video>
+<video controls autoplay loop muted playsinline preload="auto" poster="assets/drawer-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Drawer — Autonomous rollout"><source src="assets/drawer.mp4?v=20260916-new" type="video/mp4"></video>
 <div class="video-label"><h3>Drawer</h3><p>Autonomous rollout</p></div>
 </div>
 <div class="rollout">
-<video controls muted playsinline preload="metadata" poster="assets/table-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Table — Autonomous rollout"><source src="assets/table.mp4?v=20260916-new" type="video/mp4"></video>
+<video controls autoplay loop muted playsinline preload="auto" poster="assets/table-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Table — Autonomous rollout"><source src="assets/table.mp4?v=20260916-new" type="video/mp4"></video>
 <div class="video-label"><h3>Table</h3><p>Autonomous rollout</p></div>
 </div>
 </div>
 <div class="rollout-row row-2">
 <div class="rollout">
-<video controls muted playsinline preload="metadata" poster="assets/pot-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Pot — Autonomous rollout"><source src="assets/pot.mp4?v=20260916-new" type="video/mp4"></video>
+<video controls autoplay loop muted playsinline preload="auto" poster="assets/pot-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Pot — Autonomous rollout"><source src="assets/pot.mp4?v=20260916-new" type="video/mp4"></video>
 <div class="video-label"><h3>Pot</h3><p>Autonomous rollout</p></div>
 </div>
 <div class="rollout">
-<video controls muted playsinline preload="metadata" poster="assets/box-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Box — Autonomous rollout"><source src="assets/box.mp4?v=20260916-new" type="video/mp4"></video>
+<video controls autoplay loop muted playsinline preload="auto" poster="assets/box-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Box — Autonomous rollout"><source src="assets/box.mp4?v=20260916-new" type="video/mp4"></video>
 <div class="video-label"><h3>Box</h3><p>Autonomous rollout</p></div>
 </div>
 </div>
 </div>
+</section>
+
+<section id="abstract">
+<div class="section-heading"><h2>Abstract</h2></div>
+<figure class="paper-figure" style="--figure-width:920px"><a href="assets/teaser_1.webp" target="_blank" rel="noopener" aria-label="Open ActiveScale overview at full size"><img src="assets/teaser_1.webp" alt="ActiveScale overview" loading="lazy" width="1636" height="738"></a></figure>
+<p id="paper-abstract" class="abstract-text">Active perception is essential for robotic manipulation when fixed viewpoints leave task-relevant information occluded or unobserved. However, enabling vision-language-action (VLA) models to reason across changing viewpoints and actively acquire informative observations remains challenging. We present ActiveScale, a framework that advances active perception through <strong>coordinated model, data, and hardware designs</strong>. Our model augments a VLA with historical video observations and <strong>explicit camera-pose supervision</strong>, using per-frame pose tokens and a lightweight prediction head to associate observations across viewpoints and support a coherent understanding of the scene. To learn from the camera motion naturally present in human activity, we introduce a scalable human–robot mid-training recipe using <strong>1000 hours of egocentric and robotic data</strong>, adapting the model to temporal inputs and pose supervision. We further introduce the Active Perception Mobile Manipulation Platform (AMP), a robotic platform that supports active perception and mobile manipulation through <strong>single-operator teleoperation</strong>, enabling scalable collection of demonstrations that coordinate viewpoint changes and manipulation. Experiments demonstrate improved success rates on active-perception tasks, while ablation studies validate the contributions of camera-pose-aware modeling and egocentric mid-training. Together, these components provide an integrated foundation for studying and developing active perception in robotic manipulation.</p>
 </section>
 
 <section id="contributions">
@@ -63,11 +69,6 @@
 <section id="key-results">
 <div class="section-heading"><h2>Key Results</h2></div>
 <div class="metrics"><div><strong>70<span>%</span></strong><span>Mean task success<br>π<sub>0.5</sub>: 30.0%</span></div><div><strong>78.4<span>%</span></strong><span>Mean task progress<br>π<sub>0.5</sub>: 41.6%</span></div><div><strong>5</strong><span>Real-world task families<br>20 rollouts per task and method</span></div></div><p class="small-note">The complete ActiveScale pipeline is compared with directly post-trained π<sub>0.5</sub>, using the same task-specific post-training demonstrations and evaluation protocol.</p>
-</section>
-
-<section id="abstract">
-<div class="section-heading"><h2>Abstract</h2></div>
-<p id="paper-abstract" class="abstract-text">Active perception is essential for robotic manipulation when fixed viewpoints leave task-relevant information occluded or unobserved. However, enabling vision-language-action (VLA) models to reason across changing viewpoints and actively acquire informative observations remains challenging. We present ActiveScale, a framework that advances active perception through <strong>coordinated model, data, and hardware designs</strong>. Our model augments a VLA with historical video observations and <strong>explicit camera-pose supervision</strong>, using per-frame pose tokens and a lightweight prediction head to associate observations across viewpoints and support a coherent understanding of the scene. To learn from the camera motion naturally present in human activity, we introduce a scalable human–robot mid-training recipe using <strong>1000 hours of egocentric and robotic data</strong>, adapting the model to temporal inputs and pose supervision. We further introduce Active-perception Mobile-manipulation Platform (AMP), a robotic platform that supports active perception and mobile manipulation through <strong>single-operator teleoperation</strong>, enabling scalable collection of demonstrations that coordinate viewpoint changes and manipulation. Experiments demonstrate improved success rates on active-perception tasks, while ablation studies validate the contributions of camera-pose-aware modeling and egocentric mid-training. Together, these components provide an integrated foundation for studying and developing active perception in robotic manipulation.</p>
 </section>
 
 <section id="hardware">
@@ -89,7 +90,7 @@
 </section>
 
 <section id="training">
-<div class="section-heading"><h2>Human–Robot Training Recipe</h2></div>
+<div class="section-heading"><h2>Learning Active Perception from Human</h2></div>
 <h3>Stage 1 · Human–Robot Mid-training</h3>
 <p>We mid-train on <strong>1000 hours</strong> of human and robot data at a <strong>1:1 sampling ratio</strong>. <a href="https://arxiv.org/abs/2604.23570" target="_blank" rel="noopener noreferrer">EgoLive</a>, <a href="https://egoverse.ai/" target="_blank" rel="noopener noreferrer">EgoVerse</a>, and <a href="https://egosuite100k.lightwheel.ai/" target="_blank" rel="noopener noreferrer">EgoSuite</a> (captured with EgoStandard Pro) provide egocentric human experience; AgiBot World, RoboCOIN, and AMP provide robot demonstrations. Action learning and camera-pose supervision develop manipulation and active-view priors.</p>
 <h3>Stage 2 · Task-Specific Post-training</h3>
@@ -100,7 +101,7 @@
 <div class="section-heading"><h2>Task Suite and Experimental Results</h2></div>
 <figure class="paper-figure" style="--figure-width:900px"><a href="assets/task-nosence.webp?v=2" target="_blank" rel="noopener" aria-label="Open Five real-world active-perception task families at full size"><img src="assets/task-nosence.webp?v=2" alt="Five real-world active-perception task families" loading="lazy" width="1600" height="1128"></a></figure>
 <h3>Task Suite and Evaluation</h3>
-<p><strong>Bag, Drawer, and Table</strong> test manipulation under occlusion; <strong>Pot and Box</strong> test active search and localization across the workspace. We collect <strong>150 demonstrations per task</strong> and evaluate each method with <strong>20 real-world rollouts per task</strong>. Success rate (SR) requires full completion, while task progress (TP) gives credit for completed stages.</p>
+<p><strong>Bag, Drawer, and Table</strong> test manipulation under occlusion; <strong>Pot and Box</strong> test active search and localization across the workspace. We collect <strong>150 demonstrations per task</strong> and evaluate each method with <strong>20 real-world rollouts per task</strong>, scoring success rate (SR) for full completions and task progress (TP) for each completed stage.</p>
 <h3>Active Perception across Five Tasks</h3>
 <p>Under the same downstream demonstrations and evaluation protocol, ActiveScale improves mean SR from <strong>30.0% to 70.0%</strong> and mean TP from <strong>41.6% to 78.4%</strong> over directly post-trained π<sub>0.5</sub>. Both metrics improve across all five task families.</p><figure class="paper-figure" style="--figure-width:640px"><a href="assets/exp-pi05.webp?v=2" target="_blank" rel="noopener" aria-label="Open Main experimental results at full size"><img src="assets/exp-pi05.webp?v=2" alt="Main experimental results" loading="lazy" width="1071" height="597"></a></figure>
 <h3>Ablation Studies</h3>
@@ -116,7 +117,6 @@
 <p>With <strong>post-training only</strong>, mean SR rises from <strong>30.0%</strong> for π<sub>0.5</sub> to <strong>37.0%</strong> with history and <strong>62.0%</strong> with history and pose-grounded camera tokens. Pose supervision improves both SR and TP over history alone on every task.</p>
 <figure class="paper-figure" style="--figure-width:860px"><a href="assets/exp-abla.webp?v=2" target="_blank" rel="noopener" aria-label="Open Temporal history and camera-token ablation at full size"><img src="assets/exp-abla.webp?v=2" alt="Temporal history and camera-token ablation" loading="lazy" width="1686" height="564"></a></figure>
 </div>
-<p>With real-time chunking, ActiveScale generates <strong>264.5 actions/s on one RTX 4090</strong>, supporting continuous execution at the robot's <strong>30 Hz</strong> control rate.</p>
 </section>
 <section id="citation">
 <div class="section-heading"><h2>BibTeX</h2></div>

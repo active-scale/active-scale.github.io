@@ -11,9 +11,9 @@ const observer = new IntersectionObserver(entries => {
   }
 }, { rootMargin: '-10% 0px -65% 0px' });
 document.querySelectorAll('section[id]').forEach(section => observer.observe(section));
-document.querySelectorAll('video').forEach(video => {
+document.querySelectorAll('video:not([autoplay])').forEach(video => {
   video.addEventListener('play', () => {
-    document.querySelectorAll('video').forEach(other => { if (other !== video) other.pause(); });
+    document.querySelectorAll('video:not([autoplay])').forEach(other => { if (other !== video) other.pause(); });
   });
 });
 const ablationTabs = [...document.querySelectorAll('.ablation-tab')];
