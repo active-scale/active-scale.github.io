@@ -1,17 +1,4 @@
 'use strict';
-// Set the published https://arxiv.org/abs/... URL here when available.
-// An empty value leaves no visible paper link or placeholder.
-const arxivUrl = '';
-if (arxivUrl) {
-  const paperLink = document.createElement('a');
-  paperLink.className = 'pill primary';
-  paperLink.href = arxivUrl;
-  paperLink.target = '_blank';
-  paperLink.rel = 'noopener';
-  paperLink.textContent = 'Paper';
-  document.querySelector('.publication-links').prepend(paperLink);
-}
-
 const navLinks = [...document.querySelectorAll('.toc a[href^="#"]')];
 const observer = new IntersectionObserver(entries => {
   for (const entry of entries) if (entry.isIntersecting) {
@@ -27,6 +14,19 @@ document.querySelectorAll('section[id]').forEach(section => observer.observe(sec
 document.querySelectorAll('video').forEach(video => {
   video.addEventListener('play', () => {
     document.querySelectorAll('video').forEach(other => { if (other !== video) other.pause(); });
+  });
+});
+const ablationTabs = [...document.querySelectorAll('.ablation-tab')];
+ablationTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    ablationTabs.forEach(t => {
+      const active = t === tab;
+      t.classList.toggle('is-active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.querySelectorAll('.ablation-panel').forEach(panel => {
+      panel.hidden = panel.id !== tab.dataset.target;
+    });
   });
 });
 const copyButton = document.querySelector('#copy-citation');
