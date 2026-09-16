@@ -126,8 +126,14 @@ footer > a { white-space: nowrap; }
 .rollout h3 { text-align: center; margin: 10px 0 2px; font-size: 15px; }
 .video-label p { text-align: center; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .rollout { min-width: 0; }
-@media (max-width: 540px) { .rollout-row.row-3, .rollout-row.row-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; width: auto; margin: 0; } }
-@media (max-width: 360px) { .rollout-row.row-3, .rollout-row.row-2, .rollout-row.row-1 { grid-template-columns: 1fr; } }
+@media (max-width: 540px) {
+  .rollout-row.row-3, .rollout-row.row-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; width: auto; margin: 0; }
+  .rollout-row.row-3 .rollout:last-child { grid-column: 1 / -1; width: calc(50% - 6px); margin: 0 auto; }
+}
+@media (max-width: 360px) {
+  .rollout-row.row-3, .rollout-row.row-2, .rollout-row.row-1 { grid-template-columns: 1fr; }
+  .rollout-row.row-3 .rollout:last-child { width: auto; margin: 0; }
+}
 @media (max-width: 700px) {
   .contributions li { grid-template-columns: 36px 1fr; gap: 14px; }
   .contribution-number { font-size: 2.4rem; }
