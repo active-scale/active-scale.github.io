@@ -30,7 +30,6 @@ sup { font-size: .7em; color: var(--purple); padding-left: 2px; }
 .affiliations p { margin: 0; }
 .publication-links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .pill { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--ink); border-radius: 24px; text-decoration: none; padding: 7px 21px; font: 14px/1.6 var(--sans); min-height: 42px; }
-.pill.primary { background: var(--ink); color: white; }
 .pill:hover { background: var(--purple); color: white; border-color: var(--purple); }
 .pill-note { opacity: .6; font-size: .85em; }
 .pill-icon { font-size: 1.05em; line-height: 1; }
