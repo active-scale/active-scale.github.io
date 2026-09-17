@@ -33,6 +33,7 @@ sup { font-size: .7em; color: var(--purple); padding-left: 2px; }
 .pill.primary { background: var(--ink); color: white; }
 .pill:hover { background: var(--purple); color: white; border-color: var(--purple); }
 .pill-note { opacity: .6; font-size: .85em; }
+.pill-icon { font-size: 1.05em; line-height: 1; }
 .toc { display: none; }
 section { padding: 54px 0 0; scroll-margin-top: 28px; }
 .section-heading { margin-bottom: 30px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
