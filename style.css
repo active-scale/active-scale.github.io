@@ -152,3 +152,9 @@ footer > a { white-space: nowrap; }
 .ablation-tab:hover { border-color: var(--purple); color: var(--purple); }
 .ablation-tab.is-active { background: var(--purple); border-color: var(--purple); color: #fff; }
 .ablation-panel[hidden] { display: none; }
+
+/* Keep HKUST Guangzhou at 90% of the shared institution-logo height. */
+.hero-logos img[src="assets/HKUST(GZ)_Logo.png"] { height: 48.6px; }
+@media (max-width: 700px) {
+  .hero-logos img[src="assets/HKUST(GZ)_Logo.png"] { height: 34.2px; }
+}
