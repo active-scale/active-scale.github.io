@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.min.js';
-import {createHumanAvatar} from './human-avatar.mjs';
+import {createHumanAvatar} from './human-avatar.mjs?v=20261104k';
 
 export async function initDataHuman(canvas) {
   const renderer = new T.WebGLRenderer({canvas, antialias:true});

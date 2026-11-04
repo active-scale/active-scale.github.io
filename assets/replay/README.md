@@ -1,30 +1,48 @@
-# ActiveScale episode excerpts for scene calibration
+# ActiveScale recorded demonstrations
 
-These two excerpts were downloaded from the author's public ActiveScale dataset at
-https://modelscope.cn/datasets/shuai302/ActiveScale . The source README declares
-Apache-2.0. Source revision is recorded inside each JSON.
+Source is the author's public [ActiveScale dataset](https://modelscope.cn/datasets/shuai302/ActiveScale).
+The source README declares Apache-2.0. Each JSON records the source path and revision.
 
-- `backpack/episode_128.hdf5` contains 657 synchronized samples at 30 Hz (21.9 seconds). Instruction: Take a bottle out of the backpack and put it on the table.
-- `box/episode_42.hdf5` contains 501 synchronized samples at 30 Hz (16.7 seconds). Instruction: Pick up the blue cookie box from the middle shelf of the shelving unit on the left and place it on the brown box on the left.
+## Pot, episode 38
 
-The JSONs preserve all recorded qpos samples (21 float values). `armOrder` is
-`left,right,mid`. Each arm has six hinge angles in radians followed by a raw
-gripper driver signal. The author confirmed that 0 is fully closed and 0.1 is fully open.
-The preview normalizes this interval to the vendor mesh's 0–35 mm travel per jaw.
-The middle gripper signal is constant and its finger meshes are omitted.
+The main replay uses `pot/episode_38.hdf5` from revision
+`0e3dd1fec24e48e68aca389c8c40c8a3a28171d2`. It has 841 samples at 30 Hz.
+Its instruction is to take the onion from the left shelf, put it into the pot on the
+middle table, and cover the pot with the lid.
 
-`cameraPoses` and `eefPoses` preserve the source's `*_in_unified/*/quat`
-arrays. Positions are meters. Pose order is `[x,y,z,qx,qy,qz,qw]`. These are
-absolute poses in the robot unified reference frame. The paper defines its
-orientation as that of the middle arm base and its origin 0.25 m below that
-base. Intrinsics K/D/P/R and the planar base command are also included.
+All 841 samples of joint position, camera pose, end-effector pose and base command
+are preserved in `pot-episode-38.json`. All three videos are the complete embedded
+head, left-wrist and right-wrist streams from that same recording. They retain the
+original 640×480 resolution, 30 fps cadence and frame count. The original lossless
+RGB H.264 streams were re-encoded to browser-compatible YUV420 H.264 at CRF 23.
+The website copies are visually compressed. No frames were added, removed or retimed.
 
-The source has no per-frame timestamp dataset. Relative playback time is
-sample index / the recorded 30 Hz frame rate. Each JPEG is the first actual
-frame of the corresponding embedded MP4 stream (640x480 RGB), decoded from a
-small byte range. The complete videos and HDF5 files were not downloaded.
+The front video is the replay clock. Joint and camera pose sampling uses that
+video time, and the other two videos are corrected if they drift more than 0.1 s.
+Scrubbing seeks all streams and the 3D view to the same relative time.
 
-The real tabletop/shelf/backpack poses, camera mounting extrinsics and exact
-arm mounting transforms still need to be matched to the author's setup before
-claiming a calibrated physical scene replay. The excerpts are real recorded
-robot motion, not generated or simulated trajectories.
+The scene's white table, metal pot, lid, onion and shelf are illustrative geometry.
+Their positions have not been calibrated to the real tabletop. The rendered robot
+follows the recorded joints within stock vendor geometry limits. The three videos
+show the real scene. This is a dataset demonstration, independent of the autonomous
+evaluation clips shown beside quantitative results.
+
+## Shared representation
+
+`armOrder` is `left,right,mid`. Each arm has six hinge angles in radians followed
+by a raw gripper driver signal. The author confirmed 0 = closed and 0.1 = fully
+open. The preview maps this interval to 0–35 mm travel per jaw. The middle arm's
+finger meshes are omitted.
+
+`cameraPoses` and `eefPoses` preserve the source's `*_in_unified/*/quat` arrays,
+with position in meters and pose order `[x,y,z,qx,qy,qz,qw]`. The robot unified
+frame has the middle-arm base orientation and an origin 0.25 m below that base.
+Original intrinsics K/D/P/R are included. No per-frame timestamps were present,
+so relative time is sample index divided by the recorded 30 Hz frame rate.
+
+## Older compact excerpts
+
+Backpack episode 128 (657 samples) and Box episode 42 (501 samples) remain for
+existing compact comparison callers. Those older excerpts have joint/pose JSONs
+and first-frame JPEGs, and their full camera videos were not downloaded. The main
+public replay uses Pot, whose three streams are complete.

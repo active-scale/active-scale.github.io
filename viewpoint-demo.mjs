@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.min.js';
-import {createAmp, savedCalibration} from './assets/robot-models/amp.mjs?v=20261103e';
+import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104k';
 
 const degrees = Math.PI / 180;
 const vector = (...values) => new T.Vector3(...values);
@@ -163,7 +163,7 @@ export function initViewpointDemo() {
   if (!mount) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = new URL('./viewpoint-demo.css?v=20261103e', import.meta.url).href;
+  link.href = new URL('./viewpoint-demo.css?v=20261104k', import.meta.url).href;
   document.head.append(link);
   mount.innerHTML = `
     <div class="vp-pair">
@@ -227,7 +227,7 @@ export function initViewpointDemo() {
   async function initialize() {
     initialized = true;
     try {
-      const calibration = savedCalibration();
+      const calibration = structuredClone(defaults);
       views = await Promise.all([...mount.querySelectorAll('.vp-case')].map((card, index) => createView(card, index ? 'search' : 'occlusion', calibration)));
       button.disabled = false;
       stop();
@@ -258,7 +258,7 @@ export function initViewpointDemo() {
     if (!views.length) return;
     stop();
     progress = 0;
-    const calibration = savedCalibration();
+    const calibration = structuredClone(defaults);
     views.forEach(view => view.calibrate(calibration));
     draw();
   });

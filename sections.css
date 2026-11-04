@@ -28,3 +28,22 @@
 #citation{margin-top:35px;border-top:1px solid var(--line)}
 #citation h2{font-size:clamp(28px,3.5vw,42px)}
 @media(max-width:650px){.hardware-grid{grid-template-columns:1fr}.hardware-grid video,.hardware-photo{height:auto}.masthead h1{font-size:clamp(46px,9vw,68px)!important}}
+
+/* Story sequence: motivation, hardware, data, model, evaluation. */
+.motivation{background:var(--dark);color:#fff}.motivation>.wrap>.section-copy{color:#ddd0eb;max-width:800px}
+.motivation #viewpoint-demo{margin-top:28px}
+.recorded-demo{margin-top:42px;padding:clamp(15px,2.5vw,28px);background:#f6f5f0;color:#283036;border-radius:16px;scroll-margin-top:85px}
+.recorded-demo h3{font-size:clamp(27px,3.5vw,42px);margin-bottom:12px}.recorded-demo>p{color:#566168;max-width:800px}
+.system .assembly{margin:30px 0;background:#f5f3ed;color:#283036;padding:clamp(16px,2.5vw,28px);border-radius:16px;scroll-margin-top:85px}
+.system .assembly h3{font-size:clamp(25px,3.2vw,38px)}.system .assembly p{color:#566168}
+.amp-comparison{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}.amp-comparison h4{font-size:17px;margin:0 0 12px}
+.system .assembly canvas{height:clamp(280px,31vw,420px);background:#e8e6e0}
+#transfer-scene{height:clamp(330px,43vw,540px)}#transfer-note{font-size:11px!important}#transfer-note a{text-decoration:underline}
+#motion-play{border:1px solid #d8d3df;background:white;border-radius:7px;padding:8px 13px;font-size:13px;color:#283036}
+.hardware-grid{margin-bottom:28px}.system .transfer{margin-top:0}
+@media(max-width:760px){.amp-comparison{grid-template-columns:1fr}.nav nav{gap:12px}.nav nav a{font-size:12px}}
+
+.nowrap{white-space:nowrap}
+#transfer{scroll-margin-top:85px}
+
+#task-replay{min-height:clamp(650px,55vw,800px)}

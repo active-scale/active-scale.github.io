@@ -1,12 +1,14 @@
 import * as T from './vendor/three.module.min.js';
-import {createAmp, savedCalibration} from './assets/robot-models/amp.mjs?v=20261103e';
-import {recordedJoints, setRecordedOptics} from './recorded-motion.mjs?v=20261103e';
-import {createReplayScene} from './replay-scene.mjs?v=20261103e';
+import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104k';
+import {recordedJoints, setRecordedOptics} from './recorded-motion.mjs?v=20261104k';
+import {createReplayScene} from './replay-scene.mjs?v=20261104k';
 
 const episodes = [
   ['Backpack · episode 128', './assets/replay/backpack-episode-128.json'],
   ['Box · episode 42', './assets/replay/box-episode-42.json'],
+  ['Pot · episode 38', './assets/replay/pot-episode-38.json'],
 ];
+const cameraNames = ['cam_front', 'cam_left', 'cam_right'];
 
 function stage() {
   const scene = new T.Scene();
@@ -26,67 +28,61 @@ function stage() {
 }
 
 export async function initRecordedReplay(container, options = {}) {
-  const style = document.createElement('link');
-  style.rel = 'stylesheet';
-  style.href = new URL('./recorded-replay.css?v=20261103e', import.meta.url).href;
-  document.head.append(style);
+  if (!document.querySelector('[data-recorded-style]')) {
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.dataset.recordedStyle = '';
+    style.href = new URL('./recorded-replay.css?v=20261104k', import.meta.url).href;
+    document.head.append(style);
+  }
   const body = document.createElement('div');
   body.className = 'recorded-replay' + (options.compact ? ' recorded-compact' : '');
   body.innerHTML = `
     <div class="recorded-toolbar">
-      <label>Demonstration <select aria-label="Recorded demonstration">${episodes.map(([name], index) => `<option value="${index}">${name}</option>`).join('')}</select></label>
+      <span class="recorded-source">Pot · recorded demonstration</span>
       <button type="button" disabled>Loading…</button>
       <label>Speed <select aria-label="Recorded playback speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
-      <label>Sim camera <select data-camera aria-label="Simulated camera"><option value="cam_front">Head</option><option value="cam_left">Left wrist</option><option value="cam_right">Right wrist</option></select></label>
     </div>
     <p class="recorded-instruction"></p>
     <div class="recorded-views">
-      <canvas aria-label="Recorded ActiveScale joint motion on the AMP preview"></canvas>
-      <aside class="recorded-stills"><h5>Initial camera frames · t = 0</h5>
-        <figure><img alt="Head camera at the start of the selected recording"><figcaption>Head camera</figcaption></figure>
-        <figure><img alt="Left wrist camera at the start of the selected recording"><figcaption>Left wrist</figcaption></figure>
-        <figure><img alt="Right wrist camera at the start of the selected recording"><figcaption>Right wrist</figcaption></figure>
+      <canvas aria-label="AMP replay of recorded joint and camera trajectories"></canvas>
+      <aside class="recorded-cameras" aria-label="Three recorded camera streams">
+        <figure><video muted playsinline preload="metadata" aria-label="Recorded head camera"></video><figcaption>Head camera</figcaption></figure>
+        <figure><video muted playsinline preload="metadata" aria-label="Recorded left wrist camera"></video><figcaption>Left wrist</figcaption></figure>
+        <figure><video muted playsinline preload="metadata" aria-label="Recorded right wrist camera"></video><figcaption>Right wrist</figcaption></figure>
       </aside>
     </div>
     <div class="recorded-timeline"><input type="range" value="0" min="0" max="1" step="0.01" aria-label="Recorded demonstration timeline"><output>0.0 s</output></div>
     <p class="recorded-limits" role="status"></p>
-    <p class="recorded-note">${options.compact
-      ? 'Recorded joint motion at 30 Hz, with an independent timeline. Gripper values run from 0 (closed) to 0.1 (open). Scene objects are omitted in this comparison.'
-      : 'Recorded at 30 Hz with 0 = closed and 0.1 = open. The camera view uses recorded optical poses and 640 × 480 intrinsics. Table and backpack placement are adjustable drafts.'}</p>`;
+    <p class="recorded-note">The same 30 Hz demonstration drives the robot and all three camera videos. Table, shelf and pot placement illustrate the task.</p>`;
   container.append(body);
-  const [episodeSelect, speed] = body.querySelectorAll('select');
-  const viewSelect = body.querySelector('[data-camera]');
-  if (options.compact) {
-    episodeSelect.closest('label').remove();
-    viewSelect.closest('label').remove();
-  }
-  episodeSelect.value = String(options.episodeIndex ?? 0);
+  const speed = body.querySelector('select');
   const play = body.querySelector('button');
   const timeline = body.querySelector('input');
   const clock = body.querySelector('output');
   const limits = body.querySelector('.recorded-limits');
   const canvas = body.querySelector('canvas');
+  const videos = [...body.querySelectorAll('video')];
   const renderer = new T.WebGLRenderer({canvas, antialias: true});
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   const scene = stage();
   const camera = new T.PerspectiveCamera(38, 1, .04, 30);
   const rig = await createAmp();
   scene.add(rig.root);
-  const opticalCameras = Object.fromEntries(['cam_front', 'cam_left', 'cam_right'].map(name => {
+  const opticalCameras = Object.fromEntries(cameraNames.map(name => {
     const optical = new T.PerspectiveCamera(52.4, 4/3, .02, 30);
     const helper = new T.CameraHelper(optical);
     const orange = new T.Color(0xc86a1b);
     helper.setColors(orange, orange, orange, orange, orange);
-    helper.layers.set(1);
     scene.add(helper);
     return [name, {optical, helper}];
   }));
-  camera.layers.enable(1);
-  const placement = options.compact ? {roll: 0} : createReplayScene(scene, body, () => draw());
-  let calibration = savedCalibration();
-  let episode, elapsed = 0, animation = 0, lastTime, generation = 0, orbit = .66, tilt = .27;
+  const placement = createReplayScene(scene);
+  const calibration = structuredClone(defaults);
+  let episode, elapsed = 0, animation = 0, generation = 0, orbit = .77, tilt = .31, zoom = 1;
+  let hasVideo = false, playing = false;
   const pending = new Map();
-  let zoom = 1;
+  const duration = () => (episode.frameCount - 1) / episode.fps;
 
   function loadData(index) {
     if (!pending.has(index)) {
@@ -99,10 +95,11 @@ export async function initRecordedReplay(container, options = {}) {
   }
 
   function stop() {
+    playing = false;
     cancelAnimationFrame(animation);
     animation = 0;
-    lastTime = undefined;
-    play.textContent = episode && elapsed >= (episode.frameCount - 1) / episode.fps ? 'Replay' : 'Play recorded motion';
+    videos.forEach(video => video.pause());
+    play.textContent = episode && elapsed >= duration() ? 'Replay' : 'Play demonstration';
   }
 
   function draw() {
@@ -111,123 +108,138 @@ export async function initRecordedReplay(container, options = {}) {
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    const radius = 2.9 / zoom * Math.max(1, .8 / camera.aspect);
-    camera.position.set(radius * Math.cos(tilt) * Math.sin(orbit), .85 + radius * Math.sin(tilt), radius * Math.cos(tilt) * Math.cos(orbit));
-    camera.lookAt(.1, .82, 0);
+    const radius = 3.45 / zoom * Math.max(1, .8 / camera.aspect);
+    camera.position.set(.30 + radius * Math.cos(tilt) * Math.sin(orbit), .78 + radius * Math.sin(tilt), radius * Math.cos(tilt) * Math.cos(orbit));
+    camera.lookAt(.30, .78, -.10);
     if (episode) {
       const current = recordedJoints(episode, elapsed, calibration);
       let clipped = 0;
-      for (const name of ['left', 'right', 'center']) {
-        for (let j = 1; j <= 6; j++) {
-          const value = current.joints[name]['joint' + j] * Math.PI / 180;
-          const [minimum, maximum] = rig.arms[name].joints['joint' + j].range;
-          if (value < minimum || value > maximum) clipped++;
-        }
+      for (const name of ['left', 'right', 'center']) for (let index = 1; index <= 6; index++) {
+        const value = current.joints[name]['joint' + index] * Math.PI / 180;
+        const [minimum, maximum] = rig.arms[name].joints['joint' + index].range;
+        if (value < minimum - .02 || value > maximum + .02) clipped++;
       }
+      limits.textContent = clipped ? 'Some recorded angles exceed the stock model limits in this preview.' : '';
       rig.pose(current);
       for (const [name, {optical, helper}] of Object.entries(opticalCameras)) {
-        setRecordedOptics(optical, episode, name, elapsed, rig, placement.roll);
-        const sourceProjection = optical.projectionMatrix.clone();
-        optical.far = .22;
-        optical.updateProjectionMatrix();
+        setRecordedOptics(optical, episode, name, elapsed, rig, 0);
+        const projection = optical.projectionMatrix.clone();
+        const near = optical.near, far = .17;
+        optical.projectionMatrix.elements[10] = -(far + near) / (far - near);
+        optical.projectionMatrix.elements[14] = -2 * far * near / (far - near);
+        optical.projectionMatrixInverse.copy(optical.projectionMatrix).invert();
         helper.update();
-        optical.far = 30;
-        optical.projectionMatrix.copy(sourceProjection);
-        optical.projectionMatrixInverse.copy(sourceProjection).invert();
+        optical.projectionMatrix.copy(projection);
+        optical.projectionMatrixInverse.copy(projection).invert();
       }
+      placement.update(elapsed, episode, rig);
       timeline.value = elapsed;
-      clock.textContent = elapsed.toFixed(1) + ' / ' + ((episode.frameCount - 1) / episode.fps).toFixed(1) + ' s';
-      limits.textContent = clipped ? clipped + ' recorded joint angle' + (clipped === 1 ? '' : 's') + ' clipped to the vendor preview limits.' : '';
+      clock.textContent = elapsed.toFixed(1) + ' / ' + duration().toFixed(1) + ' s';
     }
-    renderer.setScissorTest(false);
-    renderer.setViewport(0, 0, width, height);
     renderer.render(scene, camera);
-    if (episode && !options.compact) {
-      const insetWidth = Math.round(width * .36), insetHeight = Math.round(insetWidth * .75);
-      renderer.setScissorTest(true);
-      renderer.setScissor(width - insetWidth - 10, 10, insetWidth, insetHeight);
-      renderer.setViewport(width - insetWidth - 10, 10, insetWidth, insetHeight);
-      renderer.render(scene, opticalCameras[viewSelect.value].optical);
-      renderer.setScissorTest(false);
-    }
   }
 
+  function seek(seconds) {
+    elapsed = T.MathUtils.clamp(seconds, 0, duration());
+    if (hasVideo) videos.forEach(video => {video.currentTime = elapsed;});
+    draw();
+  }
+
+  let lastTime;
   function tick(now) {
-    if (lastTime !== undefined) elapsed = Math.min((episode.frameCount - 1) / episode.fps, elapsed + (now - lastTime) / 1000 * Number(speed.value));
+    if (!playing) return;
+    if (hasVideo) {
+      elapsed = Math.min(duration(), videos[0].currentTime);
+      for (const video of videos.slice(1)) {
+        if (video.readyState >= 2 && Math.abs(video.currentTime - elapsed) > .10) video.currentTime = elapsed;
+      }
+    } else if (lastTime !== undefined) {
+      elapsed = Math.min(duration(), elapsed + (now-lastTime) / 1000 * Number(speed.value));
+    }
     lastTime = now;
     draw();
-    if (elapsed >= (episode.frameCount - 1) / episode.fps) stop();
+    if (elapsed >= duration() || (hasVideo && videos[0].ended)) stop();
     else animation = requestAnimationFrame(tick);
   }
-  async function choose() {
-    stop();
-    play.disabled = true;
-    play.textContent = 'Loading…';
+
+  function mediaReady(video, src, poster) {
+    return new Promise((resolve, reject) => {
+      video.onloadeddata = () => resolve();
+      video.onerror = () => reject(new Error('The recorded camera video could not load.'));
+      video.preload = 'auto';
+      video.src = src;
+      video.poster = poster;
+      video.load();
+    });
+  }
+
+  async function choose(index = 2) {
+    stop();play.disabled = true;play.textContent = 'Loading…';
     const currentGeneration = ++generation;
     try {
-      const data = await loadData(Number(episodeSelect.value));
+      const data = await loadData(index);
       if (currentGeneration !== generation) return;
-      if (data.armOrder?.join(',') !== 'left,right,mid' || !Number.isFinite(data.fps) || data.fps <= 0 || !data.frameCount || data.qpos.length !== data.frameCount || data.qpos.some(row => row.length !== 21 || row.some(value => !Number.isFinite(value)))) throw new Error('Recorded trajectory has an unsupported shape.');
+      if (data.armOrder?.join(',') !== 'left,right,mid' || data.qpos.length !== data.frameCount || data.qpos.some(row => row.length !== 21 || row.some(value => !Number.isFinite(value)))) throw new Error('Recorded trajectory has an unsupported shape.');
       episode = data;
-      placement.visible = !options.compact && Number(episodeSelect.value) === 0;
-      const imageBase = episodes[Number(episodeSelect.value)][1].replace('.json', '');
-      [...body.querySelectorAll('.recorded-stills img')].forEach((image, index) => {
-        image.src = new URL(imageBase + '-cam_' + ['front', 'left', 'right'][index] + '-initial.jpg', import.meta.url).href;
-      });
-      elapsed = 0;
-      timeline.max = (episode.frameCount - 1) / episode.fps;
+      hasVideo = index === 2;
+      placement.visible = index === 2;
+      body.querySelector('.recorded-source').textContent = episodes[index][0] + ' · demonstration';
+      body.querySelector('.recorded-cameras').hidden = !hasVideo;
+      body.querySelector('.recorded-note').textContent = hasVideo
+        ? 'Recorded joint and camera trajectories at 30 Hz. All three videos share this timeline. Scene objects are illustrative placements.'
+        : 'Recorded joint trajectory at 30 Hz. This older excerpt has no camera videos.';
+      elapsed = 0;timeline.max = duration();
       body.querySelector('.recorded-instruction').textContent = episode.instruction;
-      play.disabled = false;
-      stop();
       draw();
+      if (hasVideo) {
+        const base = episodes[index][1].replace('.json', '');
+        await Promise.all(videos.map((video, i) => mediaReady(
+          video, new URL(base + '-' + cameraNames[i] + '.mp4', import.meta.url).href,
+          new URL(base + '-' + cameraNames[i] + '-poster.jpg', import.meta.url).href
+        )));
+        if (currentGeneration !== generation) return;
+      }
+      play.disabled = false;limits.textContent = '';stop();
     } catch (error) {
       if (currentGeneration !== generation) return;
-      play.textContent = 'Recording unavailable';
-      limits.textContent = error.message;
+      play.textContent = 'Recording unavailable';limits.textContent = error.message;
     }
   }
 
-  play.addEventListener('click', () => {
+  play.addEventListener('click', async () => {
     if (!episode) return;
-    if (animation) stop();
-    else {
-      if (elapsed >= (episode.frameCount - 1) / episode.fps) elapsed = 0;
-      play.textContent = 'Pause';
-      lastTime = undefined;
-      animation = requestAnimationFrame(tick);
+    if (playing) {stop();return;}
+    if (elapsed >= duration()) seek(0);
+    if (hasVideo) {
+      for (const video of videos) {video.playbackRate = Number(speed.value);video.currentTime = elapsed;}
+      const results = await Promise.allSettled(videos.map(video => video.play()));
+      if (results.some(result => result.status === 'rejected')) {
+        stop();limits.textContent = 'Playback could not start. Press play to try again.';return;
+      }
     }
+    playing = true;play.textContent = 'Pause';lastTime = undefined;
+    animation = requestAnimationFrame(tick);
   });
-  episodeSelect.addEventListener('change', choose);
-  viewSelect.addEventListener('change', draw);
-  document.addEventListener('replay-request', event => {
-    if (options.compact) return;
-    const index = event.detail?.task === 'Box' ? 1 : 0;
-    episodeSelect.value = String(index);
-    choose();
-  });
-  timeline.addEventListener('input', () => {stop(); elapsed = Number(timeline.value); draw();});
+  speed.addEventListener('change', () => {videos.forEach(video => {video.playbackRate = Number(speed.value);});});
+  timeline.addEventListener('input', () => {stop();seek(Number(timeline.value));});
   if (container.tagName === 'DETAILS') container.addEventListener('toggle', () => {if (!container.open) stop();});
   document.addEventListener('visibilitychange', () => {if (document.hidden) stop();});
-  document.addEventListener('amp-calibration', () => {calibration = savedCalibration(); draw();});
+  new IntersectionObserver(([entry]) => {if(!entry.isIntersecting)stop();}).observe(body);
   let drag;
-  canvas.addEventListener('pointerdown', event => {
-    drag = [event.clientX, event.clientY];
-    canvas.setPointerCapture(event.pointerId);
-  });
+  canvas.addEventListener('pointerdown', event => {drag=[event.clientX,event.clientY];canvas.setPointerCapture(event.pointerId);});
   canvas.addEventListener('pointermove', event => {
     if (!drag) return;
-    orbit -= (event.clientX - drag[0]) * .008;
-    tilt = T.MathUtils.clamp(tilt + (event.clientY - drag[1]) * .006, -.15, 1.1);
-    drag = [event.clientX, event.clientY];
-    draw();
+    orbit-=(event.clientX-drag[0])*.008;
+    tilt=T.MathUtils.clamp(tilt+(event.clientY-drag[1])*.006,-.15,1.1);
+    drag=[event.clientX,event.clientY];draw();
   });
-  for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(event, () => {drag = undefined;});
-  canvas.addEventListener('wheel', event => {if (!event.ctrlKey) return;event.preventDefault();zoom = T.MathUtils.clamp(zoom * Math.exp(-event.deltaY * .001), .6, 2);draw();},{passive:false});
+  for (const event of ['pointerup','pointercancel','lostpointercapture']) canvas.addEventListener(event,()=>{drag=undefined;});
+  canvas.addEventListener('wheel',event=>{if(!event.ctrlKey)return;event.preventDefault();zoom=T.MathUtils.clamp(zoom*Math.exp(-event.deltaY*.001),.6,2);draw();},{passive:false});
   new ResizeObserver(draw).observe(canvas);
-  await choose();
+  await choose(options.episodeIndex ?? 2);
   return {
-    selectEpisode(index) {episodeSelect.value = String(index); return choose();},
-    setTime(seconds) {stop(); elapsed = T.MathUtils.clamp(seconds, 0, (episode.frameCount - 1) / episode.fps); draw();},
-    pause: stop
+    selectEpisode: choose,
+    setTime(seconds) {stop();if(episode)seek(seconds);},
+    pause: stop,
   };
 }

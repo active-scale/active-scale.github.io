@@ -20,7 +20,7 @@ function paintWorkwear(scene) {
       mesh.getVertexPosition(i, point).applyMatrix4(mesh.matrixWorld);
       const {x, y, z} = point;
       const color = y < .118 ? colors.shoes
-        : y < .936 ? colors.pants
+        : y < .936 && Math.abs(x) < .30 ? colors.pants
         : y < 1.433 && Math.abs(x) < .275 ? colors.shirt
         : y > 1.592 && z < .07 ? colors.hair
         : colors.skin;
@@ -80,7 +80,7 @@ export async function createHumanAvatar(x) {
   const rest = new Map([chest, neck, head, ...arms.flatMap(arm => [arm.upper, arm.lower, arm.hand, ...arm.fingers.flat()])]
     .map(joint => [joint, joint.quaternion.clone()]));
 
-  function pose({reach, lift, turn, object}) {
+  function pose({reach, lift, turn, object, handTargets, holdingControllers = false}) {
     for (const [joint, rotation] of rest) joint.quaternion.copy(rotation);
     chest.rotateX(.08 * reach);
     chest.rotateY(-.08 * reach);
@@ -89,16 +89,17 @@ export async function createHumanAvatar(x) {
     const frames = arms.map((arm, i) => {
       const side = i ? 1 : -1;
       const target = new T.Vector3(x + side * .26, .995 + i * .075, .17 - i * .06);
-      if (!i) target.lerp(object.clone().add(new T.Vector3(-.015, .017, -.105)), reach);
+      if (handTargets) target.copy(handTargets[i]);
+      else if (!i) target.lerp(object.clone().add(new T.Vector3(-.015, .017, -.105)), reach);
       else target.z += .04 * reach;
       reachWithArm(arm, target, side);
       const wrist = arm.hand.getWorldPosition(new T.Vector3());
-      const direction = i ? new T.Vector3(-.13, -.30, 1) : new T.Vector3(.02, -.31 + .4 * reach + .2 * lift, 1);
+      const direction = holdingControllers ? new T.Vector3(side * .06, .38, 1) : i ? new T.Vector3(-.13, -.30, 1) : new T.Vector3(.02, -.31 + .4 * reach + .2 * lift, 1);
       pointBoneAt(arm.hand, arm.middle, wrist.clone().add(direction));
       const rotation = new T.Quaternion().setFromRotationMatrix(
         new T.Matrix4().lookAt(wrist.clone().add(direction), wrist, up)
       );
-      const curl = i ? .19 : .19 + .30 * reach;
+      const curl = holdingControllers ? 1.05 : i ? .19 : .19 + .30 * reach;
       for (const [first, second, third] of arm.fingers) {
         for (const [joint, tip] of [[first, second], [second, third]]) {
           const jointPosition = joint.getWorldPosition(new T.Vector3());

@@ -70,7 +70,7 @@
   let index = 0, playing = false, visible = false, started = false, elapsed = 0, lastTime, animation = 0, human;
   let humanLoading;
   function loadHuman() {
-    humanLoading ??= import('./data-human.mjs?v=20261103d').then(module => module.initDataHuman(mount.querySelector('.recipe-human-motion canvas'))).then(controller => {human = controller; syncMedia();}).catch(error => {console.warn('Human motion preview unavailable',error);});
+    humanLoading ??= import('./data-human.mjs?v=20261104k').then(module => module.initDataHuman(mount.querySelector('.recipe-human-motion canvas'))).then(controller => {human = controller; syncMedia();}).catch(error => {console.warn('Human motion preview unavailable',error);});
   }
   function syncMedia() {
     const kind = stages[index][0];

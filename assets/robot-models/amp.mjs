@@ -106,6 +106,6 @@ export async function createAmp() {
   function frusta() {
     return armNames.map(name => arms[name].frustum);
   }
-  pose(savedCalibration());
+  pose(structuredClone(defaults));
   return {root: base.root, arms, pose, frusta};
 }

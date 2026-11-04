@@ -4,7 +4,7 @@
 
 This work is based on [“Oculus quest 2”](https://sketchfab.com/3d-models/oculus-quest-2-c6a1c2623d224a1bbb81a38915f7e898) by [NosTeam](https://sketchfab.com/NosTeam), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-Downloaded from the public [reality-labs mirror](https://github.com/alextownson/reality-labs/tree/96061ec92e6ec6d670d576fb9a862ae1ac572fb3/static/headset), which includes the original Sketchfab license notice and embedded author/source metadata. Unused controller meshes were removed; the headset geometry and textures are unchanged. The scene scales and positions the model to fit the avatar.
+Downloaded from the public [reality-labs mirror](https://github.com/alextownson/reality-labs/tree/96061ec92e6ec6d670d576fb9a862ae1ac572fb3/static/headset), which includes the original Sketchfab license notice and embedded author/source metadata. Unused controller meshes were removed; the source visor and textures are retained. The scene bakes the source transforms, scales the visor to 210 mm width, and reposes the loose fabric straps around the avatar skull. This fitting edit avoids the original unworn strap loop floating above the head.
 
 ## Controllers
 

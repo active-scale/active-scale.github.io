@@ -1,74 +1,121 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const tasks = [
-  ['Bag', 'Occlusion', 'Open the bag and move the camera to locate the bottle inside.', [40,55,43,65.5], [50,59], [20,36.5]],
-  ['Drawer', 'Occlusion', 'Open the drawer, locate the target object, and place it outside the drawer.', [35,75,51,78], [65,73.5], [55,67.5]],
-  ['Table', 'Occlusion', 'Look beneath the table to locate the object before reaching for it.', [10,85,17.5,87.5], [80,80], [50,55]],
-  ['Pot', 'Active search', 'Look into the workspace, place the target into the pot, and close the lid.', [15,50,44,76], [50,61], [10,43]],
-  ['Box', 'Active search', 'Inspect the shelf and place the selected object in the requested box.', [50,85,52.5,85], [65,65], [50,50]]
+// Each task retains the reported main, no-mid-training, and history-only values.
+const resultTasks = [
+  ['Bag', [40,55,43,65.5], [50,59], [20,36.5]],
+  ['Drawer', [35,75,51,78], [65,73.5], [55,67.5]],
+  ['Table', [10,85,17.5,87.5], [80,80], [50,55]],
+  ['Pot', [15,50,44,76], [50,61], [10,43]],
+  ['Box', [50,85,52.5,85], [65,65], [50,50]],
 ];
-function buttons(id, labels, active, onClick) {
-  $(id).replaceChildren(...labels.map((label, i) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.textContent = label;
-    b.setAttribute('aria-pressed', String(i === active));
-    b.addEventListener('click', () => onClick(i));
-    return b;
-  }));
-}
-function pressed(id, active) {
-  [...$(id).children].forEach((b,i) => b.setAttribute('aria-pressed', String(i === active)));
-}
-let evaluationController;
-import('./evaluation-lab.js?v=20261103e').then(({initEvaluationLab}) => {
-  evaluationController = initEvaluationLab();
-  evaluationController.selectTask($('chart-task').value);
-});
-document.addEventListener('evaluation-task', event => {
-  $('chart-task').value = event.detail.task;
-  drawChart();
-});
-const exps = [
-  {labels:['π₀.₅','ActiveScale'], avg:[[30,70],[41.6,78.4]], note:'Both methods use the same downstream demonstrations and evaluation protocol.'},
-  {labels:['Without mid-training','ActiveScale'], avg:[[62,70],[67.7,78.4]], note:'Compares the full pipeline with the same model architecture trained without mixed human–robot mid-training.'},
-  {labels:['π₀.₅','History only','History + camera tokens'], avg:[[30,37,62],[41.6,50.4,67.7]], note:'All variants use post-training only. The camera-token configuration includes camera-pose supervision.'}
+const resultStudies = [
+  {
+    id: 'main-comparison',
+    title: 'How does ActiveScale compare with π₀.₅?',
+    label: 'Main comparison',
+    explanation: 'Both methods use the same downstream demonstrations and evaluation protocol. ActiveScale combines mixed mid-training with camera-aware observation history.',
+    methods: ['π₀.₅', 'ActiveScale'],
+    colors: ['#5f6c80', '#7442ba'],
+    averages: [[30,70], [41.6,78.4]],
+    values: (task, metric) => [task[1][metric * 2], task[1][metric * 2 + 1]],
+  },
+  {
+    id: 'mid-training-ablation',
+    title: 'Does human–robot mid-training help?',
+    label: 'Human–robot mid-training ablation',
+    explanation: 'The model architecture is fixed. This comparison adds mixed human–robot mid-training before downstream post-training; it measures the benefit of the complete mixed-data stage.',
+    methods: ['Without mid-training', 'With human–robot mid-training'],
+    colors: ['#88699f', '#7442ba'],
+    averages: [[62,70], [67.7,78.4]],
+    values: (task, metric) => [task[2][metric], task[1][metric * 2 + 1]],
+  },
+  {
+    id: 'camera-history-ablation',
+    title: 'Do camera tokens help beyond observation history?',
+    label: 'Camera-token / history ablation',
+    explanation: 'All three variants use post-training only. History adds earlier front-camera views. The camera-token variant also adds camera-pose supervision.',
+    methods: ['π₀.₅', 'History only', 'History + camera tokens'],
+    colors: ['#5f6c80', '#347d7b', '#7442ba'],
+    averages: [[30,37,62], [41.6,50.4,67.7]],
+    values: (task, metric) => [task[1][metric * 2], task[3][metric], task[2][metric]],
+  },
 ];
-let exp=0, metric=0;
-const colors=['#c7b4e6','#b494e7','#9e71df'];
-function drawChart() {
-  const e=exps[exp], chosen=$('chart-task').value;
-  evaluationController?.selectTask(chosen);
-  $('chart-note').textContent=e.note;
-  $('experiment-question').textContent=['Can the robot solve tasks that require looking?','Does mixed mid-training help?','Do camera tokens help beyond history?'][exp];
-  $('legend').innerHTML=e.labels.map((l,i)=>'<span><i style="background:'+colors[i]+'"></i>'+l+'</span>').join('');
-  const rows=[['Average', e.avg[metric]], ...tasks.map(([n,,,base,noMid,hist])=>{
-    const start=metric*2;
-    const v=exp===0?[base[start],base[start+1]]:exp===1?[noMid[metric],base[start+1]]:[base[start],hist[metric],noMid[metric]];
-    return [n,v];
-  })];
-  $('chart').replaceChildren(...rows.filter(([n])=>chosen==='all'||chosen===n||(chosen==='occlusion'&&['Bag','Drawer','Table'].includes(n))||(chosen==='search'&&['Pot','Box'].includes(n))).map(([n,vs])=>{
-    const row=document.createElement('div'); row.className='chart-row';
-    const name=document.createElement('h4');name.textContent=n;row.append(name);
-    const bars=document.createElement('div');bars.className='bars';row.append(bars);
-    vs.forEach((v,i)=>{
-      const b=document.createElement('button'); b.className='bar'; b.type='button';
-      b.style.setProperty('--width',v+'%');b.style.setProperty('--bar',colors[i]);
-      const value=document.createElement('span');
-      value.textContent=v.toFixed(1)+'%';
-      if(v<18)b.classList.add('short');
-      b.append(value);
-      b.title=n+' · '+e.labels[i]+': '+v.toFixed(1)+'%';
-      b.setAttribute('aria-label',b.title);
-      b.addEventListener('click',()=>{$('chart-task').value=chosen===n?'all':n;drawChart();$('chart-task').focus();});
-      bars.append(b);
+
+function resultElement(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+function createMetricPanel(study, metric) {
+  const metricName = ['Success rate', 'Task progress'][metric];
+  const panel = resultElement('section', 'qr-metric');
+  panel.setAttribute('aria-label', study.label + ': ' + metricName);
+  const heading = resultElement('div', 'qr-metric-heading');
+  heading.append(resultElement('h4', '', metricName), resultElement('span', 'qr-unit', '%'));
+  const axis = resultElement('div', 'qr-axis');
+  axis.setAttribute('aria-hidden', 'true');
+  [0,25,50,75,100].forEach(value => axis.append(resultElement('span', '', value)));
+  panel.append(heading, axis);
+  const rows = [['Average', study.averages[metric]], ...resultTasks.map(task => [task[0], study.values(task, metric)])];
+  rows.forEach(([name, values], rowIndex) => {
+    const row = resultElement('div', 'qr-row' + (rowIndex === 0 ? ' qr-row--average' : ''));
+    row.append(resultElement('span', 'qr-task-name', name));
+    const bars = resultElement('div', 'qr-bars');
+    values.forEach((value, method) => {
+      const bar = resultElement('div', 'qr-bar' + (value < 20 ? ' qr-bar--short' : ''));
+      const label = name + ' · ' + study.methods[method] + ' · ' + metricName + ': ' + value.toFixed(1) + '%';
+      bar.style.setProperty('--result-width', value + '%');
+      bar.style.setProperty('--result-color', study.colors[method]);
+      bar.setAttribute('role', 'img');
+      bar.setAttribute('aria-label', label);
+      bar.tabIndex = 0;
+      bar.title = label;
+      bar.append(resultElement('span', 'qr-bar-number', value.toFixed(1) + '%'));
+      bars.append(bar);
     });
-    return row;
-  }));
+    row.append(bars);
+    panel.append(row);
+  });
+  return panel;
 }
-buttons('experiments',['Main comparison','Mid-training','Camera tokens'],0,i=>{exp=i;pressed('experiments',i);drawChart();});
-buttons('metrics',['Success','Progress'],0,i=>{metric=i;pressed('metrics',i);drawChart();});
-$('chart-task').addEventListener('change',drawChart);drawChart();
-$('copy').addEventListener('click',async()=>{
+
+function initQuantitativeResults() {
+  const mount = $('quantitative-results');
+  if (!mount) return;
+  const stylesheet = document.createElement('link');
+  stylesheet.rel = 'stylesheet';
+  stylesheet.href = new URL('./quantitative-results.css?v=20261104k', document.baseURI).href;
+  document.head.append(stylesheet);
+  resultStudies.forEach(study => {
+    const section = resultElement('section', 'qr-study');
+    section.id = study.id;
+    const title = resultElement('h3', '', study.title);
+    title.id = study.id + '-title';
+    section.setAttribute('aria-labelledby', title.id);
+    section.append(resultElement('p', 'qr-study-label', study.label), title, resultElement('p', 'qr-explanation', study.explanation));
+    const legend = resultElement('div', 'qr-legend');
+    legend.setAttribute('aria-label', 'Compared methods');
+    study.methods.forEach((method, index) => {
+      const item = resultElement('span', '');
+      const swatch = resultElement('i', '');
+      swatch.style.backgroundColor = study.colors[index];
+      swatch.setAttribute('aria-hidden', 'true');
+      item.append(swatch, document.createTextNode(method));
+      legend.append(item);
+    });
+    const metrics = resultElement('div', 'qr-metric-pair');
+    metrics.append(createMetricPanel(study, 0), createMetricPanel(study, 1));
+    section.append(legend, metrics);
+    mount.append(section);
+  });
+}
+
+// Qualitative task selection intentionally leaves every quantitative result visible.
+import('./evaluation-lab.js?v=20261104k').then(({initEvaluationLab}) => initEvaluationLab()).catch(error => console.error('Could not initialize task videos.', error));
+initQuantitativeResults();
+$('copy')?.addEventListener('click',async()=>{
   try { await navigator.clipboard.writeText($('bibtex').textContent); $('copy').textContent='Copied'; }
   catch { const r=document.createRange();r.selectNodeContents($('bibtex'));const selection=getSelection();selection.removeAllRanges();selection.addRange(r);$('copy').textContent='Citation selected'; }
 });
