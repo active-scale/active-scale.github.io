@@ -47,3 +47,23 @@ html.is-auto-reading,html.is-progress-dragging{scroll-behavior:auto!important}
 .paper-title>span{display:inline;width:auto;height:auto;margin:0;background:none;border-radius:0;white-space:nowrap}
 @media(min-width:1101px){.chapter-sidebar{left:42px}body{padding-left:200px}}
 @media(max-width:650px){.masthead>.paper-title{white-space:normal;overflow:visible;font-size:11px;margin-top:17px}.paper-title>span{display:block}}
+/* Paper title reads as a title, not a code label; short TL;DR and handwritten result notes. */
+.masthead>.paper-title{font:600 clamp(16px,1.45vw,21px)/1.4 system-ui,sans-serif;letter-spacing:-.01em;color:#4a3b5e;white-space:normal;overflow:visible;margin:20px 0 0}
+.hand-note{font-family:Caveat,cursive;font-weight:600;letter-spacing:0;color:#6a3fb0}
+.hero-lede{max-width:820px;margin:22px 0 0;font-size:16.5px;line-height:1.62;color:#3f3352}
+.hero-lede strong{color:var(--ink)}
+.hero-lede .hand-note{font-size:23px;margin-right:4px;display:inline-block;rotate:-2deg}
+.qr-takeaway{font-size:24px;line-height:1.2;margin:-6px 0 20px;max-width:860px;rotate:-.4deg;transform-origin:left center}
+.qr-takeaway::before{content:'↳ ';color:#a083c4}
+@media(max-width:650px){.masthead>.paper-title{font-size:16px;margin-top:16px}.hero-lede{font-size:15.5px}.qr-takeaway{font-size:21px}}
+@media(max-width:900px){.masthead>.paper-title>span{display:block;white-space:normal}}
+@media(max-width:360px){.section-title>span{white-space:normal}}
+/* Recorded replay: a narrower camera column keeps the whole block within one screen. */
+@media(min-width:701px){
+  #recorded-demo .recorded-views{grid-template-columns:minmax(0,1fr) clamp(150px,14vw,190px);gap:12px}
+  #recorded-demo .recorded-cameras{gap:8px}
+  #recorded-demo .recorded-replay canvas{min-height:420px}
+  #task-replay:empty{min-height:calc(clamp(150px,14vw,190px) * 2.25 + 200px)}
+}
+#recorded-demo .recorded-instruction::before{content:'Task instruction · ';font-weight:650;color:#6a5a7e}
+@media(min-width:901px) and (max-width:1100px){.section-title{white-space:normal}}

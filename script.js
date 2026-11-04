@@ -14,6 +14,7 @@ const resultStudies = [
     title: 'How does ActiveScale compare with an existing VLA?',
     label: 'Main comparison',
     explanation: 'π₀.₅ is post-trained on the same downstream demonstrations and evaluated with the same protocol. Comparable active-perception VLAs were not included because their checkpoints and full training recipes were unavailable at the time of our experiments.',
+    takeaway: 'Biggest jump when the target starts out of view: Table, 10% → 85%.',
     methods: ['π₀.₅', 'ActiveScale'],
     colors: ['#5f6c80', '#7442ba'],
     averages: [[30,70], [41.6,78.4]],
@@ -24,6 +25,7 @@ const resultStudies = [
     title: 'Does human–robot mid-training help?',
     label: 'Human–robot mid-training ablation',
     explanation: 'The model architecture is fixed. This comparison adds mixed human–robot mid-training before downstream post-training; it measures the benefit of the complete mixed-data stage.',
+    takeaway: 'Pot: same success rate, but progress 61% → 76% with better-aligned lids.',
     methods: ['Without mid-training', 'With human–robot mid-training'],
     colors: ['#88699f', '#7442ba'],
     averages: [[62,70], [67.7,78.4]],
@@ -34,6 +36,7 @@ const resultStudies = [
     title: 'Do camera tokens help beyond observation history?',
     label: 'Camera-token / history ablation',
     explanation: 'All three variants use post-training only. History adds earlier front-camera views. The camera-token variant also adds camera-pose supervision.',
+    takeaway: 'More frames alone can hurt (Bag 40% → 20%); camera tokens beat history-only on all five tasks.',
     methods: ['π₀.₅', 'History only', 'History + camera tokens'],
     colors: ['#5f6c80', '#347d7b', '#7442ba'],
     averages: [[30,37,62], [41.6,50.4,67.7]],
@@ -96,6 +99,7 @@ function initQuantitativeResults() {
     title.id = study.id + '-title';
     section.setAttribute('aria-labelledby', title.id);
     section.append(resultElement('p', 'qr-study-label', study.label), title, resultElement('p', 'qr-explanation', study.explanation));
+    if (study.takeaway) section.append(resultElement('p', 'qr-takeaway hand-note', study.takeaway));
     const legend = resultElement('div', 'qr-legend');
     legend.setAttribute('aria-label', 'Compared methods');
     study.methods.forEach((method, index) => {

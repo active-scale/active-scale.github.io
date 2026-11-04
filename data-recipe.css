@@ -101,3 +101,4 @@
 .recipe-scale>span {color:#f1e4ff}
 .recipe-scale p,.recipe-supervision-key {color:#eee0f7}
 @media(max-width:900px) and (min-width:761px){.recipe-scale{padding-inline:4px}.recipe-scale strong{font-size:17px}}
+.recipe-scale small.recipe-scale-kicker{font-family:Caveat,cursive;font-size:clamp(22px,2vw,27px);font-weight:600;color:#e9d9ff;margin:0 0 -4px;rotate:-1.5deg;transform-origin:left center}

@@ -116,7 +116,7 @@
 #model-lab .as-attention h3 {font-size:clamp(21px,2.5vw,28px)}
 .as-attention-heading>span {font-size:12px;color:var(--as-sub)}
 #model-lab .as-attention>p {margin-top:9px;color:var(--as-sub);font-size:13px}
-.as-mask-scroll {overflow:auto;margin-top:9px}
+.as-mask-scroll {position:relative;overflow:auto;margin-top:9px}
 .as-mask {width:100%;min-width:640px;table-layout:fixed;border-collapse:separate;border-spacing:5px;margin:0 0 9px;font:600 13px ui-serif,Georgia,serif}
 .as-mask caption {text-align:left;font:11px/1.5 system-ui,sans-serif;color:var(--as-sub);padding:0 5px 9px}
 .as-mask th {height:27px;white-space:nowrap;text-align:center}
