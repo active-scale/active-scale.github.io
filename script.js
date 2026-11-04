@@ -87,7 +87,7 @@ function initQuantitativeResults() {
   if (!mount) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = new URL('./quantitative-results.css?v=20261104motion1', document.baseURI).href;
+  stylesheet.href = new URL('./quantitative-results.css?v=20261104reentry1', document.baseURI).href;
   document.head.append(stylesheet);
   resultStudies.forEach(study => {
     const section = resultElement('section', 'qr-study');
@@ -112,22 +112,31 @@ function initQuantitativeResults() {
     mount.append(section);
   });
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  if (!reduced.matches) {
-    const observer = new IntersectionObserver(entries => {
-      for (const entry of entries) if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
+  const rows = [...mount.querySelectorAll('.qr-row')];
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      const row = entry.target.parentElement;
+      if (reduced.matches || (entry.isIntersecting && entry.intersectionRatio >= .35)) {
+        row.classList.add('is-visible');
+      } else if (!entry.isIntersecting) {
+        row.classList.remove('is-visible');
       }
-    }, {threshold: .12});
-    mount.querySelectorAll('.qr-metric').forEach(panel => {
-      panel.classList.add('qr-reveal-ready');
-      observer.observe(panel);
-      panel.addEventListener('focusin', () => {panel.classList.add('is-visible');observer.unobserve(panel);}, {once:true});
+    }
+  }, {threshold: [0, .35]});
+  rows.forEach(row => {
+    row.classList.add('qr-reveal-ready');
+    observer.observe(row.querySelector('.qr-bars'));
+    row.addEventListener('focusin', () => row.classList.add('is-visible'));
+  });
+  reduced.addEventListener('change', () => {
+    rows.forEach(row => {
+      const bars = row.querySelector('.qr-bars');
+      const rect = bars.getBoundingClientRect();
+      row.classList.toggle('is-visible', reduced.matches || (rect.top < innerHeight && rect.bottom > 0));
+      observer.unobserve(bars);
+      observer.observe(bars);
     });
-    reduced.addEventListener('change', () => {
-      if (reduced.matches) {observer.disconnect();mount.querySelectorAll('.qr-metric').forEach(panel => panel.classList.add('is-visible'));}
-    });
-  }
+  });
 }
 
 // Qualitative task selection intentionally leaves every quantitative result visible.

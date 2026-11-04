@@ -19,12 +19,12 @@
 .qr-row--average .qr-task-name{font-weight:800;color:var(--purple)}
 .qr-bars{min-width:0;display:grid;gap:5px;background:repeating-linear-gradient(to right,#ece7f1 0 1px,transparent 1px 25%)}
 .qr-bar{position:relative;width:var(--result-width);height:21px;border-radius:0 3px 3px 0;background:var(--result-color);color:#fff;cursor:help;transition:width .85s cubic-bezier(.16,1,.3,1) var(--bar-delay,0ms),filter .15s}
-.qr-reveal-ready:not(.is-visible) .qr-bar{width:0}
-.qr-reveal-ready:not(.is-visible) .qr-bar-number{opacity:0}
-.qr-reveal-ready.is-visible .qr-bar-number{transition:opacity .25s calc(var(--bar-delay,0ms) + .22s)}
+.qr-row.qr-reveal-ready:not(.is-visible) .qr-bar{width:0;transition:none}
+.qr-row.qr-reveal-ready:not(.is-visible) .qr-bar-number{opacity:0;transition:none}
+.qr-row.qr-reveal-ready.is-visible .qr-bar-number{transition:opacity .25s calc(var(--bar-delay,0ms) + .22s)}
 .qr-bar:hover,.qr-bar:focus-visible{filter:brightness(.88);outline:2px solid var(--result-color);outline-offset:2px;z-index:1}
 .qr-bar-number{position:absolute;right:5px;top:50%;transform:translateY(-50%);font:700 10px var(--mono);white-space:nowrap}
 .qr-bar--short .qr-bar-number{left:calc(100% + 5px);right:auto;color:var(--ink)}
 @media(max-width:1000px){.qr-metric{padding:19px 16px 12px}.qr-metric-pair{gap:14px}.qr-axis{margin-left:66px}.qr-row{grid-template-columns:55px minmax(0,1fr);gap:11px}.qr-bar-number{font-size:9px}}
 @media(max-width:760px){.qr-metric-pair{grid-template-columns:1fr;gap:16px}.qr-metric{padding:20px}.qr-axis{margin-left:73px}.qr-row{grid-template-columns:60px minmax(0,1fr);gap:13px}.qr-bar-number{font-size:10px}.qr-study{padding-block:28px 24px}.qr-study+.qr-study{margin-top:16px}#quantitative-results{margin-top:48px}.qr-explanation{font-size:14px}.qr-legend{gap:10px 18px;font-size:12px}}
-@media(prefers-reduced-motion:reduce){.qr-bar{transition:none}.qr-reveal-ready:not(.is-visible) .qr-bar{width:var(--result-width)}.qr-bar-number,.qr-reveal-ready:not(.is-visible) .qr-bar-number{opacity:1;transition:none!important}}
+@media(prefers-reduced-motion:reduce){.qr-bar{transition:none}.qr-row.qr-reveal-ready:not(.is-visible) .qr-bar{width:var(--result-width)}.qr-bar-number,.qr-row.qr-reveal-ready:not(.is-visible) .qr-bar-number{opacity:1;transition:none!important}}
