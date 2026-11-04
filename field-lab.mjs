@@ -44,6 +44,30 @@ function whenVisible(element,initialize) {
   },{rootMargin:'250px'});observer.observe(element);
 }
 
+function autoOrbit(canvas,view,draw) {
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let visible=false,dragging=false,frame=0,timer=0,lastTime,resumeAt=0;
+  function pause(){cancelAnimationFrame(frame);clearTimeout(timer);frame=0;timer=0;lastTime=undefined;}
+  function allowed(){return visible&&!document.hidden&&!reduced.matches&&!dragging;}
+  function tick(now){
+    if(!allowed()){pause();return;}
+    const dt=lastTime===undefined?0:Math.min((now-lastTime)/1000,.05);lastTime=now;
+    view.yaw=(view.yaw+dt*.10)%(Math.PI*2);draw();frame=requestAnimationFrame(tick);
+  }
+  function sync(){
+    pause();if(!allowed())return;
+    const delay=resumeAt-performance.now();
+    if(delay>0)timer=setTimeout(sync,delay);else frame=requestAnimationFrame(tick);
+  }
+  canvas.addEventListener('pointerdown',event=>{if(event.button)return;dragging=true;pause();});
+  function release(){if(!dragging)return;dragging=false;resumeAt=performance.now()+4000;sync();}
+  for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,release);
+  canvas.addEventListener('wheel',event=>{if(event.ctrlKey){resumeAt=performance.now()+4000;sync();}},{passive:true});
+  new IntersectionObserver(([entry])=>{visible=entry.isIntersecting&&entry.intersectionRatio>=.15;sync();},{threshold:[0,.15]}).observe(canvas);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)dragging=false;sync();});
+  reduced.addEventListener('change',sync);
+}
+
 async function teleoperation() {
   const canvas=$('transfer-scene');const r=renderer(canvas);if(!r)return;
   const scene=stage(),camera=new T.PerspectiveCamera(36,1,.04,30);
@@ -182,14 +206,18 @@ async function hardwareAssembly() {
   const rig=await createAmp(),scene=stage(),camera=new T.PerspectiveCamera(36,1,.03,30);
   rig.pose(structuredClone(defaults));scene.add(rig.root,...rig.frusta());
   const view={yaw:.67,pitch:.29,zoom:1};
+  let renderedWidth=0,renderedHeight=0;
   function draw(){
     const width=canvas.clientWidth,height=canvas.clientHeight;if(!width||!height)return;
-    r.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();
+    if(width!==renderedWidth||height!==renderedHeight){
+      r.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();
+      renderedWidth=width;renderedHeight=height;
+    }
     const radius=2.8*view.zoom*Math.max(1,.9/camera.aspect);
     camera.position.set(radius*Math.cos(view.pitch)*Math.sin(view.yaw),.85+radius*Math.sin(view.pitch),radius*Math.cos(view.pitch)*Math.cos(view.yaw));
     camera.lookAt(.1,.85,0);r.render(scene,camera);
   }
-  inspect(canvas,view,draw);new ResizeObserver(draw).observe(canvas);draw();
+  inspect(canvas,view,draw);autoOrbit(canvas,view,draw);new ResizeObserver(draw).observe(canvas);draw();
 }
 initViewpointDemo();
 whenVisible($('transfer-scene'),()=>teleoperation().catch(error=>{console.error(error);$('transfer-note').textContent='The real hardware is shown in the photograph above.';}));
