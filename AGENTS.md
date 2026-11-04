@@ -9,6 +9,8 @@ User-approved preferences collected while designing this project. Apply these to
 - Keep the wordmark immediately above the side contents navigation. The current chapter is italic; a draggable robot marks reading progress. Clicking the robot starts automatic reading; manual scrolling or interaction stops it.
 - Use tasteful handwriting for short expressive phrases and hints, not dense explanatory copy. Reference: https://talkingtorobots.com/yonatanbisk.html. Preserve readable body typography.
 - Hovered cards should lift slightly with soft shadows. Make the interactive element feel responsive without moving diagram connections away from their endpoints.
+- Preserve generous and consistent inner padding around images, titles, and captions. Leave clearance around a card for its lifted position and shadow; hovering must never make content appear flush with an edge.
+- Keep the side contents inset from the viewport edge. In the hero, place the full paper title below the expressive main heading; omit a repeated recipe tagline above the author information.
 
 ## Motion and interaction
 

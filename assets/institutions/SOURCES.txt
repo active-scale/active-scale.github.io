@@ -20,3 +20,9 @@ hkust-guangzhou.png
 
 The marks are displayed to identify the project authors' institutional
 affiliations. Their artwork, proportions, and colors have not been altered.
+
+cmu-robotics-institute.png
+  Replacement explicitly supplied by the user on 2026-11-04.
+  Original filename: ri-cmu-2024-web-with-cmu-opensans.png
+  Copied without changing the image. Used for the author-affiliation logo.
+  The earlier official SVG is retained but is no longer used in the hero.

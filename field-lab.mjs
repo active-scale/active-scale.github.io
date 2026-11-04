@@ -1,6 +1,6 @@
 import * as T from './vendor/three.module.min.js';
 import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104slots1';
-import {createAmpParts} from './amp-parts.mjs?v=20261104slots1';
+import {createAmpParts} from './amp-parts.mjs?v=20261104card-padding1';
 import {initViewpointDemo} from './viewpoint-demo.mjs?v=20261104controls1';
 
 const $ = id => document.getElementById(id);

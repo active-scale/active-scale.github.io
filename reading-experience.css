@@ -43,3 +43,7 @@ html.is-auto-reading,html.is-progress-dragging{scroll-behavior:auto!important}
 }
 
 .masthead>.tag{scrollbar-width:none}.masthead>.tag::-webkit-scrollbar{display:none}
+.masthead>.paper-title{margin:22px 0 0;font-size:clamp(11px,1.1vw,14px);line-height:1.65;letter-spacing:0;color:#6c5a80}
+.paper-title>span{display:inline;width:auto;height:auto;margin:0;background:none;border-radius:0;white-space:nowrap}
+@media(min-width:1101px){.chapter-sidebar{left:18px}}
+@media(max-width:650px){.masthead>.paper-title{white-space:normal;overflow:visible;font-size:11px;margin-top:17px}.paper-title>span{display:block}}
