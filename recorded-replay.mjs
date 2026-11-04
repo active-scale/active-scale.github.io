@@ -1,7 +1,7 @@
 import * as T from './vendor/three.module.min.js';
 import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104mast1';
 import {recordedJoints, setRecordedOptics} from './recorded-motion.mjs?v=20261104k';
-import {createReplayScene} from './replay-scene.mjs?v=20261104mast1';
+import {createReplayScene} from './replay-scene.mjs?v=20261104polish6';
 
 const episodes = [
   ['Backpack · episode 128', './assets/replay/backpack-episode-128.json'],

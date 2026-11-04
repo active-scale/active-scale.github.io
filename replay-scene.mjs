@@ -32,19 +32,26 @@ export function createReplayScene(scene) {
 
   const pot = new T.Group();
   pot.name = 'Pot';
-  pot.position.set(.548, surface + .022, .015);
+  pot.position.set(.548, surface + .035 / 2, .015);
+  // Fit the approximate vessel below the recorded lid descent, leaving the recorded hand untouched.
+  const potVerticalScale = .72;
+  pot.scale.y = potVerticalScale;
   const profile = [
     new T.Vector2(0, 0), new T.Vector2(.10, 0), new T.Vector2(.116, .018),
     new T.Vector2(.119, .131), new T.Vector2(.112, .133), new T.Vector2(.108, .019),
     new T.Vector2(.097, .009), new T.Vector2(0, .009)
   ];
-  pot.add(new T.Mesh(new T.LatheGeometry(profile, 48), steel));
+  const potBody = new T.Mesh(new T.LatheGeometry(profile, 48), steel);
+  potBody.name = 'Pot body';
+  pot.add(potBody);
   const rim = new T.Mesh(new T.TorusGeometry(.116, .005, 8, 48), steel);
+  rim.name = 'Pot rim';
   rim.rotation.x = Math.PI / 2;
   rim.position.y = .132;
   pot.add(rim);
   for (const side of [-1, 1]) {
     const handle = new T.Mesh(new T.TorusGeometry(.035, .008, 8, 24, Math.PI), dark);
+    handle.name = 'Pot handle';
     handle.rotation.y = Math.PI / 2;
     handle.position.set(side * .12, .091, 0);
     pot.add(handle);
@@ -88,7 +95,7 @@ export function createReplayScene(scene) {
   root.add(shelf,onion);
   scene.add(root);
   // Contact intervals are read from episode 38's three camera streams, not physics estimates.
-  const timing = {onionPick: 8.07, onionRelease: 13.25, onionRest: 13.57, lidPick: 20.5, lidRelease: 25.1, lidRest: 25.42};
+  const timing = {onionPick: 8.07, onionRelease: 13.25, onionRest: 13.57, lidPick: 20.1, lidRelease: 25.1, lidLevel: 25.42, lidRest: 25.8};
   const calibration = structuredClone(defaults);
   const identity = new T.Quaternion();
   const toolOffset = new T.Matrix4();
@@ -133,7 +140,8 @@ export function createReplayScene(scene) {
       Math.min(leftFinger.max.z, rightFinger.max.z) - .006);
     const lidGrip = toolPose(rig, 'right', gripPoint);
     const lidStart = lidGrip.position.clone();
-    lidStart.y = surface + .035 / 2;
+    // Sub-millimeter clearance avoids rim flicker during the recorded pre-lift adjustment.
+    lidStart.y = surface + .035 / 2 + .0004;
     const knobHeight = lidGrip.position.y - lidStart.y;
     const axisInTool = new T.Vector3(0, 1, 0).applyQuaternion(lidGrip.rotation.clone().invert());
     const halfGap = (rightFinger.min.y - leftFinger.max.y) / 2;
@@ -150,8 +158,10 @@ export function createReplayScene(scene) {
     const lidPick = toolPose(rig, 'right', lidOffset);
     const lidRelease = sample(timing.lidRelease, 'right', lidOffset);
     rig.pose(recordedJoints(episode, seconds, calibration));
-    const onionRest = new T.Vector3(onionRelease.position.x, pot.position.y + .009 + .036 * .89, onionRelease.position.z);
-    const lidRest = pot.position.clone().add(new T.Vector3(0, .134, 0));
+    const onionRest = new T.Vector3(onionRelease.position.x, pot.position.y + .009 * potVerticalScale + .036 * .89, onionRelease.position.z);
+    // The torus rim peaks at .137 m before vertical scaling. A 0.1 mm rendering clearance
+    // keeps the seated lid above that support instead of lifting it through the closing hand.
+    const lidRest = pot.position.clone().add(new T.Vector3(0, .137 * potVerticalScale + .0001, 0));
     const onionPickInverse = onionPick.rotation.clone().invert();
     const lidPickInverse = lidPick.rotation.clone().invert();
     anchors = {onionPick, onionRelease, onionRest, onionPickInverse, lidPick, lidRelease, lidRest, lidPickInverse, lidOffset};
@@ -175,6 +185,25 @@ export function createReplayScene(scene) {
     object.quaternion.copy(releasePose.rotation).multiply(pickupInverse).slerp(identity, blend);
   }
 
+  function settleLid(seconds) {
+    const release = anchors.lidRelease;
+    lid.quaternion.copy(release.rotation).multiply(anchors.lidPickInverse);
+    if (seconds < timing.lidLevel) {
+      const up = new T.Vector3(0, 1, 0).applyQuaternion(lid.quaternion);
+      const supportedHeight = anchors.lidRest.y + .117 * Math.sqrt(Math.max(0, 1 - up.y ** 2));
+      const blend = T.MathUtils.smoothstep(seconds, timing.lidRelease, timing.lidLevel);
+      lid.position.copy(release.position);
+      lid.position.y = T.MathUtils.lerp(release.position.y, supportedHeight, blend);
+      return;
+    }
+    // Let the jaws open before leveling and centering the cover on the rim.
+    const blend = T.MathUtils.smoothstep(seconds, timing.lidLevel, timing.lidRest);
+    lid.quaternion.slerp(identity, blend);
+    lid.position.copy(release.position).lerp(anchors.lidRest, blend);
+    const up = new T.Vector3(0, 1, 0).applyQuaternion(lid.quaternion);
+    lid.position.y = anchors.lidRest.y + .117 * Math.sqrt(Math.max(0, 1 - up.y ** 2));
+  }
+
   return {
     roll: 0,
     set visible(value) {root.visible = value;},
@@ -195,7 +224,7 @@ export function createReplayScene(scene) {
       } else if (seconds < timing.lidRelease) {
         follow(lid, rig, 'right', anchors.lidOffset, anchors.lidPickInverse);
       } else {
-        settle(lid, seconds, timing.lidRelease, timing.lidRest, anchors.lidRelease, anchors.lidPickInverse, anchors.lidRest);
+        settleLid(seconds);
       }
     },
   };

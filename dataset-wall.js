@@ -20,7 +20,7 @@
   const humanCards=humanSources.map(([name,href,poster,clip])=>`<a href="${href}" class="recipe-source-card"><div class="recipe-source-media">${clip?video(name+' egocentric preview','human,gap',`data-source="${clip}" poster="${poster}"`):`<img src="${poster}" alt="EgoLive dataset overview" loading="lazy">`}</div><strong>${name} ↗</strong></a>`).join('');
   const goals=`<div class="recipe-learning-goals"><div><span class="recipe-history-glyph" aria-hidden="true"><i></i><i></i><i></i></span><small>Temporal observations</small><strong>Connect changing views</strong></div><div><span class="recipe-pose-glyph" aria-hidden="true">↗ <b>XYZ</b></span><small>Camera-pose supervision</small><strong>Learn viewpoint motion</strong></div><div><span class="recipe-action-glyph" aria-hidden="true">⌁ → ⌁</span><small>Robot action supervision</small><strong>Retain robot control</strong></div></div>`;
   mount.innerHTML=`
-    <div class="recipe-toolbar"><div class="recipe-progress" role="group" aria-label="Data recipe scenes">${stages.map(([id,title],i)=>`<button type="button" data-step="${i}" aria-label="Scene ${i+1}: ${title}" title="${title}"><span></span></button>`).join('')}</div><button type="button" class="recipe-play" title="Pause or resume automatic scene changes; examples keep looping.">Play story</button></div>
+    <div class="recipe-toolbar"><div class="recipe-progress" role="group" aria-label="Data recipe scenes">${stages.map(([id,title],i)=>`<button type="button" data-step="${i}" aria-label="Scene ${i+1}: ${title}" title="${title}"><span></span></button>`).join('')}</div></div>
     <div class="recipe-story" data-stage="internet">
       <div class="recipe-stage-heading"><h3></h3><p aria-live="polite"></p></div>
       <div class="recipe-scenes">
@@ -31,7 +31,7 @@
           <div class="recipe-layer recipe-robot-selected"><div class="recipe-source-cards recipe-robot-cards"><a href="https://agibot-world.com/" class="recipe-source-card"><div class="recipe-source-media">${video('AgiBot World robot demonstrations','robot-selected',`data-robot-feature="agibot"`)}</div><strong>AgiBot World ↗</strong></a><a href="https://flagopen.github.io/RoboCOIN/" class="recipe-source-card"><div class="recipe-source-media">${video('RoboCOIN robot demonstrations','robot-selected',`data-robot-feature="robocoin"`)}</div><strong>RoboCOIN ↗</strong></a><a href="#system" class="recipe-source-card"><div class="recipe-source-media">${video('AMP data collection','robot-selected',`data-source="assets/trimmed/teleoperation.mp4" poster="assets/trimmed/teleoperation-poster.jpg"`)}</div><strong>AMP ↗</strong></a></div><div class="recipe-data-summary"><span>Diverse robot bodies</span><span>Robot state + actions</span><span>Head-camera motion where available</span></div></div>
         </div>
         <div class="recipe-right-side">
-          <div class="recipe-layer recipe-scale"><span>Everyday activities</span><span>Diverse environments</span><span>Changing viewpoints</span><small>Head + hand motion</small><div class="recipe-scale-flow" aria-hidden="true">↓</div><strong>Implicit active-perception priors</strong><p>Where to look · when to move · how to reach</p></div>
+          <div class="recipe-layer recipe-scale"><span>Everyday activities</span><span>Diverse environments</span><span>Changing viewpoints</span><small>Head + hand motion</small><div class="recipe-scale-flow" aria-hidden="true">↓</div><strong>Implicit <span class="recipe-prior-phrase">active-perception priors</span></strong><p>Where to look · when to move · how to reach</p></div>
           <div class="recipe-layer recipe-human-motion"><canvas aria-label="Head and wrist trajectories provide viewpoint and manipulation supervision"></canvas><div class="recipe-supervision-key"><span><b>Head pose</b> → active-view targets</span><span><b>Wrist poses</b> → manipulation targets</span></div></div>
           <div class="recipe-layer recipe-gap"><div class="recipe-gap-scene"><canvas aria-label="Illustration of a robot gripper closing beside its target"></canvas><span class="recipe-target-label">Target object</span><span class="recipe-miss-label">Gripper closes beside it</span></div><strong>Grasp offset</strong><p>Illustration of the preliminary human-only observation</p></div>
           <div class="recipe-layer recipe-retain"><div class="recipe-training-block"><small>From human experience</small><strong>Active-view + manipulation priors</strong></div><span class="recipe-data-arrow">+</span><div class="recipe-training-block recipe-robot-block"><small>From robot experience</small><strong>Robot-aligned state and actions</strong></div><span class="recipe-data-arrow">↓</span><strong>Transfer human priors.<br>Retain robot control.</strong></div>
@@ -44,13 +44,13 @@
       </div>
     </div>`;
   const story=mount.querySelector('.recipe-story'),title=mount.querySelector('h3'),caption=mount.querySelector('.recipe-stage-heading p');
-  const button=mount.querySelector('.recipe-play'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   for(let i=0;i<56;i++){
     const tile=document.createElement('div');tile.className='recipe-tile';tile.style.setProperty('--tile',i);
     const image=document.createElement('img');image.loading='lazy';image.alt='';image.src=base+'net-ego-'+String(i%28).padStart(2,'0')+'.webp';tile.append(image);mount.querySelector('.recipe-net-mosaic').append(tile);
   }
-  let index=0,playing=false,visible=false,started=false,elapsed=0,lastTime,animation=0,human,gap,humanLoading,gapLoading;
-  function loadHuman(){humanLoading??=import('./data-human.mjs?v=20261104refine3').then(module=>module.initDataHuman(mount.querySelector('.recipe-human-motion canvas'))).then(controller=>{human=controller;syncMedia();}).catch(console.error);}
+  let index=0,playing=false,visible=false,elapsed=0,lastTime,animation=0,human,gap,humanLoading,gapLoading;
+  function loadHuman(){humanLoading??=import('./data-human.mjs?v=20261104polish6').then(module=>module.initDataHuman(mount.querySelector('.recipe-human-motion canvas'))).then(controller=>{human=controller;syncMedia();}).catch(console.error);}
   function loadGap(){gapLoading??=import('./data-gap.mjs?v=20261104data2').then(module=>module.initDataGap(mount.querySelector('.recipe-gap canvas'))).then(controller=>{gap=controller;syncMedia();}).catch(console.error);}
   function syncMedia(){
     const kind=stages[index][0],animate=visible&&!document.hidden&&!reduced.matches;
@@ -71,14 +71,29 @@
   function render(){
     const [kind,heading,description]=stages[index];story.dataset.stage=kind;title.textContent=heading;caption.textContent=description;
     [...mount.querySelectorAll('[data-step]')].forEach((step,i)=>{step.classList.toggle('is-current',i===index);step.setAttribute('aria-current',i===index?'step':'false');});
-    button.textContent=reduced.matches?(index===stages.length-1?'Restart story':'Next scene'):playing?'Pause story':index===stages.length-1?'Replay story':'Play story';
     if(visible&&kind==='human')loadHuman();if(visible&&kind==='gap')loadGap();syncMedia();
   }
-  function pause(){playing=false;cancelAnimationFrame(animation);lastTime=undefined;render();}
-  function tick(now){if(lastTime!==undefined)elapsed+=now-lastTime;lastTime=now;if(elapsed>=stages[index][3]){if(index===stages.length-1){pause();return;}index++;elapsed=0;render();}animation=requestAnimationFrame(tick);}
-  function play(){started=true;if(index===stages.length-1){index=0;elapsed=0;}playing=true;lastTime=undefined;render();animation=requestAnimationFrame(tick);}
-  button.addEventListener('click',()=>{if(reduced.matches){index=(index+1)%stages.length;elapsed=0;render();}else if(playing)pause();else play();});
-  mount.querySelectorAll('[data-step]').forEach(step=>step.addEventListener('click',()=>{pause();started=true;index=Number(step.dataset.step);elapsed=0;render();}));
-  new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(visible&&!started&&!reduced.matches)play();else if(!visible&&playing)pause();if(visible&&stages[index][0]==='human')loadHuman();if(visible&&stages[index][0]==='gap')loadGap();syncMedia();},{threshold:.15}).observe(mount);
-  reduced.addEventListener('change',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();syncMedia();});render();
+  function pause(){playing=false;cancelAnimationFrame(animation);animation=0;lastTime=undefined;}
+  function tick(now){
+    if(!playing)return;
+    if(lastTime!==undefined)elapsed+=now-lastTime;
+    lastTime=now;
+    if(elapsed>=stages[index][3]){index=(index+1)%stages.length;elapsed=0;render();}
+    animation=requestAnimationFrame(tick);
+  }
+  function resume(){
+    if(playing||!visible||document.hidden||reduced.matches)return;
+    playing=true;lastTime=undefined;animation=requestAnimationFrame(tick);
+  }
+  mount.querySelectorAll('[data-step]').forEach(step=>step.addEventListener('click',()=>{
+    index=Number(step.dataset.step);elapsed=0;lastTime=undefined;render();resume();
+  }));
+  new IntersectionObserver(([entry])=>{
+    visible=entry.isIntersecting;
+    if(visible){resume();if(stages[index][0]==='human')loadHuman();if(stages[index][0]==='gap')loadGap();}
+    else pause();
+    syncMedia();
+  },{threshold:.15}).observe(mount);
+  reduced.addEventListener('change',()=>{if(reduced.matches)pause();else resume();syncMedia();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else resume();syncMedia();});render();
 })();

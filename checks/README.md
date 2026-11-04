@@ -12,9 +12,9 @@ Also inspect the replay from the side in the browser. This is a check of the ren
 
 ## Prop contact and motivation scenes
 
-- `node checks/pot-lid-grip.mjs` checks the lid knob against both actual finger meshes through the recorded hold, and verifies continuous grasp/release and supported rest poses. The crown and knob dimensions are a fitted visual reconstruction, not measured hardware dimensions.
+- `node checks/pot-lid-grip.mjs` checks knob contact against both real fingers, then checks the lid crown, neck, pot wall/rim, table, and complete right arm through all 1,681 sampled poses. It verifies continuous pickup/release and detects the former 24.9 s lid/rim intersection. The crown and knob dimensions are a fitted visual reconstruction, not measured hardware dimensions.
 - `node checks/viewpoint-scenes.mjs` checks that the bin really occludes the bottle, the shelf mug starts outside the optical view, both targets become visible, and sampled robot meshes stay clear of the scene props.
 
-- `node checks/teleop-task.mjs` checks the illustrative pick-and-place through 401 samples: table and leg clearance, joint limits, gripper contact, held-object transform, and loop continuity.
+- `node checks/teleop-task.mjs` checks the 24-second illustrative base/pick-and-place loop through 401 samples: mounted-camera aim and target visibility, actual pose/base readouts, controller mapping, table/leg clearance, joint limits, gripper contact, and loop continuity.
 
 These are geometric checks of the displayed scene. The illustrative motion does not use contact dynamics.

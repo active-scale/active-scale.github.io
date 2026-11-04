@@ -1,8 +1,8 @@
-.data-recipe{margin:26px 0 0;border:1px solid #594174;border-radius:18px;overflow:hidden;background:#30223f;color:#f4eafa}
-.recipe-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 20px;border-bottom:1px solid #422c58}
-.recipe-progress{display:flex;gap:5px;align-items:center}.recipe-progress button{border:0;background:none;padding:10px 0;width:25px;cursor:pointer;outline-offset:2px}.recipe-progress button span{display:block;width:100%;height:3px;border-radius:3px;background:#695283;transition:background .4s}.recipe-progress .is-current span{background:#dec3fb}.recipe-progress button:hover span{background:#bc97e1}
-.recipe-play{color:#f0e4fa;border:1px solid #6c5283;border-radius:6px;background:#302043;font-size:12px;padding:6px 10px;cursor:pointer}
-.recipe-story{padding:clamp(18px,3vw,34px);background:radial-gradient(ellipse at 45% 64%,#49345b,#30223f 72%)}
+.data-recipe{margin:26px 0 0;border:1px solid #594174;border-radius:18px;overflow:hidden;background:#66517a;color:#fff7ff}
+.recipe-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 20px;border-bottom:1px solid #a28ab75c}
+.recipe-progress{display:flex;gap:5px;align-items:center}.recipe-progress button{border:0;background:none;padding:10px 0;width:25px;cursor:pointer;outline-offset:2px}.recipe-progress button span{display:block;width:100%;height:3px;border-radius:3px;background:#ad94c2;transition:background .4s}.recipe-progress .is-current span{background:#dec3fb}.recipe-progress button:hover span{background:#bc97e1}
+
+.recipe-story{padding:clamp(18px,3vw,34px);background:radial-gradient(ellipse at 45% 64%,#7b648e,#66517a 72%)}
 .recipe-stage-heading{max-width:870px;min-height:0;margin-bottom:26px}.recipe-stage-heading h3{font-size:clamp(24px,3vw,36px);margin:0 0 10px;line-height:1.1}.recipe-stage-heading p{font-size:15px;line-height:1.55;color:#e2d7ec;margin:0}
 .recipe-scenes{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,2.5vw,32px);min-height:455px}
 .recipe-source-side,.recipe-right-side{position:relative;min-width:0;min-height:455px}
@@ -12,22 +12,22 @@
 .recipe-tile{overflow:hidden;border:1px solid #77658b75;border-radius:4px;background:#2c1f3a;min-width:0;animation:recipe-rise .7s both;animation-delay:calc(var(--tile)*26ms)}
 .recipe-tile img,.recipe-tile video{height:100%;width:100%;display:block;object-fit:cover}.recipe-net-mosaic .recipe-tile:nth-child(4n+1){animation:recipe-breathe 9s ease-in-out infinite;animation-delay:calc(var(--tile)*-290ms)}
 .recipe-source-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start;padding-top:60px}
-.recipe-source-card{display:block;min-width:0;border:1px solid #77618f;background:#2b1e3b;border-radius:10px;overflow:hidden;transition:transform .4s,background .3s;color:#fff;text-decoration:none}
-.recipe-source-card:hover{transform:translateY(-4px);background:#3a2852;text-decoration:none}
+.recipe-source-card{display:block;min-width:0;border:1px solid #77618f;background:#4b355f;border-radius:10px;overflow:hidden;transition:transform .4s,background .3s;color:#fff;text-decoration:none}
+.recipe-source-card:hover{transform:translateY(-4px);background:#65477e;text-decoration:none}
 .recipe-source-media{height:180px;background:#20152c}.recipe-source-media img,.recipe-source-media video{width:100%;height:100%;object-fit:cover;display:block}.recipe-selected .recipe-source-card:first-child .recipe-source-media img{object-fit:contain}
 .recipe-source-card strong{display:block;padding:12px;font-size:clamp(13px,1.4vw,18px);line-height:1.2}
 .recipe-pose-signals,.recipe-data-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.recipe-pose-signals span,.recipe-data-summary span{color:#eadcf8;border:1px solid #7a5b99;border-radius:6px;padding:6px 8px;font-size:12px}
 .recipe-scale{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:10px 16px}.recipe-scale>span{font-size:clamp(24px,3.2vw,42px);font-weight:750;letter-spacing:-.04em;color:#dbc9f0}.recipe-scale small{font-size:16px;color:#e5d8f1;margin-top:6px}.recipe-scale strong{font-size:clamp(20px,2.1vw,27px);line-height:1.2;color:#f1e5ff;max-width:430px}.recipe-scale p{font-size:12px;line-height:1.5;color:#cbb6de;margin:0}.recipe-scale-flow{font-size:30px;line-height:1;color:#b99ce8}
 .recipe-human-motion{display:flex;flex-direction:column;justify-content:center}.recipe-human-motion canvas{display:block;width:100%;height:390px;border-radius:12px;background:#e8e6e0;touch-action:pan-y;cursor:grab}
 .recipe-supervision-key{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;font-size:11px;line-height:1.5;color:#d9c5ee}.recipe-supervision-key b{display:block;color:#faf4ff;font-size:12px}
-.recipe-gap{display:flex;flex-direction:column;gap:12px;justify-content:center;background:#3a2949;border-radius:12px;padding:14px}
+.recipe-gap{display:flex;flex-direction:column;gap:12px;justify-content:center;background:#604773;border-radius:12px;padding:14px}
 .recipe-gap-scene{height:340px;position:relative;border-radius:10px;overflow:hidden;background:#e9e7e1}.recipe-gap canvas{display:block;width:100%;height:100%}
 .recipe-gap>strong{font-size:24px;line-height:1.1;margin:0 4px}.recipe-gap>p{font-size:12px;color:#d9bdac;margin:0 4px}
 .recipe-target-label,.recipe-miss-label{position:absolute;bottom:15px;border-radius:5px;padding:5px 7px;font-size:11px;line-height:1.4;max-width:42%;pointer-events:none}.recipe-target-label{left:12px;color:#355d2e;background:#edf2e8ed}.recipe-miss-label{right:12px;color:#843e1c;background:#ffecddec}
-.recipe-retain{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:13px;padding:22px;background:#3a2949ed;border-radius:12px}
-.recipe-training-block{padding:17px 16px;width:100%;border:1px solid #8762ac;border-radius:9px;background:#38234b;color:#fff;display:grid;gap:7px}.recipe-training-block small{font-size:11px;color:#d9c7ea}.recipe-training-block strong{font-size:17px;line-height:1.4}.recipe-robot-block{border-color:#6eac99;background:#223f39}.recipe-robot-block small{color:#b4d9cd}.recipe-data-arrow{font-size:24px;color:#bd97e8;line-height:1}.recipe-retain>strong{font-size:22px;line-height:1.3}
+.recipe-retain{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:13px;padding:22px;background:#604773ed;border-radius:12px}
+.recipe-training-block{padding:17px 16px;width:100%;border:1px solid #8762ac;border-radius:9px;background:#59416f;color:#fff;display:grid;gap:7px}.recipe-training-block small{font-size:11px;color:#d9c7ea}.recipe-training-block strong{font-size:17px;line-height:1.4}.recipe-robot-block{border-color:#6eac99;background:#223f39}.recipe-robot-block small{color:#b4d9cd}.recipe-data-arrow{font-size:24px;color:#bd97e8;line-height:1}.recipe-retain>strong{font-size:22px;line-height:1.3}
 .recipe-robot-cards{padding-top:55px}.recipe-robot-cards .recipe-source-media{height:210px}
-.recipe-final{display:grid;grid-template-rows:auto auto auto;gap:22px;background:radial-gradient(ellipse,#3e2953,#251633 78%);border:1px solid #6c5286;border-radius:16px;padding:clamp(16px,2.3vw,28px);z-index:2}
+.recipe-final{display:grid;grid-template-rows:auto auto auto;gap:22px;background:radial-gradient(ellipse,#72568a,#58406c 78%);border:1px solid #6c5286;border-radius:16px;padding:clamp(16px,2.3vw,28px);z-index:2}
 .recipe-mixing-row{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:22px;align-items:center;min-width:0}
 .recipe-final-input{border:1px solid #8a6aa6;border-radius:10px;background:#332343;overflow:hidden;min-width:0}.recipe-final-input video{width:100%;height:105px;object-fit:cover;display:block}.recipe-final-input strong{display:block;font-size:16px;line-height:1.3;padding:10px 12px 5px}.recipe-final-input>span{display:block;padding:0 12px 12px;color:#d9c9e8;font-size:11px;line-height:1.45}
 .recipe-final-robot{background:#203c35;border-color:#669c8c}.recipe-final-robot>span{color:#c2ddd5}
@@ -64,3 +64,9 @@
   .recipe-source-media,.recipe-robot-cards .recipe-source-media {height:185px}
   .recipe-human-motion canvas {height:315px}
 }
+
+.recipe-scale strong {font-size:clamp(17px,1.75vw,24px);max-width:none}
+.recipe-prior-phrase {white-space:nowrap}
+.recipe-scale>span {color:#f1e4ff}
+.recipe-scale p,.recipe-supervision-key {color:#eee0f7}
+@media(max-width:900px) and (min-width:761px){.recipe-scale{padding-inline:4px}.recipe-scale strong{font-size:17px}}

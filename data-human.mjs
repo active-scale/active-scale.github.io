@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.min.js';
-import {createHumanAvatar} from './human-avatar.mjs?v=20261104refine3';
+import {createHumanAvatar} from './human-avatar.mjs?v=20261104polish6';
 
 function label(text, color = '#334b52', width = .30) {
   const image = document.createElement('canvas');

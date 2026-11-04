@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import * as T from '../vendor/three.module.min.js';
 import {createAmp} from '../assets/robot-models/amp.mjs';
 import {createTeleopTask} from '../teleop-task.mjs';
+import {readTeleopPoses} from '../teleop-hud.mjs';
 
 // The production loaders fetch relative assets. This standalone Node check reads
 // exactly those local files, with no server or browser required.
@@ -32,6 +33,12 @@ let minimumJawClearance = Infinity;
 let maximumJawGap = -Infinity;
 let maximumAttachmentDrift = 0;
 let attachmentReference;
+let minimumHeadAimDot=1,maximumHeadClip=0;
+scene.updateMatrixWorld(true);
+const fixedTableTransform=task.table.matrixWorld.clone();
+const initialBasePosition=rig.root.position.clone(),initialBaseRotation=rig.root.quaternion.clone();
+const headProjection=new T.PerspectiveCamera(52.4,4/3,.01,3);
+const accidentalBlockIntersections=[];
 
 for (const key of task.keys) {
   assert.ok(key.positionError < .0002, 'IK keypoint exceeds 0.2 mm position error.');
@@ -65,6 +72,24 @@ for (let frame = 0; frame <= 400; frame++) {
   const progress = frame / 400;
   const state = task.update(progress);
   scene.updateMatrixWorld(true);
+  assert.ok(task.table.matrixWorld.elements.every((x,i)=>Math.abs(x-fixedTableTransform.elements[i])<1e-9),'The environment table moves with the base.');
+  const optical=rig.arms.center.optical;
+  const eye=optical.getWorldPosition(new T.Vector3()),gaze=optical.getWorldDirection(new T.Vector3());
+  minimumHeadAimDot=Math.min(minimumHeadAimDot,gaze.dot(task.block.position.clone().sub(eye).normalize()));
+  headProjection.position.copy(eye);headProjection.quaternion.copy(optical.getWorldQuaternion(new T.Quaternion()));headProjection.updateMatrixWorld(true);
+  const clip=task.block.position.clone().project(headProjection);maximumHeadClip=Math.max(maximumHeadClip,Math.abs(clip.x),Math.abs(clip.y));
+  const readouts=readTeleopPoses(rig),reference=rig.arms.center.root;
+  const readoutHead=new T.Vector3(...readouts.head.position);readoutHead.z-=.25;reference.localToWorld(readoutHead);
+  assert.ok(readoutHead.distanceTo(eye)<1e-9,'HUD head position disagrees with physical optical FK.');
+  const physicalTravel=rig.root.position.clone().sub(initialBasePosition).applyQuaternion(initialBaseRotation.clone().invert()).x;
+  assert.ok(Math.abs(state.mobile.travel-physicalTravel)<1e-9,'HUD base displacement disagrees with actual rig transform.');
+  const inverseBlock=task.block.matrixWorld.clone().invert();
+  task.block.geometry.computeBoundingBox();
+  for(const mesh of robotMeshes){
+    let part=mesh.parent;while(part&&!part.name)part=part.parent;
+    if(part?.name==='link7'||part?.name==='link8')continue; // Intended finger/block contact is tested separately below.
+    if(intersectsTable(mesh,task.block.geometry.boundingBox,inverseBlock))accidentalBlockIntersections.push({frame,part:part?.name});
+  }
   const inverseRig = rig.root.matrixWorld.clone().invert();
   const tableBoxes = tableMeshes.map(mesh => boundsInFrame(mesh, inverseRig));
   const topBounds = boundsInFrame(tabletop, inverseRig);
@@ -118,21 +143,54 @@ for (let frame = 0; frame <= 400; frame++) {
   }
 }
 
+assert.ok(minimumHeadAimDot>.9999,'The head camera does not face the operated block.');
+assert.ok(maximumHeadClip<.01,'The operated block is not centered in the mounted head camera.');
+assert.equal(accidentalBlockIntersections.length,0,'A robot part other than the fingers intersects the block: '+JSON.stringify(accidentalBlockIntersections.slice(0,5)));
 assert.equal(collisions.length, 0, 'Robot/table intersections: ' + JSON.stringify(collisions.slice(0, 10)));
 assert.ok(minimumTableClearance >= -1e-5, 'The block penetrates the tabletop.');
 assert.ok(minimumJawClearance >= -2e-5, 'The closed fingers penetrate the block.');
 assert.ok(maximumJawGap <= .0002, 'The closed fingers leave more than 0.2 mm clearance.');
 assert.ok(maximumAttachmentDrift < 1e-7, 'The held block drifts relative to the gripper.');
 
+// Verify the displayed controls match the actual differential-drive trajectory.
+for(const [progress,key,axis,sign] of [[.02,'A','travel',-1],[.06,'X','yaw',1],[.10,'Y','yaw',-1],[.145,'B','travel',1]]){
+  const h=1e-4;
+  const a=task.update(progress-h).mobile,b=task.update(progress+h).mobile;
+  const current=task.update(progress).mobile;
+  const velocity=(b[axis]-a[axis])/(2*h*task.duration);
+  const displayed=axis==='travel'?current.forwardVelocity:current.yawVelocity;
+  assert.equal(current.button,key);assert.ok(velocity*sign>0,'Button mapping has the wrong physical direction');
+  assert.ok(Math.abs(velocity-displayed)<1e-5,'Base HUD velocity does not match realized transform derivative');
+}
+// The gripper can partially occlude the cube, but the head camera must still see it.
+const ray=new T.Raycaster(),viewObstacles=[...robotMeshes,...tableMeshes];let minimumVisibleCubeCorners=8;
+for(let sample=0;sample<=40;sample++){
+  task.update(sample/40);scene.updateMatrixWorld(true);
+  const eye=rig.arms.center.optical.getWorldPosition(new T.Vector3());let visible=0;
+  for(const x of [-.0225,.0225])for(const y of [-.031,.031])for(const z of [-.0225,.0225]){
+    const point=task.block.localToWorld(new T.Vector3(x,y,z)),direction=point.sub(eye);
+    ray.set(eye,direction.clone().normalize());ray.near=.006;ray.far=direction.length()-.001;
+    if(!ray.intersectObjects(viewObstacles,false).length)visible++;
+  }
+  minimumVisibleCubeCorners=Math.min(minimumVisibleCubeCorners,visible);
+}
+assert.ok(minimumVisibleCubeCorners>0,'The robot head looks toward the cube but geometry completely blocks its view');
+
 task.update(0);
+const firstBasePosition=rig.root.position.clone(),firstBaseRotation=rig.root.quaternion.clone();
 const firstPosition = task.block.position.clone();
 const firstRotation = task.block.quaternion.clone();
 task.update(1);
+assert.ok(rig.root.position.distanceTo(firstBasePosition)<1e-9&&rig.root.quaternion.angleTo(firstBaseRotation)<1e-7,'Mobile base jumps at loop boundary');
 assert.ok(task.block.position.distanceTo(firstPosition) < 1e-8, 'The block jumps at the loop boundary.');
 assert.ok(task.block.quaternion.angleTo(firstRotation) < 1e-7, 'The block rotates at the loop boundary.');
 
 console.log(JSON.stringify({
   samples: 401,
+  minimumHeadAimDot,maximumHeadClip,minimumVisibleCubeCorners,
+  accidentalRobotBlockCollisions:accidentalBlockIntersections.length,
+  environmentTable:'fixed in world coordinates',
+  baseMotion:'30 mm reverse/forward; 3 degrees left/right turn; Quest mapping per Appendix B.1',
   robotTableTriangleCollisions: collisions.length,
   minimumBlockTableClearanceMm: Number((minimumTableClearance * 1000).toFixed(4)),
   minimumJawClearanceMm: Number((minimumJawClearance * 1000).toFixed(4)),

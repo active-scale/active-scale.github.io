@@ -38,7 +38,6 @@ const tasks = [
       [12.5, 'Place in the pot', 'Bring the destination into the working view.'],
       [18.5, 'Cover the pot', 'Track the lid and pot while completing the task.'],
     ],
-    replay: 'pot',
   },
   {
     name: 'Box', category: 'Active Search and Localization',
@@ -52,9 +51,8 @@ const tasks = [
   },
 ];
 
-const replayEpisodes = {Bag: {index: 0, number: 128}, Box: {index: 1, number: 42}, Pot: {index: 2, number: 38}};
-
 const asset = (task, suffix) => 'assets/' + (suffix === 'video' ? 'trimmed/' + task.toLowerCase() + '.mp4' : 'evaluation/' + task.toLowerCase() + '-step-' + suffix + '.jpg');
+const poster = task => 'assets/trimmed/' + task.toLowerCase() + (task === 'Drawer' ? '-cover.jpg' : '-poster.jpg');
 const timestamp = seconds => '0:' + Math.floor(seconds).toString().padStart(2, '0') + (seconds % 1 ? '.5' : '');
 
 export function initEvaluationLab() {
@@ -77,9 +75,7 @@ export function initEvaluationLab() {
       <aside class="ev-context">
         <p class="ev-category"></p><h3></h3><p class="ev-description"></p>
         <div class="ev-attention"><span>Viewpoint requirement</span><p></p></div>
-        <button type="button" class="ev-replay-link" hidden>Compare recorded robot motion →</button>
       </aside>
-      <aside class="ev-companion" hidden><div class="ev-companion-heading"><strong>Recorded demonstration</strong><button type="button" class="ev-close-replay" aria-label="Close recorded motion">×</button></div><p class="ev-companion-note">A separate demonstration from the autonomous rollout. The two timelines are independent.</p><div class="ev-replay-mount"></div></aside>
     </div>
     <div class="ev-timeline"><span class="ev-clock">0:00</span><div class="ev-seek"><div class="ev-markers" aria-label="Key moments"></div><input type="range" min="0" max="1" step="0.01" value="0" aria-label="Task video timeline"></div></div>
     <div class="ev-chapters" aria-label="Video chapters"></div>
@@ -89,21 +85,8 @@ export function initEvaluationLab() {
   const chapters = mount.querySelector('.ev-chapters');
   const scrub = mount.querySelector('.ev-seek input');
   const markers = mount.querySelector('.ev-markers');
-  const replayLink = mount.querySelector('.ev-replay-link');
   let selected = 0;
   let pendingSeek;
-  let replayController;
-  let replayPromise;
-  let replayGeneration = 0;
-  const player = mount.querySelector('.ev-player');
-  const companion = mount.querySelector('.ev-companion');
-  function closeReplay() {
-    replayGeneration++;
-    replayController?.pause();
-    companion.hidden = true;
-    player.classList.remove('ev-has-replay');
-  }
-
   function updateMoment() {
     const task = tasks[selected];
     scrub.value = video.currentTime || 0;
@@ -128,20 +111,17 @@ export function initEvaluationLab() {
   function choose(index) {
     const task = tasks[index];
     if (!task) return;
-    closeReplay();
     selected = index;
     mount.dataset.taskFamily = index < 3 ? 'occlusion' : 'search';
     pendingSeek = undefined;
     video.pause();
-    video.poster = 'assets/trimmed/' + task.name.toLowerCase() + '-poster.jpg';
+    video.poster = poster(task.name);
     video.src = asset(task.name, 'video');
     video.setAttribute('aria-label', task.name + ' autonomous rollout');
     selector.querySelectorAll('button').forEach((button, i) => button.setAttribute('aria-pressed', String(i === index)));
     mount.querySelector('.ev-context h3').textContent = task.name;
     mount.querySelector('.ev-category').textContent = task.category;
     mount.querySelector('.ev-description').textContent = task.description;
-    replayLink.hidden = !task.replay;
-    replayLink.dataset.episode = task.replay || '';
     scrub.value = 0;
     scrub.disabled = true;
     markers.style.visibility = 'hidden';
@@ -178,7 +158,8 @@ export function initEvaluationLab() {
     const button = document.createElement('button');
     button.type = 'button';
     const image = document.createElement('img');
-    image.src = 'assets/trimmed/' + task.name.toLowerCase() + '-poster.jpg';
+    image.src = poster(task.name);
+    image.addEventListener('error', () => {image.src = asset(task.name, 0);}, {once: true});
     image.alt = '';
     image.loading = 'lazy';
     const name = document.createElement('strong');
@@ -198,31 +179,6 @@ export function initEvaluationLab() {
     if (pendingSeek !== undefined) {video.currentTime = pendingSeek; pendingSeek = undefined;}
     updateMoment();
   });
-  replayLink.addEventListener('click', async () => {
-    const task = tasks[selected];
-    if (!task.replay) return;
-    const {index: episodeIndex, number: episodeNumber} = replayEpisodes[task.name];
-    const request = ++replayGeneration;
-    companion.hidden = false;
-    player.classList.add('ev-has-replay');
-    mount.querySelector('.ev-companion-heading strong').textContent = 'Recorded demonstration · episode ' + episodeNumber;
-    const replayMount = mount.querySelector('.ev-replay-mount');
-    try {
-      if (!replayPromise) {
-        replayPromise = import('./recorded-replay.mjs?v=20261104mast1').then(module => module.initRecordedReplay(replayMount, {episodeIndex, compact: true}));
-      }
-      replayController = await replayPromise;
-      if (request !== replayGeneration) {replayController?.pause(); return;}
-      await replayController.selectEpisode(episodeIndex);
-    } catch (error) {
-      if (request !== replayGeneration) return;
-      replayController = undefined;
-      replayMount.textContent = 'The recorded motion could not load.';
-      replayPromise = undefined;
-      console.error(error);
-    }
-  });
-  mount.querySelector('.ev-close-replay').addEventListener('click', closeReplay);
   choose(0);
   return {selectTask: name => {
     const index = tasks.findIndex(task => task.name === name);

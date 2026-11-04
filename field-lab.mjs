@@ -48,57 +48,53 @@ async function teleoperation() {
   const canvas=$('transfer-scene');const r=renderer(canvas);if(!r)return;
   const scene=stage(),camera=new T.PerspectiveCamera(36,1,.04,30);
   const hx=-.87,rx=.87;
-  const [avatar,gear,rig]=await Promise.all([
-    import('./human-avatar.mjs?v=20261104refine3').then(module=>module.createHumanAvatar(hx)),
+  const [avatar,gear,rig,{createTeleopTask},{createTeleopHud}]=await Promise.all([
+    import('./human-avatar.mjs?v=20261104polish6').then(module=>module.createHumanAvatar(hx)),
     import('./vr-gear.mjs?v=20261104k').then(module=>module.createQuestGear()),
-    createAmp()
+    createAmp(),import('./teleop-task.mjs?v=20261104polish6'),import('./teleop-hud.mjs?v=20261104polish6')
   ]);
   scene.add(avatar.scene);
   const head=new T.Group();head.add(gear.headset);scene.add(head,...gear.controllers);
   rig.root.position.set(rx,0,-.22);rig.root.rotation.y=-Math.PI/2;
   scene.add(rig.root,...rig.frusta());
-  const {createTeleopTask}=await import('./teleop-task.mjs?v=20261104mast1');
-  const task=createTeleopTask(scene,rig);
+  const task=createTeleopTask(scene,rig),hud=createTeleopHud($('motion-play'),gear);
+  const panel=document.createElement('div');panel.className='teleop-stage';
+  const visual=document.createElement('div');visual.className='teleop-visual';
+  const labels=canvas.previousElementSibling;
+  labels.before(panel);visual.append(labels,canvas);panel.append(visual,hud.element);
   const axes=Array.from({length:6},()=>new T.AxesHelper(.12));scene.add(...axes);
   const view={yaw:.08,pitch:.24,zoom:1};
-  const timeline=$('motion'),button=$('motion-play');let animation=0,lastTime;
-  button.disabled=false;button.textContent='Play teleoperation';
+  const timeline=$('motion');let animation=0,lastTime;
   const note=$('transfer-note');
   note.innerHTML='Equipment assets: <a href="https://sketchfab.com/3d-models/oculus-quest-2-c6a1c2623d224a1bbb81a38915f7e898">Quest 2 by NosTeam · CC BY 4.0</a> · <a href="https://github.com/immersive-web/webxr-input-profiles/tree/main/packages/assets/profiles/oculus-touch-v3">WebXR Touch controllers · MIT</a>';
   function draw() {
     const width=canvas.clientWidth,height=canvas.clientHeight;if(!width||!height)return;
     r.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();
-    const distance=Math.max(2.8,3.8/camera.aspect)*view.zoom;
-    camera.position.set(Math.sin(view.yaw)*Math.cos(view.pitch)*distance,1.05+Math.sin(view.pitch)*distance,Math.cos(view.yaw)*Math.cos(view.pitch)*distance);
-    camera.lookAt(0,1.05,0);
-    const phase=Number(timeline.value)/100;
-    const taskState=task.update(phase);
-    const movement=taskState.hand.clone().sub(task.pick);
-    const wave=Math.sin(taskState.phase*2*Math.PI),lift=taskState.reach;
-    const handTargets=[
-      vector(hx-.25+movement.x,1.05+movement.y,.31+movement.z),
-      vector(hx+.25,1.07+.025*lift,.26)
-    ];
-    const pose=avatar.pose({reach:.25,lift,turn:-.18*wave,handTargets,holdingControllers:true});
+    const distance=Math.max(3.2,5.2/camera.aspect)*view.zoom;
+    camera.position.set(Math.sin(view.yaw)*Math.cos(view.pitch)*distance,.98+Math.sin(view.pitch)*distance,Math.cos(view.yaw)*Math.cos(view.pitch)*distance);
+    camera.lookAt(0,.98,0);
+    const progress=Number(timeline.value)/100,state=task.update(progress);
+    const movement=state.handMotion;
+    const handTargets=[vector(hx-.25+movement.x,1.05+movement.y,.31+movement.z),vector(hx+.25,1.07,.26)];
+    const pose=avatar.pose({reach:.12,lift:state.reach,turn:0,handTargets,holdingControllers:true,headLookDirection:state.headDirection});
     head.position.copy(pose.headPosition);head.quaternion.copy(pose.headRotation);head.updateMatrixWorld(true);
     const frames=[{position:head.localToWorld(vector(0,.035,.13)),rotation:pose.headRotation},...pose.hands];
     pose.controllerGrips.forEach((grip,index)=>{gear.controllers[index].position.copy(grip.position);gear.controllers[index].quaternion.copy(grip.rotation);});
-    frames.forEach((frame,index)=>{
-      axes[index].position.copy(frame.position);axes[index].quaternion.copy(frame.rotation);
-    });
+    frames.forEach((frame,index)=>{axes[index].position.copy(frame.position);axes[index].quaternion.copy(frame.rotation);});
     ['center','right','left'].forEach((name,index)=>{
       const frame=name==='center'?rig.arms[name].optical:rig.arms[name].links.link6;
       frame.getWorldPosition(axes[index+3].position);frame.getWorldQuaternion(axes[index+3].quaternion);
     });
-    r.render(scene,camera);
+    hud.update(rig,state);r.render(scene,camera);
   }
   let inView=false,userPaused=false;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  function pause(){cancelAnimationFrame(animation);animation=0;lastTime=undefined;button.textContent='Play teleoperation';}
-  function start(){if(animation||document.hidden)return;button.textContent='Pause teleoperation';lastTime=undefined;animation=requestAnimationFrame(tick);}
-  function tick(now){if(lastTime!==undefined)timeline.value=(Number(timeline.value)+(now-lastTime)/100)%100;lastTime=now;draw();animation=requestAnimationFrame(tick);}
-  button.onclick=()=>{if(animation){userPaused=true;pause();}else{userPaused=false;start();}};
+  function pause(){cancelAnimationFrame(animation);animation=0;lastTime=undefined;}
+  function start(){if(animation||document.hidden)return;lastTime=undefined;animation=requestAnimationFrame(tick);}
+  function tick(now){if(lastTime!==undefined)timeline.value=(Number(timeline.value)+(now-lastTime)/(task.duration*10))%100;lastTime=now;draw();animation=requestAnimationFrame(tick);}
   timeline.oninput=()=>{userPaused=true;pause();draw();};
+  canvas.tabIndex=0;canvas.setAttribute('aria-keyshortcuts','Space');
+  canvas.addEventListener('keydown',event=>{if(event.code!=='Space')return;event.preventDefault();userPaused=!userPaused;if(userPaused)pause();else start();});
   new IntersectionObserver(([entry])=>{inView=entry.isIntersecting&&entry.intersectionRatio>=.25;if(inView&&!userPaused&&!reduced.matches)start();else if(!inView){userPaused=false;pause();}},{threshold:[0,.25]}).observe(canvas);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else if(inView&&!userPaused&&!reduced.matches)start();});
   inspect(canvas,view,draw);new ResizeObserver(draw).observe(canvas);draw();
@@ -126,4 +122,4 @@ initViewpointDemo();
 whenVisible($('transfer-scene'),()=>teleoperation().catch(error=>{console.error(error);$('transfer-note').textContent='The real hardware is shown in the photograph above.';}));
 whenVisible($('assembly'),()=>hardwareAssembly().catch(console.error));
 const replayMount=$('task-replay');
-if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104mast1').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));
+if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104polish6').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));

@@ -113,8 +113,9 @@ function initQuantitativeResults() {
 }
 
 // Qualitative task selection intentionally leaves every quantitative result visible.
-import('./evaluation-lab.js?v=20261104mast1').then(({initEvaluationLab}) => initEvaluationLab()).catch(error => console.error('Could not initialize task videos.', error));
+import('./evaluation-lab.js?v=20261104polish6').then(({initEvaluationLab}) => initEvaluationLab()).catch(error => console.error('Could not initialize task videos.', error));
 initQuantitativeResults();
+import('./progress-scoring.mjs?v=20261104polish6').then(({initProgressScoring}) => initProgressScoring()).catch(console.error);
 $('copy')?.addEventListener('click',async()=>{
   try { await navigator.clipboard.writeText($('bibtex').textContent); $('copy').textContent='Copied'; }
   catch { const r=document.createRange();r.selectNodeContents($('bibtex'));const selection=getSelection();selection.removeAllRanges();selection.addRange(r);$('copy').textContent='Citation selected'; }

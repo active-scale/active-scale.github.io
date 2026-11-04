@@ -80,3 +80,89 @@ p {text-wrap:pretty}
 
 .motivation {padding-bottom:34px}
 .system {padding-top:34px}
+
+/* Alternating, light chapter backgrounds carry the purple identity through the page. */
+#why {background:#e9e0f2;color:var(--ink)}
+#system {background:#f3eee7;color:var(--ink);padding-top:48px}
+#data {background:#f0e8f7;padding-bottom:44px}
+#model {background:#fbf9fc;padding-top:44px}
+#results {background:#efedf8}
+#conclusion {background:#e9f1ee}
+#why .section-copy,#system .section-copy {color:var(--muted)}
+#why .motivation-context {color:#63566e}
+#why .motivation-context a {color:#6734a7}
+#why .vp-note {color:#63566e!important}
+#system .assembly {margin-top:28px;margin-bottom:26px;background:#fcfaf6;border:1px solid #e1d8cd}
+#system .hardware-grid {margin-top:0}
+
+/* The scoring rubric is distinct from the video chapters and method comparisons. */
+.tp-definition {margin-top:44px;padding:26px;border:1px solid var(--line);border-radius:14px;background:#faf8fd}
+.tp-definition h3 {font-size:clamp(24px,2.5vw,32px);line-height:1.2;margin-bottom:13px}
+.tp-definition>p {font-size:14px;line-height:1.65;color:var(--muted);margin-bottom:18px;max-width:1040px}
+.tp-scoring-scroll {overflow-x:auto}
+.tp-definition table {width:100%;min-width:740px;border-collapse:collapse;font-size:13px;line-height:1.4;text-align:left}
+.tp-definition caption {text-align:left;color:var(--muted);font-size:12px;padding-bottom:10px}
+.tp-definition th,.tp-definition td {padding:12px 14px;border-top:1px solid #e4dbea;vertical-align:top}
+.tp-definition thead th {font-size:12px;color:#776781;border-bottom:1px solid #d9cde3}
+.tp-definition tbody th {width:85px;color:var(--purple)}
+.tp-definition td b {display:block;color:#7242a6;font-size:12px;margin-top:4px}
+.tp-definition td.tp-na {color:#b0a4bb}
+.tp-definition .tp-example {margin:18px 0 0;padding:12px 14px;border-left:3px solid #a080bf;background:#f0e8f7;border-radius:4px;font-size:13px}
+#quantitative-results {margin-top:42px}
+@media(max-width:650px){.tp-definition{padding:18px;margin-top:30px}.tp-definition>p{font-size:13px}}
+
+/* Live commands replace a decorative playback button. */
+.teleop-readout {margin:18px 0 14px;padding:18px;background:#fffdf9;border:1px solid #ddd5e4;border-radius:12px;color:#2d2437}
+.teleop-readout-heading {display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:13px}
+.teleop-readout-heading strong {font-size:15px}
+.teleop-readout-heading span,.teleop-readout-heading small {font-size:11px;color:#796b80}
+.teleop-pose-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.teleop-pose {min-width:0;padding:12px;background:#f5f0f9;border:1px solid #e4d7ed;border-radius:8px}
+.teleop-pose h4,.teleop-pose>strong {font-size:13px;line-height:1.4;margin:0 0 9px}
+.teleop-values {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 10px;font:12px/1.6 var(--mono);font-variant-numeric:tabular-nums}
+.teleop-values span {white-space:nowrap}
+.teleop-values b {font-weight:600}
+.teleop-base {display:flex;gap:8px 24px;flex-wrap:wrap;padding-top:13px;margin-top:13px;border-top:1px solid #e4dbea;font:12px/1.6 var(--mono);font-variant-numeric:tabular-nums}
+.teleop-phase {font-size:12px;color:#766080;margin:11px 0 0}
+.teleop-control-key {display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:12px;font-size:12px;line-height:1.6;color:#73647d}
+.teleop-control-key span {padding:3px 7px;border-radius:5px;background:#eee8f4;border:1px solid #ded2e8}
+.teleop-control-key .is-active {background:#7043a3;border-color:#7043a3;color:white}
+@media(max-width:760px){.teleop-pose-grid{grid-template-columns:1fr}.teleop-readout{padding:13px}.teleop-base{gap:7px 15px}}
+
+.teleop-values {display:grid;grid-template-columns:1fr;gap:5px}
+.teleop-values>span {display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px}
+.teleop-values output {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;font:inherit}
+.teleop-base output {font:inherit;white-space:normal}
+.teleop-pose>strong {display:block}
+.teleop-control-key small {align-self:center;font-size:11px}
+
+.teleop-readout#motion-play {padding:16px;border-radius:12px;background:#fffdf9}
+
+/* Keep the live readouts in view beside the motion. */
+.teleop-stage {display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:14px;align-items:stretch;margin-top:18px}
+.teleop-visual {min-width:0}
+.teleop-visual .transfer-label {margin-top:0;font-size:10px}
+.teleop-stage #transfer-scene {height:480px}
+.teleop-stage .teleop-readout#motion-play {margin:0;padding:13px}
+.teleop-stage .teleop-readout-heading {display:block;margin-bottom:10px}
+.teleop-stage .teleop-readout-heading>span {display:block;margin-top:4px;font-size:10px;line-height:1.5}
+.teleop-stage .teleop-pose-grid {grid-template-columns:1fr;gap:8px}
+.teleop-stage .teleop-pose {padding:9px 10px}
+.teleop-stage .teleop-pose>strong {margin-bottom:5px;font-size:12px}
+.teleop-stage .teleop-values {font-size:11px;gap:3px}
+.teleop-stage .teleop-base {display:block;font-size:10px;line-height:1.8;padding-top:10px;margin-top:10px}
+.teleop-stage .teleop-base>strong,.teleop-stage .teleop-base>output,.teleop-stage .teleop-base>.teleop-phase {display:block}
+.teleop-stage .teleop-phase {margin-top:6px;font-size:11px}
+.teleop-stage .teleop-control-key {font-size:10px;gap:5px;margin-top:8px}
+.teleop-stage .teleop-control-key small {display:block;margin-top:3px;font-size:10px}
+#task-replay:empty {min-height:calc(clamp(200px,23vw,280px) * 2.25 + 210px)}
+@media(max-width:1050px){
+  .teleop-stage {grid-template-columns:1fr}
+  .teleop-stage .teleop-pose-grid {grid-template-columns:repeat(3,minmax(0,1fr))}
+  .teleop-stage .teleop-readout-heading>span {display:inline;margin-left:12px}
+}
+@media(max-width:700px){
+  .teleop-stage #transfer-scene {height:350px}
+  .teleop-stage .teleop-pose-grid {grid-template-columns:1fr}
+  #task-replay:empty {min-height:620px}
+}
