@@ -11,9 +11,9 @@ const resultTasks = [
 const resultStudies = [
   {
     id: 'main-comparison',
-    title: 'How does ActiveScale compare with π₀.₅?',
+    title: 'How does ActiveScale compare with an existing VLA?',
     label: 'Main comparison',
-    explanation: 'Both methods use the same downstream demonstrations and evaluation protocol. ActiveScale combines mixed mid-training with camera-aware observation history.',
+    explanation: 'π₀.₅ is post-trained on the same downstream demonstrations and evaluated with the same protocol. Comparable active-perception VLAs were not included because their checkpoints and full training recipes were unavailable at the time of our experiments.',
     methods: ['π₀.₅', 'ActiveScale'],
     colors: ['#5f6c80', '#7442ba'],
     averages: [[30,70], [41.6,78.4]],
