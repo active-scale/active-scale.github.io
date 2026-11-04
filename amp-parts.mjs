@@ -27,7 +27,7 @@ export function createAmpParts() {
         </div>
         <figcaption><strong>${name}</strong><span>${detail}</span></figcaption>
       </figure>`).join('')}</div>`;
-  const stylesheet = new URL('./amp-parts.css?v=20261104card-padding1', import.meta.url).href;
+  const stylesheet = new URL('./amp-parts.css?v=20261104card-padding2', import.meta.url).href;
   if (!document.querySelector('link[data-amp-parts]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';

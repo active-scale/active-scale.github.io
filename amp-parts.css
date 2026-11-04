@@ -70,6 +70,9 @@
   aspect-ratio:auto;
   background:radial-gradient(ellipse at 50% 36%,#fafaf5 0%,#e5eae7 76%);
 }
+@media(max-width:1100px) {
+  .amp-comparison {grid-template-columns:1fr}
+}
 @media(max-width:650px) {
   .amp-comparison .amp-parts .amp-parts-list {
     height:auto;
