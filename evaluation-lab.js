@@ -209,7 +209,7 @@ export function initEvaluationLab() {
     const replayMount = mount.querySelector('.ev-replay-mount');
     try {
       if (!replayPromise) {
-        replayPromise = import('./recorded-replay.mjs?v=20261104polish1').then(module => module.initRecordedReplay(replayMount, {episodeIndex, compact: true}));
+        replayPromise = import('./recorded-replay.mjs?v=20261104collision1').then(module => module.initRecordedReplay(replayMount, {episodeIndex, compact: true}));
       }
       replayController = await replayPromise;
       if (request !== replayGeneration) {replayController?.pause(); return;}

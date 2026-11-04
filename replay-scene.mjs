@@ -14,12 +14,17 @@ export function createReplayScene(scene) {
   const dark = new T.MeshStandardMaterial({color: '#30383b', roughness: .58});
   const surface = .79;
   const table = new T.Group();
-  table.position.set(.60, 0, 0);
-  const top = box(.74, .035, 1.08, wood);
+  table.name = 'Table';
+  // Keep the near edge at X=.35 m, clear of the frame and arm bases.
+  // The far edge and object/grasp anchors stay fixed in the recorded workspace.
+  table.position.set(.66, 0, 0);
+  const top = box(.62, .035, 1.08, wood);
+  top.name = 'Tabletop';
   top.position.y = surface;
   table.add(top);
-  for (const x of [-.32, .32]) for (const z of [-.48, .48]) {
+  for (const x of [-.26, .26]) for (const z of [-.48, .48]) {
     const leg = box(.038, surface, .038, dark);
+    leg.name = `Table leg ${x < 0 ? 'near' : 'far'} ${z < 0 ? 'left' : 'right'}`;
     leg.position.set(x, surface / 2, z);
     table.add(leg);
   }

@@ -6,3 +6,6 @@ assets/dataset-preview/egoverse-poster.jpg
 assets/dataset-preview/egosuite-browser.mp4
 assets/dataset-preview/egosuite-poster.jpg
 assets/model-lab/
+
+# Generated collision audit report.
+checks/last-pot-table-collision.json
