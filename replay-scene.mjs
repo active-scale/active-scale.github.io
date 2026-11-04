@@ -52,11 +52,15 @@ export function createReplayScene(scene) {
   const lid = new T.Group();
   lid.name = 'Lid';
   const lidShape = new T.Mesh(new T.SphereGeometry(.117, 40, 14, 0, Math.PI * 2, 0, Math.PI / 2), steel);
+  lidShape.name = 'Lid crown';
   lidShape.scale.y = .15;
   lid.add(lidShape);
-  const knob = new T.Mesh(new T.CylinderGeometry(.021, .024, .018, 24), dark);
+  const knob = new T.Mesh(new T.CylinderGeometry(.014, .014, .020, 48), dark);
+  knob.name = 'Lid knob';
   knob.position.y = .027;
-  lid.add(knob);
+  const knobCollar = new T.Mesh(new T.CylinderGeometry(.009, .012, 1, 32), dark);
+  knobCollar.name = 'Lid knob collar';
+  lid.add(knob, knobCollar);
   lid.position.set(.56, surface + .027, .28);
   root.add(pot, lid);
 
@@ -84,7 +88,7 @@ export function createReplayScene(scene) {
   root.add(shelf,onion);
   scene.add(root);
   // Contact intervals are read from episode 38's three camera streams, not physics estimates.
-  const timing = {onionPick: 8.07, onionRelease: 13.25, onionRest: 13.57, lidPick: 20.5, lidRelease: 25.42, lidRest: 25.75};
+  const timing = {onionPick: 8.07, onionRelease: 13.25, onionRest: 13.57, lidPick: 20.5, lidRelease: 25.1, lidRest: 25.42};
   const calibration = structuredClone(defaults);
   const identity = new T.Quaternion();
   const toolOffset = new T.Matrix4();
@@ -101,6 +105,18 @@ export function createReplayScene(scene) {
     return {position, rotation};
   }
 
+  function fingerBounds(arm, name) {
+    const mesh = arm.links[name].children.find(object => object.isMesh);
+    mesh.updateWorldMatrix(true, false);
+    const toTool = arm.links.link6.matrixWorld.clone().invert().multiply(mesh.matrixWorld);
+    const position = mesh.geometry.attributes.position;
+    const bounds = new T.Box3(), point = new T.Vector3();
+    for (let index = 0; index < position.count; index++) {
+      bounds.expandByPoint(point.fromBufferAttribute(position, index).applyMatrix4(toTool));
+    }
+    return bounds;
+  }
+
   function prepare(episode, rig, seconds) {
     function sample(time, arm, reach) {
       rig.pose(recordedJoints(episode, time, calibration));
@@ -108,10 +124,29 @@ export function createReplayScene(scene) {
     }
     const onionPick = sample(timing.onionPick, 'left', .105);
     const onionRelease = sample(timing.onionRelease, 'left', .105);
-    const lidGrip = sample(timing.lidPick, 'right', .105);
+    sample(timing.lidPick, 'right', 0);
+    const right = rig.arms.right;
+    const leftFinger = fingerBounds(right, 'link7');
+    const rightFinger = fingerBounds(right, 'link8');
+    // Use the opposing inner finger pads, rather than an arbitrary flange offset.
+    const gripPoint = new T.Vector3(0, (leftFinger.max.y + rightFinger.min.y) / 2,
+      Math.min(leftFinger.max.z, rightFinger.max.z) - .006);
+    const lidGrip = toolPose(rig, 'right', gripPoint);
     const lidStart = lidGrip.position.clone();
     lidStart.y = surface + .035 / 2;
-    const lidOffset = rig.arms.right.links.link6.worldToLocal(lidStart);
+    const knobHeight = lidGrip.position.y - lidStart.y;
+    const axisInTool = new T.Vector3(0, 1, 0).applyQuaternion(lidGrip.rotation.clone().invert());
+    const halfGap = (rightFinger.min.y - leftFinger.max.y) / 2;
+    const knobRadius = halfGap * Math.sqrt(1 - axisInTool.y ** 2);
+    knob.geometry.dispose();
+    knob.geometry = new T.CylinderGeometry(knobRadius, knobRadius, .020, 48);
+    knob.position.y = knobHeight;
+    // The unsurveyed lid crown is fitted to this recorded grasp while its base rests on the table.
+    const crownHeight = knobHeight - .014;
+    lidShape.scale.y = crownHeight / .117;
+    knobCollar.scale.y = .004;
+    knobCollar.position.y = crownHeight + .002;
+    const lidOffset = right.links.link6.worldToLocal(lidStart);
     const lidPick = toolPose(rig, 'right', lidOffset);
     const lidRelease = sample(timing.lidRelease, 'right', lidOffset);
     rig.pose(recordedJoints(episode, seconds, calibration));

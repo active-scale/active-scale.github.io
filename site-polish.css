@@ -50,3 +50,33 @@ p {text-wrap:pretty}
   .closing-grid {grid-template-columns:1fr;gap:22px}
   .closing-grid>div+div {border-left:0;border-top:1px solid var(--line);padding:22px 0 0}
 }
+
+/* A compact rhythm across the story, with enough plum luminance on dim screens. */
+.section {padding-block:clamp(42px,5vw,64px)}
+#data {padding-bottom:24px}
+#model {padding-top:40px}
+.masthead h1 {font-size:clamp(42px,6.3vw,94px)!important;line-height:1.05;letter-spacing:-.075em}
+.motivation-recordings {display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+.motivation-recordings figure {margin:0;border-radius:13px;overflow:hidden;background:#f6f5f0;color:#283036}
+.motivation-recordings video {width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#30223f}
+.motivation-recordings figcaption {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding:13px 16px}
+.motivation-recordings strong {font-size:17px}
+.motivation-recordings span {font-size:12px;color:#5e6670}
+.motivation-context {font-size:14px;line-height:1.6;color:#e5d6f1;margin:18px 0 24px;max-width:1020px}
+.motivation-context a {text-decoration:underline;text-underline-offset:3px;color:#f1deff}
+.recorded-demo {margin-top:30px}
+.recorded-demo>p {margin-bottom:16px}
+.recorded-toolbar {position:relative}
+.hardware-grid {gap:18px;align-items:stretch}
+.hardware-grid video {object-fit:cover;aspect-ratio:16/10}
+.hardware-grid .hardware-photo {aspect-ratio:16/10;position:relative}
+.hardware-photo img {position:absolute;width:132.2%;height:auto;max-width:none;left:-21.2%;top:50%;transform:translateY(-50%)}
+#system .assembly {margin-block:24px}
+@media(max-width:700px){
+  .motivation-recordings {grid-template-columns:1fr;gap:16px}
+  .motivation-recordings video {aspect-ratio:4/3}
+  .masthead h1 {font-size:clamp(42px,9vw,64px)!important}
+}
+
+.motivation {padding-bottom:34px}
+.system {padding-top:34px}

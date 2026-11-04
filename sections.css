@@ -46,4 +46,4 @@
 .nowrap{white-space:nowrap}
 #transfer{scroll-margin-top:85px}
 
-#task-replay{min-height:clamp(650px,55vw,800px)}
+#task-replay{min-height:0}

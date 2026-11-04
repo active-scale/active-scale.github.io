@@ -34,6 +34,78 @@ function paintWorkwear(scene) {
   });
 }
 
+function addShortHair(scene, head) {
+  scene.updateMatrixWorld(true);
+  const toHead = head.matrixWorld.clone().invert();
+  const vertices = [];
+  const normal = new T.Vector3();
+  const point = new T.Vector3();
+  const scalp = local => {
+    const front = T.MathUtils.smoothstep(local.z, -.025, .075);
+    const temple = T.MathUtils.smoothstep(Math.abs(local.x), .050, .080);
+    const hairline = .025 + front * (.080 - .018 * temple);
+    return local.y > hairline && local.y < .17 && Math.abs(local.x) < .12;
+  };
+  scene.traverse(mesh => {
+    if (!mesh.isSkinnedMesh) return;
+    const geometry = mesh.geometry;
+    const positions = geometry.getAttribute('position');
+    const normals = geometry.getAttribute('normal');
+    const index = geometry.index;
+    const normalTransform = new T.Matrix3().getNormalMatrix(
+      toHead.clone().multiply(mesh.matrixWorld)
+    );
+    const count = index ? index.count : positions.count;
+    for (let start = 0; start < count; start += 3) {
+      const triangle = [];
+      for (let corner = 0; corner < 3; corner++) {
+        const vertex = index ? index.getX(start + corner) : start + corner;
+        mesh.getVertexPosition(vertex, point).applyMatrix4(mesh.matrixWorld).applyMatrix4(toHead);
+        if (!scalp(point)) break;
+        normal.fromBufferAttribute(normals, vertex).applyMatrix3(normalTransform).normalize();
+        const thickness = .003 + .004 * T.MathUtils.smoothstep(point.y, .055, .145);
+        triangle.push(...point.clone().addScaledVector(normal, thickness).toArray());
+      }
+      if (triangle.length === 9) vertices.push(...triangle);
+    }
+  });
+  const geometry = new T.BufferGeometry();
+  geometry.setAttribute('position', new T.Float32BufferAttribute(vertices, 3));
+  geometry.computeVertexNormals();
+  const material = new T.MeshStandardMaterial({color:'#302720',roughness:.95});
+  if (typeof document !== 'undefined') {
+    const image = document.createElement('canvas');
+    image.width = image.height = 128;
+    const context = image.getContext('2d');
+    context.fillStyle = '#9e9485';context.fillRect(0,0,128,128);
+    for (let strand = 0; strand < 1100; strand++) {
+      const x = (strand * 47.73) % 128;
+      const y = (strand * 71.19) % 128;
+      const tone = 70 + Math.round((Math.sin(strand * 2.41) + 1) * 43);
+      context.strokeStyle = 'rgb(' + tone + ',' + tone + ',' + tone + ')';
+      context.lineWidth = .7;
+      context.beginPath();context.moveTo(x,y);
+      context.quadraticCurveTo(x + 1.2,y + 2.2,x + 2.4,y + 4.4);context.stroke();
+    }
+    const texture = new T.CanvasTexture(image);
+    texture.wrapS = texture.wrapT = T.RepeatWrapping;
+    texture.repeat.set(2,2);
+    // A small repeated fibre pattern adds short-hair texture without loose strands.
+    const hairPositions = geometry.getAttribute('position');
+    const uv = new Float32Array(hairPositions.count * 2);
+    for (let vertex = 0; vertex < hairPositions.count; vertex++) {
+      const x = hairPositions.getX(vertex), z = hairPositions.getZ(vertex);
+      uv[vertex * 2] = (x + .12) / .24;
+      uv[vertex * 2 + 1] = (z + .13) / .26;
+    }
+    geometry.setAttribute('uv',new T.BufferAttribute(uv,2));
+    material.map = texture;material.bumpMap = texture;material.bumpScale = .0006;
+  }
+  const hair = new T.Mesh(geometry,material);
+  hair.name = 'Fitted short hair';
+  head.add(hair);
+}
+
 function pointBoneAt(bone, child, target) {
   const origin = bone.getWorldPosition(new T.Vector3());
   const current = child.getWorldPosition(new T.Vector3()).sub(origin).normalize();
@@ -92,6 +164,7 @@ export async function createHumanAvatar(x) {
   const chest = bone('spine_03');
   const neck = bone('neck_01');
   const head = bone('head');
+  addShortHair(scene, head);
   const arms = ['r', 'l'].map(side => {
     const lower = bone('lowerarm_' + side), hand = bone('hand_' + side);
     const fingers = ['index', 'middle', 'ring', 'pinky'].map(finger =>

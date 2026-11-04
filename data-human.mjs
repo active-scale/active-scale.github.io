@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.min.js';
-import {createHumanAvatar} from './human-avatar.mjs?v=20261104k';
+import {createHumanAvatar} from './human-avatar.mjs?v=20261104refine3';
 
 function label(text, color = '#334b52', width = .30) {
   const image = document.createElement('canvas');
@@ -66,14 +66,33 @@ export async function initDataHuman(canvas) {
   const avatar = await createHumanAvatar(0);scene.add(avatar.scene);
   const headBone=avatar.scene.getObjectByName('head');
   const capture = new T.Group();
-  const cap = new T.Mesh(new T.SphereGeometry(.098,24,12),dark);
-  cap.scale.set(1,.42,1.06);cap.position.set(0,.13,-.015);
-  const sensor = new T.Mesh(new T.BoxGeometry(.072,.038,.035),new T.MeshStandardMaterial({color:'#ebece7',roughness:.42}));
-  sensor.position.set(0,.112,.098);
-  const lens = new T.Mesh(new T.CylinderGeometry(.012,.012,.008,24),new T.MeshStandardMaterial({color:'#182c3e',metalness:.35,roughness:.18}));
-  lens.rotation.x=Math.PI/2;lens.position.set(0,.112,.119);
-  capture.add(cap,sensor,lens);scene.add(capture);
-  const optical = new T.PerspectiveCamera(54,4/3,.018,.42);
+  const bandVertices = [];
+  const bandIndices = [];
+  const segments = 64;
+  for (let index = 0; index <= segments; index++) {
+    const angle = index / segments * Math.PI * 2;
+    const front = (Math.cos(angle) + 1) / 2;
+    for (const [radial, vertical] of [[0,-1],[0,1],[1,-1],[1,1]]) {
+      const width = .081 + radial * .004;
+      const depth = .092 + radial * .004;
+      bandVertices.push(Math.sin(angle) * width,.073 + front * .018 + vertical * .006,Math.cos(angle) * depth - .008);
+    }
+    if (index === segments) continue;
+    const first = index * 4, next = first + 4;
+    for (const [a,b] of [[0,1],[2,0],[1,3],[3,2]]) {
+      bandIndices.push(first+a,next+a,first+b,first+b,next+a,next+b);
+    }
+  }
+  const bandGeometry = new T.BufferGeometry();
+  bandGeometry.setAttribute('position',new T.Float32BufferAttribute(bandVertices,3));
+  bandGeometry.setIndex(bandIndices);bandGeometry.computeVertexNormals();
+  const headband = new T.Mesh(bandGeometry,dark);
+  const sensor = new T.Mesh(new T.BoxGeometry(.047,.028,.027),new T.MeshStandardMaterial({color:'#e5e7e0',roughness:.42}));
+  sensor.position.set(0,.091,.098);
+  const lens = new T.Mesh(new T.CylinderGeometry(.008,.008,.006,24),new T.MeshStandardMaterial({color:'#182c3e',metalness:.35,roughness:.18}));
+  lens.rotation.x=Math.PI/2;lens.position.set(0,.091,.1145);
+  capture.add(headband,sensor,lens);scene.add(capture);
+  const optical = new T.PerspectiveCamera(54,4/3,.018,.20);
   optical.position.copy(lens.position);optical.rotation.y=Math.PI;capture.add(optical);
   const frustum = new T.CameraHelper(optical),orange=new T.Color('#d16a1a');
   frustum.setColors(orange,orange,orange,orange,orange);scene.add(frustum);
@@ -81,7 +100,7 @@ export async function initDataHuman(canvas) {
   for(const frame of frames)scene.add(frame.root,frame.title);
 
   const palmRest=[new T.Vector3(-.24,1.015,.19),new T.Vector3(.24,1.015,.21)];
-  const contact=new T.Vector3(-.153,.951,.329);
+  const contact=new T.Vector3(-.195,.951,.329);
   function poseAt(progress){
     const ease=(a,b)=>T.MathUtils.smoothstep(progress,a,b);
     const reach=ease(.14,.44)*(1-ease(.70,.96));

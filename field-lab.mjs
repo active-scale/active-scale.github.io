@@ -1,7 +1,7 @@
 import * as T from './vendor/three.module.min.js';
 import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104k';
 import {createAmpParts} from './amp-parts.mjs?v=20261104k';
-import {initViewpointDemo} from './viewpoint-demo.mjs?v=20261104k';
+import {initViewpointDemo} from './viewpoint-demo.mjs?v=20261104refine3';
 
 const $ = id => document.getElementById(id);
 const vector = (x=0,y=0,z=0) => new T.Vector3(x,y,z);
@@ -49,7 +49,7 @@ async function teleoperation() {
   const scene=stage(),camera=new T.PerspectiveCamera(36,1,.04,30);
   const hx=-.87,rx=.87;
   const [avatar,gear,rig]=await Promise.all([
-    import('./human-avatar.mjs?v=20261104polish1').then(module=>module.createHumanAvatar(hx)),
+    import('./human-avatar.mjs?v=20261104refine3').then(module=>module.createHumanAvatar(hx)),
     import('./vr-gear.mjs?v=20261104k').then(module=>module.createQuestGear()),
     createAmp()
   ]);
@@ -57,8 +57,10 @@ async function teleoperation() {
   const head=new T.Group();head.add(gear.headset);scene.add(head,...gear.controllers);
   rig.root.position.set(rx,0,-.22);rig.root.rotation.y=-Math.PI/2;
   scene.add(rig.root,...rig.frusta());
+  const {createTeleopTask}=await import('./teleop-task.mjs?v=20261104refine3');
+  const task=createTeleopTask(scene,rig);
   const axes=Array.from({length:6},()=>new T.AxesHelper(.12));scene.add(...axes);
-  const view={yaw:0,pitch:.17,zoom:1};
+  const view={yaw:.08,pitch:.24,zoom:1};
   const timeline=$('motion'),button=$('motion-play');let animation=0,lastTime;
   button.disabled=false;button.textContent='Play teleoperation';
   const note=$('transfer-note');
@@ -69,9 +71,14 @@ async function teleoperation() {
     const distance=Math.max(2.8,3.8/camera.aspect)*view.zoom;
     camera.position.set(Math.sin(view.yaw)*Math.cos(view.pitch)*distance,1.05+Math.sin(view.pitch)*distance,Math.cos(view.yaw)*Math.cos(view.pitch)*distance);
     camera.lookAt(0,1.05,0);
-    const phase=Number(timeline.value)/100,angle=phase*2*Math.PI;
-    const wave=Math.sin(angle),lift=Math.sin(Math.PI*phase)**2;
-    const handTargets=[vector(hx-.25+.035*wave,1.05+.15*lift,.31+.09*lift),vector(hx+.25-.025*wave,1.07+.10*lift,.26+.055*lift)];
+    const phase=Number(timeline.value)/100;
+    const taskState=task.update(phase);
+    const movement=taskState.hand.clone().sub(task.pick);
+    const wave=Math.sin(taskState.phase*2*Math.PI),lift=taskState.reach;
+    const handTargets=[
+      vector(hx-.25+movement.x,1.05+movement.y,.31+movement.z),
+      vector(hx+.25,1.07+.025*lift,.26)
+    ];
     const pose=avatar.pose({reach:.25,lift,turn:-.18*wave,handTargets,holdingControllers:true});
     head.position.copy(pose.headPosition);head.quaternion.copy(pose.headRotation);head.updateMatrixWorld(true);
     const frames=[{position:head.localToWorld(vector(0,.035,.13)),rotation:pose.headRotation},...pose.hands];
@@ -79,11 +86,6 @@ async function teleoperation() {
     frames.forEach((frame,index)=>{
       axes[index].position.copy(frame.position);axes[index].quaternion.copy(frame.rotation);
     });
-    const calibration=structuredClone(defaults),joints=calibration.joints;
-    Object.assign(joints.right,{joint1:10*wave,joint2:5+40*lift,joint3:-28*lift,joint4:-8*wave,joint5:12*lift,joint7:16+9*wave,joint8:-16-9*wave});
-    Object.assign(joints.left,{joint1:-7*wave,joint2:5+30*lift,joint3:-20*lift,joint4:6*wave,joint5:9*lift,joint7:16-7*wave,joint8:-16+7*wave});
-    Object.assign(joints.center,{joint1:18*wave,joint2:31+6*lift,joint3:-39,joint5:25});
-    rig.pose(calibration);
     ['center','right','left'].forEach((name,index)=>{
       const frame=name==='center'?rig.arms[name].optical:rig.arms[name].links.link6;
       frame.getWorldPosition(axes[index+3].position);frame.getWorldQuaternion(axes[index+3].quaternion);
@@ -124,4 +126,4 @@ initViewpointDemo();
 whenVisible($('transfer-scene'),()=>teleoperation().catch(error=>{console.error(error);$('transfer-note').textContent='The real hardware is shown in the photograph above.';}));
 whenVisible($('assembly'),()=>hardwareAssembly().catch(console.error));
 const replayMount=$('task-replay');
-if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104collision1').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));
+if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104refine3').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));

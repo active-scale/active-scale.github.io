@@ -1,7 +1,7 @@
 import * as T from './vendor/three.module.min.js';
 import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104k';
 import {recordedJoints, setRecordedOptics} from './recorded-motion.mjs?v=20261104k';
-import {createReplayScene} from './replay-scene.mjs?v=20261104collision1';
+import {createReplayScene} from './replay-scene.mjs?v=20261104refine3';
 
 const episodes = [
   ['Backpack · episode 128', './assets/replay/backpack-episode-128.json'],
@@ -32,14 +32,13 @@ export async function initRecordedReplay(container, options = {}) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
     style.dataset.recordedStyle = '';
-    style.href = new URL('./recorded-replay.css?v=20261104k', import.meta.url).href;
+    style.href = new URL('./recorded-replay.css?v=20261104refine3', import.meta.url).href;
     document.head.append(style);
   }
   const body = document.createElement('div');
   body.className = 'recorded-replay' + (options.compact ? ' recorded-compact' : '');
   body.innerHTML = `
     <div class="recorded-toolbar">
-      <span class="recorded-source">Pot · recorded demonstration</span>
       <button type="button" disabled>Loading…</button>
       <label>Speed <select aria-label="Recorded playback speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
     </div>
@@ -143,6 +142,7 @@ export async function initRecordedReplay(container, options = {}) {
   function seek(seconds) {
     elapsed = T.MathUtils.clamp(seconds, 0, duration());
     if (hasVideo) videos.forEach(video => {video.currentTime = elapsed;});
+    if (!playing) play.textContent = elapsed >= duration() ? 'Replay' : 'Play demonstration';
     draw();
   }
 
@@ -184,10 +184,9 @@ export async function initRecordedReplay(container, options = {}) {
       episode = data;
       hasVideo = index === 2;
       placement.visible = index === 2;
-      body.querySelector('.recorded-source').textContent = episodes[index][0] + ' · demonstration';
       body.querySelector('.recorded-cameras').hidden = !hasVideo;
       body.querySelector('.recorded-note').textContent = hasVideo
-        ? 'Recorded joint and camera trajectories at 30 Hz. All three videos share this timeline. Scene objects are illustrative placements.'
+        ? 'Recorded motion and camera views share one timeline. Scene placement is illustrative.'
         : 'Recorded joint trajectory at 30 Hz. This older excerpt has no camera videos.';
       elapsed = 0;timeline.max = duration();
       body.querySelector('.recorded-instruction').textContent = episode.instruction;
@@ -201,6 +200,11 @@ export async function initRecordedReplay(container, options = {}) {
         if (currentGeneration !== generation) return;
       }
       play.disabled = false;limits.textContent = '';stop();
+      // Loading the models and videos can change this section's height after
+      // its first intersection entry. Re-check its final visible area.
+      const bounds = body.getBoundingClientRect();
+      const visibleHeight = Math.max(0, Math.min(bounds.bottom, innerHeight) - Math.max(bounds.top, 0));
+      inView = bounds.height > 0 && visibleHeight / bounds.height >= .25;
       if (inView && !userPaused && !reduced.matches) startPlayback();
     } catch (error) {
       if (currentGeneration !== generation) return;
