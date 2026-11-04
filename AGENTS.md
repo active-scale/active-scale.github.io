@@ -10,7 +10,7 @@ User-approved preferences collected while designing this project. Apply these to
 - Use tasteful handwriting for short expressive phrases and hints, not dense explanatory copy. Reference: https://talkingtorobots.com/yonatanbisk.html. Preserve readable body typography.
 - Hovered cards should lift slightly with soft shadows. Make the interactive element feel responsive without moving diagram connections away from their endpoints.
 - Preserve generous and consistent inner padding around images, titles, and captions. Leave clearance around a card for its lifted position and shadow; hovering must never make content appear flush with an edge.
-- Keep the side contents inset from the viewport edge. In the hero, place the full paper title below the expressive main heading; omit a repeated recipe tagline above the author information.
+- Keep the side contents inset from the viewport edge. Move the wordmark, drag hint, contents, and robot handle together when adjusting this inset; widening the sidebar region alone is insufficient. In the hero, place the full paper title below the expressive main heading; omit a repeated recipe tagline above the author information.
 
 ## Motion and interaction
 
