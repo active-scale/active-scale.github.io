@@ -15,11 +15,11 @@
   ];
   const canRead = (query, key) => query >= 8 || history[key].frame <= history[query].frame;
   const queryButton = (index, content, attributes = '') => `<button type="button" data-query="${index}" aria-pressed="false" aria-label="Inspect ${queries[index].name}" ${attributes}>${content}</button>`;
-  const cameraToken = (frame, port = '') => queryButton(frame*2+1, symbol('camera',frame), `class="as-camera-token" ${port}`);
-  const visualToken = (frame, port = '') => queryButton(frame*2, symbol('visual',frame), `class="as-visual-token" ${port}`);
+  const cameraToken = (frame, port = '') => queryButton(frame*2+1, 'C', `class="as-camera-token" ${port}`);
+  const visualToken = (frame, port = '') => queryButton(frame*2, 'V', `class="as-visual-token" ${port}`);
   function backboneStrip(position) {
     return `<div class="as-backbone-strip as-${position}-strip" aria-label="Backbone ${position} token sequence">
-      ${times.map((_,frame) => `<div class="as-strip-block" data-history-block="${frame}">${visualToken(frame,`data-${position}-visual="${frame}"`)}${cameraToken(frame,`data-${position}-camera="${frame}"`)}</div>`).join('')}
+      ${times.map((_,frame) => `<div class="as-strip-block" data-history-block="${frame}"><span class="as-strip-time">${times[frame]}</span>${visualToken(frame,`data-${position}-visual="${frame}"`)}${cameraToken(frame,`data-${position}-camera="${frame}"`)}</div>`).join('')}
       <div class="as-strip-context">${position === 'input' ? 'Wrist · state<br>language' : 'Context<br>outputs'}</div>
     </div>`;
   }
@@ -41,24 +41,23 @@
         </defs><g data-pose-connections></g><g data-input-connections></g></svg>
         <div class="as-vlm-output">
           <div class="as-output as-pose" data-pose-head>
-            <span class="as-label">From the four yellow output camera tokens</span>
-            <strong><span aria-hidden="true">📷</span> Camera-pose reconstruction</strong>
-            <span>Linear projection → shared VGGT-style head</span>
-            <small>3 translation + 4 quaternion + 2 FoV values</small>
+            <span class="as-output-icon" aria-hidden="true">📷</span>
+            <span class="as-label">Reconstruct viewpoint geometry</span>
+            <strong>Camera-pose head</strong>
             <b data-pose-status></b>
           </div>
           <div class="as-output as-language" data-language-head>
-            <span class="as-label">Autoregressive outputs</span>
-            <strong data-subtask-title>Subtask + FAST prediction</strong>
-            <span class="as-command">“Open the bag”</span>
-            <small data-fast-detail></small>
+            <span class="as-output-icon" aria-hidden="true">💬</span>
+            <span class="as-label" data-language-role>Predict the current subtask</span>
+            <strong data-subtask-title>Autoregressive head</strong>
             <b data-language-status></b>
           </div>
         </div>
         <div class="as-output as-action as-action-output">
-          <span class="as-label">Continuous output</span><strong><span aria-hidden="true">🦾</span> Action chunk</strong>
-          <svg viewBox="0 0 180 46" role="img" aria-label="A continuous action trajectory"><path class="as-trajectory-guide" d="M5 37C42 37 48 8 87 8s43 23 88 8"/><path class="as-trajectory" d="M5 37C42 37 48 8 87 8s43 23 88 8"/></svg>
-          <small>Camera motion + bimanual manipulation</small><b data-action-status></b>
+          <span class="as-output-icon" aria-hidden="true">🦾</span>
+          <span class="as-label">Generate robot commands</span>
+          <strong>Action chunk</strong>
+          <b data-action-status></b>
         </div>
         <div class="as-readout-gap"><span class="as-readout-label">Output hidden states</span><i class="as-language-flow"></i></div>
         <div class="as-action-flow"><i></i></div>
@@ -71,7 +70,7 @@
         <div class="as-expert as-processor">
           <div class="as-action-token-strip">a₁ · a₂ · … · a₅₀</div>
           ${queryButton(9,'<strong>🦾 Action expert</strong><span>Transformer · flow matching</span>')}
-          <div class="as-action-token-strip">xτ + flow time τ</div>
+          <div class="as-action-token-strip">Denoising input</div>
         </div>
         <div class="as-prefix-gap"><span>Input token sequence</span></div>
         <div class="as-noise-flow"><i></i></div>
@@ -79,12 +78,11 @@
           <div class="as-history">
             <div class="as-ego-example"><img loading="lazy" src="assets/replay/backpack-episode-128-cam_front-initial.jpg" alt="Example AMP head-camera observation of the backpack"><div><strong data-ego-label>Human / robot egocentric video</strong><span>Four front-camera frames · shared vision encoder</span></div></div>
             <div class="as-history-blocks" role="group" aria-label="Each frame's visual tokens followed by its camera token">
-              ${times.map((time,frame) => `<div class="as-frame-input"><strong>I<sup>f</sup><sub>${time}</sub></strong><div>${visualToken(frame,`data-source-visual="${frame}"`)}${cameraToken(frame,`data-source-camera="${frame}"`)}</div></div>`).join('')}
+              ${times.map((time,frame) => `<div class="as-frame-input"><strong>${time}</strong><div>${visualToken(frame,`data-source-visual="${frame}"`)}${cameraToken(frame,`data-source-camera="${frame}"`)}</div></div>`).join('')}
             </div>
-            <p class="as-embedding-note">Append one camera token after each frame: <b>c<sub>first</sub></b> for the earliest valid frame; <b>c<sub>rest</sub></b> for subsequent frames.</p>
           </div>
           <div class="as-current-inputs">
-            <div class="as-label">Current robot context · where available</div>
+            <div class="as-label">Robot context</div>
             <div class="as-wrist-pair">
               ${queryButton(8,'<img loading="lazy" src="assets/replay/backpack-episode-128-cam_left-initial.jpg" alt="AMP left wrist camera view"><span>Left wrist</span>')}
               ${queryButton(8,'<img loading="lazy" src="assets/replay/backpack-episode-128-cam_right-initial.jpg" alt="AMP right wrist camera view"><span>Right wrist</span>')}
@@ -94,15 +92,18 @@
           <div class="as-language-inputs">
             <div class="as-label"><span aria-hidden="true">💬</span> Language</div>
             ${queryButton(8,'<small>High-level instruction</small><span>“Reach the bottle”</span>')}
-            <span class="as-language-route">High-level subtask → low-level conditioning</span>
-            ${queryButton(8,'<small>Current low-level subtask</small><span>“Open the bag”</span>')}
+            ${queryButton(8,'<small>Low-level subtask</small><span>“Open the bag”</span>')}
           </div>
         </div>
         <div class="as-action-input as-action">
-          <span class="as-label"><span aria-hidden="true">🦾</span> Action input</span>
-          <svg viewBox="0 0 180 64" aria-hidden="true" class="as-noise">${Array.from({length:62},(_,i)=>`<circle cx="${14+((i*37)%153)}" cy="${8+((i*23)%49)}" r="1.6"/>`).join('')}</svg>
-          <strong data-action-input></strong><span>Flow time τ</span><small data-flow-input-detail></small>
-          <span class="as-command">Subtask-conditioned context</span>
+          <span class="as-label">Action input</span>
+          <svg viewBox="0 0 180 48" role="img" aria-label="Denoising turns noisy actions into an action trajectory" class="as-denoise">
+            <g><circle cx="9" cy="11" r="2"/><circle cx="17" cy="32" r="2"/><circle cx="26" cy="16" r="2"/><circle cx="37" cy="36" r="2"/><circle cx="43" cy="8" r="2"/><circle cx="8" cy="24" r="2"/><circle cx="28" cy="38" r="2"/><circle cx="42" cy="24" r="2"/><circle cx="22" cy="7" r="2"/><circle cx="31" cy="27" r="2"/></g>
+            <path class="as-denoise-arrow" d="M64 24H94m-6-5 6 5-6 5"/>
+            <path class="as-denoise-curve" d="M108 36C123 36 125 10 142 10s18 22 30 8"/>
+          </svg>
+          <strong data-action-input></strong>
+          <small data-flow-input-detail></small>
         </div>
         <div class="as-legend"><span>Visual features V</span><span>📷 Camera tokens C</span><span>State + language</span><span>Action tokens</span></div>
       </div>
@@ -147,22 +148,22 @@
   const stage = {
     'mid-training': {
       data:'Human–robot co-training · balanced 1:1 sampling',ego:'Human / robot egocentric video',
-      pose:'Valid targets: 0.2 L_cam',subtask:'Subtask + FAST prediction',fast:'High-level human: subtask CE · low-level human / robot: FAST CE',language:'Autoregressive objectives enabled',action:'Flow-matching supervision',
-      input:'Noisy action chunk xτ',inputDetail:'xτ = τ ε + (1 − τ) a',
+      pose:'Camera-pose supervision',role:'Predict the current subtask',subtask:'Autoregressive head',language:'Subtask + FAST tokens',action:'Flow-matching supervision',
+      input:'Perturbed actions',inputDetail:'Learn to denoise',
       objective:'Mid-training: subtask + FAST + flow + camera-pose supervision',
-      note:'High-level human samples supervise subtask prediction. Low-level human and robot samples supervise FAST and flow; human action losses receive weight 0.2. Camera loss has weight 0.2 and applies only where geometric targets are valid. Missing action dimensions and pose targets are masked.',
+      note:'Mixed human and robot demonstrations train task reasoning and action prediction together. Camera-pose supervision grounds the history in geometry. Missing action dimensions and geometric targets are masked.',
     },
     'fine-tuning': {
       data:'Task-specific fine-tuning · AMP teleoperation demonstrations',ego:'AMP front-camera history',
-      pose:'Valid targets: 0.2 L_cam',subtask:'Subtask / FAST objectives off',fast:'No autoregressive subtask or FAST loss',language:'Architecture unchanged',action:'Flow-matching supervision',
-      input:'Noisy action chunk xτ',inputDetail:'xτ = τ ε + (1 − τ) a',
-      objective:'Fine-tuning: L_flow + 0.2 L_cam',
+      pose:'Camera-pose supervision',role:'Predict the current subtask',subtask:'Autoregressive head',language:'Prediction objectives off',action:'Flow-matching supervision',
+      input:'Perturbed actions',inputDetail:'Learn to denoise',
+      objective:'Fine-tuning: action + camera-pose supervision',
       note:'This is the paper’s task-specific post-training stage. The AMP demonstrations provide aligned robot-action and camera trajectories. The model keeps the same architecture and action representation, while optimizing flow and camera-pose losses only.',
     },
     inference: {
       data:'Deployment · current robot observations + history',ego:'AMP front-camera history',
-      pose:'Auxiliary head removed',subtask:'Subtask conditioning',fast:'FAST training objective is not evaluated',language:'No autoregressive training loss',action:'Continuous camera + manipulation actions',
-      input:'Gaussian noise ε',inputDetail:'Iterative flow-matching denoising',
+      pose:'Auxiliary head removed',role:'Condition the action expert',subtask:'Subtask instruction',language:'No training supervision',action:'Camera + manipulation commands',
+      input:'Sampled noise',inputDetail:'Denoise to act',
       objective:'Inference: observe → denoise → execute',
       note:'The camera tokens remain in the visual prefix, with the same block-causal history mask. The auxiliary camera head is removed. Encoded visual, state and language context conditions the original π₀.₅ action expert to generate continuous action chunks; no training losses are evaluated.',
     },
@@ -171,7 +172,7 @@
     root.dataset.mode=mode;
     modes.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.mode===mode)));
     const current=stage[mode];
-    for(const [attribute,key] of Object.entries({'stage-data':'data','ego-label':'ego','pose-status':'pose','subtask-title':'subtask','fast-detail':'fast','language-status':'language','action-status':'action','action-input':'input','flow-input-detail':'inputDetail','objective':'objective','mode-note':'note'}))root.querySelector(`[data-${attribute}]`).textContent=current[key];
+    for(const [attribute,key] of Object.entries({'stage-data':'data','ego-label':'ego','pose-status':'pose','language-role':'role','subtask-title':'subtask','language-status':'language','action-status':'action','action-input':'input','flow-input-detail':'inputDetail','objective':'objective','mode-note':'note'}))root.querySelector(`[data-${attribute}]`).textContent=current[key];
   }
   function drawConnections() {
     const architecture=root.querySelector('.as-architecture');
