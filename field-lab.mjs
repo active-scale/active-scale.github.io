@@ -49,7 +49,7 @@ async function teleoperation() {
   const scene=stage(),camera=new T.PerspectiveCamera(36,1,.04,30);
   const hx=-.87,rx=.87;
   const [avatar,gear,rig,{createTeleopTask},{createTeleopHud}]=await Promise.all([
-    import('./human-avatar.mjs?v=20261104polish6').then(module=>module.createHumanAvatar(hx)),
+    import('./human-avatar.mjs?v=20261104shorts1').then(module=>module.createHumanAvatar(hx)),
     import('./vr-gear.mjs?v=20261104k').then(module=>module.createQuestGear()),
     createAmp(),import('./teleop-task.mjs?v=20261104egg2'),import('./teleop-hud.mjs?v=20261104polish6')
   ]);

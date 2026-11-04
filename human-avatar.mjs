@@ -34,7 +34,7 @@ function paintWorkwear(scene) {
   });
 }
 
-function addMediumHair(scene, head) {
+function addShortHair(scene, head) {
   scene.updateMatrixWorld(true);
   const toHead = head.matrixWorld.clone().invert();
   const vertices = [];
@@ -90,7 +90,7 @@ function addMediumHair(scene, head) {
     const texture = new T.CanvasTexture(image);
     texture.wrapS = texture.wrapT = T.RepeatWrapping;
     texture.repeat.set(2,2);
-    // Fine, dark fibres follow the scalp and the longer side and nape sections.
+    // Fine, dark fibres follow the fitted scalp surface.
     const hairPositions = geometry.getAttribute('position');
     const uv = new Float32Array(hairPositions.count * 2);
     for (let vertex = 0; vertex < hairPositions.count; vertex++) {
@@ -102,78 +102,13 @@ function addMediumHair(scene, head) {
     material.map = texture;material.bumpMap = texture;material.bumpScale = .0006;
   }
   const hair = new T.Mesh(geometry,material);
-  hair.name = 'Fitted medium-length hair';
-  const lengths = 14, sections = 48;
-  const curtainPositions = [], curtainUv = [], curtainIndices = [];
-  for (let row = 0; row <= lengths; row++) {
-    const down = row / lengths;
-    for (let section = 0; section <= sections; section++) {
-      const around = section / sections;
-      const opening = 1.03 + .40 * down;
-      const angle = opening + around * (Math.PI * 2 - opening * 2);
-      const back = (1 - Math.cos(angle)) / 2;
-      const lock = .0038 * Math.sin(angle * 11 + down * 3) * Math.sin(down * Math.PI);
-      const width = .092 + .014 * Math.sin(down * Math.PI) - .009 * down + lock;
-      const depth = .094 + .013 * down + lock;
-      const bottom = .23 + .055 * back;
-      const tips = .009 * Math.sin(angle * 9 + .4) * down ** 5;
-      curtainPositions.push(Math.sin(angle) * width,.075 - bottom * down + tips,
-        Math.cos(angle) * depth - .010 - .018 * down);
-      curtainUv.push(around,down);
-      if (row < lengths && section < sections) {
-        const start = row * (sections + 1) + section;
-        curtainIndices.push(start,start + sections + 1,start + 1,
-          start + 1,start + sections + 1,start + sections + 2);
-      }
-    }
-  }
-  const curtainGeometry = new T.BufferGeometry();
-  curtainGeometry.setAttribute('position',new T.Float32BufferAttribute(curtainPositions,3));
-  curtainGeometry.setAttribute('uv',new T.Float32BufferAttribute(curtainUv,2));
-  curtainGeometry.setIndex(curtainIndices);curtainGeometry.computeVertexNormals();
-  const curtain = new T.Mesh(curtainGeometry,material);
-  curtain.name = 'Ear and nape hair';
-  const part = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([
-    new T.Vector3(0,.119,.088),new T.Vector3(0,.151,.034),new T.Vector3(0,.151,-.030)
-  ]),18,.0008,6,false),new T.MeshStandardMaterial({color:'#4c453c',roughness:1}));
-  head.add(hair,curtain,part);
-
-  // Roots follow the scalp while the lengths hang along the neck and shoulders.
-  // This keeps a downward head turn from swinging the hair out as one rigid sheet.
-  head.updateWorldMatrix(true,false);
-  const neck = head.parent;
-  const rest = Float32Array.from(curtainPositions);
-  const neckInverse = neck.matrixWorld.clone().invert();
-  const neckCoordinates = [];
-  const sample = new T.Vector3();
-  for (let index = 0; index < rest.length; index += 3) {
-    sample.fromArray(rest,index).applyMatrix4(head.matrixWorld).applyMatrix4(neckInverse);
-    neckCoordinates.push(...sample.toArray());
-  }
-  const headInverse = new T.Matrix4();
-  const hanging = new T.Vector3();
-  const updateDrape = () => {
-    head.updateWorldMatrix(true,false);
-    headInverse.copy(head.matrixWorld).invert();
-    const positions = curtainGeometry.getAttribute('position');
-    for (let vertex = 0; vertex < positions.count; vertex++) {
-      const down = Math.floor(vertex / (sections + 1)) / lengths;
-      const blend = T.MathUtils.smoothstep(down,.08,.78);
-      hanging.fromArray(neckCoordinates,vertex * 3).applyMatrix4(neck.matrixWorld).applyMatrix4(headInverse);
-      sample.fromArray(rest,vertex * 3).lerp(hanging,blend);
-      positions.setXYZ(vertex,sample.x,sample.y,sample.z);
-    }
-    positions.needsUpdate = true;
-    curtainGeometry.computeVertexNormals();
-    curtainGeometry.computeBoundingSphere();
-  };
-  curtain.onBeforeRender = updateDrape;
-  return updateDrape;
+  hair.name = 'Fitted short hair';
+  head.add(hair);
 }
 
 function addClothing(scene) {
   const shirtMaterial = new T.MeshStandardMaterial({color:'#171b1e',roughness:.94});
-  const shortsMaterial = new T.MeshStandardMaterial({color:'#1a1e21',roughness:.94});
+  const shortsMaterial = new T.MeshStandardMaterial({color:'#1a1e21',roughness:.94,side:T.DoubleSide});
   const bodyMeshes = [];
   scene.traverse(mesh => {if (mesh.isSkinnedMesh) bodyMeshes.push(mesh);});
   for (const body of bodyMeshes) {
@@ -202,14 +137,45 @@ function addClothing(scene) {
     shirt.bind(body.skeleton,body.bindMatrix.clone());
     shirt.frustumCulled = false;shirt.name = 'Black T-shirt';
     body.parent.add(shirt);
-  }
-  for (const side of ['r','l']) {
-    const thigh = scene.getObjectByName('thigh_' + side);
-    const leg = new T.Mesh(new T.CylinderGeometry(.080,.103,.28,32,3,true),shortsMaterial);
-    leg.position.y = .15;leg.name = 'Black shorts leg';
-    const hem = new T.Mesh(new T.RingGeometry(.075,.081,32),shortsMaterial);
-    hem.rotation.x = -Math.PI / 2;hem.position.y = .29;
-    thigh.add(leg,hem);
+
+    // Tailor the shorts from the body's skinned surface, including the waist and
+    // crotch. A level hem preserves rounded leg openings without rigid cylinders.
+    const shortsGeometry = body.geometry.clone();
+    const shortsPositions = shortsGeometry.getAttribute('position');
+    const sourceNormals = body.geometry.getAttribute('normal');
+    const worldHeights = [];
+    const lateralPositions = [];
+    const toLocal = body.matrixWorld.clone().invert();
+    const normalMatrix = new T.Matrix3().getNormalMatrix(body.matrixWorld);
+    const worldNormal = new T.Vector3();
+    const lowerHem = .60, waist = .96;
+    for (let vertex = 0; vertex < shortsPositions.count; vertex++) {
+      body.getVertexPosition(vertex,point).applyMatrix4(body.matrixWorld);
+      worldHeights[vertex] = point.y;
+      lateralPositions[vertex] = Math.abs(point.x);
+      worldNormal.fromBufferAttribute(sourceNormals,vertex).applyMatrix3(normalMatrix).normalize();
+      point.addScaledVector(worldNormal,.008);
+      point.y = T.MathUtils.clamp(point.y,lowerHem,waist);
+      point.applyMatrix4(toLocal);
+      shortsPositions.setXYZ(vertex,point.x,point.y,point.z);
+    }
+    const shortsVertices = [];
+    for (let first = 0; first < count; first += 3) {
+      const triangle = [0,1,2].map(corner => sourceIndex ? sourceIndex.getX(first + corner) : first + corner);
+      const heights = triangle.map(vertex => worldHeights[vertex]);
+      if (Math.max(...heights) >= lowerHem && Math.min(...heights) <= waist &&
+          triangle.every(vertex => lateralPositions[vertex] < .30)) {
+        shortsVertices.push(...triangle);
+      }
+    }
+    shortsGeometry.setIndex(shortsVertices);
+    shortsGeometry.computeVertexNormals();
+    shortsGeometry.computeBoundingBox();shortsGeometry.computeBoundingSphere();
+    const shorts = new T.SkinnedMesh(shortsGeometry,shortsMaterial);
+    shorts.position.copy(body.position);shorts.quaternion.copy(body.quaternion);shorts.scale.copy(body.scale);
+    shorts.bind(body.skeleton,body.bindMatrix.clone());
+    shorts.frustumCulled = false;shorts.name = 'Black tailored shorts';
+    body.parent.add(shorts);
   }
 }
 
@@ -272,7 +238,7 @@ export async function createHumanAvatar(x) {
   const chest = bone('spine_03');
   const neck = bone('neck_01');
   const head = bone('head');
-  const updateHair = addMediumHair(scene, head);
+  addShortHair(scene, head);
   const arms = ['r', 'l'].map(side => {
     const lower = bone('lowerarm_' + side), hand = bone('hand_' + side);
     const fingers = ['index', 'middle', 'ring', 'pinky'].map(finger =>
@@ -340,7 +306,6 @@ export async function createHumanAvatar(x) {
       }
       return {position: wrist.addScaledVector(forward.clone().applyQuaternion(rotation), .066), rotation};
     });
-    updateHair();
     return {
       headPosition: head.getWorldPosition(new T.Vector3()),
       headRotation: head.getWorldQuaternion(new T.Quaternion()),

@@ -50,7 +50,7 @@
     const image=document.createElement('img');image.loading='lazy';image.alt='';image.src=base+'net-ego-'+String(i%28).padStart(2,'0')+'.webp';tile.append(image);mount.querySelector('.recipe-net-mosaic').append(tile);
   }
   let index=0,playing=false,visible=false,elapsed=0,lastTime,animation=0,human,gap,humanLoading,gapLoading;
-  function loadHuman(){humanLoading??=import('./data-human.mjs?v=20261104polish6').then(module=>module.initDataHuman(mount.querySelector('.recipe-human-motion canvas'))).then(controller=>{human=controller;syncMedia();}).catch(console.error);}
+  function loadHuman(){humanLoading??=import('./data-human.mjs?v=20261104shorts1').then(module=>module.initDataHuman(mount.querySelector('.recipe-human-motion canvas'))).then(controller=>{human=controller;syncMedia();}).catch(console.error);}
   function loadGap(){gapLoading??=import('./data-gap.mjs?v=20261104data2').then(module=>module.initDataGap(mount.querySelector('.recipe-gap canvas'))).then(controller=>{gap=controller;syncMedia();}).catch(console.error);}
   function syncMedia(){
     const kind=stages[index][0],animate=visible&&!document.hidden&&!reduced.matches;
