@@ -57,7 +57,8 @@ function comicBurst() {
 
 /** A user-triggered cartoon vignette; the normal demonstration owns the environment. */
 export async function createTeleopEasterEgg({scene,rig}) {
-  const duration=9.4,impact=3.75;
+  const duration=6.6,impact=2.37;
+  const jabStart=impact-.09,recoilStart=impact+.035,recoilEnd=recoilStart+.17;
   const basePosition=rig.root.position.clone(),baseRotation=rig.root.quaternion.clone();
   const visitorPosition=new T.Vector3(2.30,.85,.08);
   const drive=.58,turn=Math.PI/2;
@@ -93,9 +94,9 @@ export async function createTeleopEasterEgg({scene,rig}) {
   const motion=time=>{
     const t=phaseTime(time);
     return {
-      yaw:turn*(ease(t,.4,1.5)-ease(t,6.05,7.25)),
-      travel:drive*(ease(t,1.5,2.9)-ease(t,4.9,6.05)),
-      punch:ease(t,3.45,impact)*(1-ease(t,4.05,4.6)),
+      yaw:turn*(ease(t,.18,.95)-ease(t,4.15,4.95)),
+      travel:drive*(ease(t,.95,1.95)-ease(t,3.25,4.15)),
+      punch:ease(t,jabStart,impact)*(1-ease(t,recoilStart,recoilEnd)),
     };
   };
   function stop(){
@@ -135,8 +136,8 @@ export async function createTeleopEasterEgg({scene,rig}) {
       guest.root.rotation.y=fly*.8;
     }
     guest.pose(t,ease(t,impact,impact+.22));
-    guest.opacity(ease(t,0,.35)*(1-ease(t,5.0,5.6)));
-    guest.root.visible=t<5.6;
+    guest.opacity(ease(t,0,.25)*(1-ease(t,impact+1.25,impact+1.85)));
+    guest.root.visible=t<impact+1.85;
     guest.shadow.visible=t<impact;
     burst.root.position.copy(contact).add(new T.Vector3(.075,0,0));burst.update(t-impact);
     aimHead(guest.root.position.clone().add(new T.Vector3(0,.18,0)),calibration);
@@ -146,13 +147,13 @@ export async function createTeleopEasterEgg({scene,rig}) {
     const h=.0001,a=motion(t-h),b=motion(t+h);
     const forwardVelocity=(b.travel-a.travel)/(2*h);
     const yawVelocity=(b.yaw-a.yaw)/(2*h);
-    const stage=t<1.5?'A little detour…':t<2.9?'Rolling over':t<3.45?'Ready?':t<4.25?'Boop!':t<6.05?'Heading back':'Back to science';
+    const stage=t<.95?'A little detour…':t<1.95?'Rolling over':t<jabStart?'Ready?':t<recoilEnd+.25?'Boop!':t<4.15?'Heading back':'Back to science';
     return {
       calibration,handMotion:new T.Vector3(m.punch*.18,m.punch*.08,0),headDirection,reach:m.punch,
       operatorPunch:m.punch,
-      mobile:{travel:m.travel,yaw:m.yaw,forwardVelocity,yawVelocity,button:t>=1.5&&t<2.9?'B':t>=4.9&&t<6.05?'A':(t>=.4&&t<1.5?'X':t>=6.05&&t<7.25?'Y':null)},
+      mobile:{travel:m.travel,yaw:m.yaw,forwardVelocity,yawVelocity,button:t>=.95&&t<1.95?'B':t>=3.25&&t<4.15?'A':(t>=.18&&t<.95?'X':t>=4.15&&t<4.95?'Y':null)},
       stage,done:t>=duration,
-      framingBlend:ease(t,0,.5)*(1-ease(t,7.5,duration)),
+      framingBlend:ease(t,0,.4)*(1-ease(t,5.25,duration)),
       fistPoint,contactError,impact,
     };
   }

@@ -10,9 +10,12 @@
     {kind:'camera', frame, label:symbol('camera',frame), name:names[frame*2+1]},
   ]);
   const queries = [...history,
-    {kind:'context', label:'Wrist / state / language', name:'Current wrist, proprioception and language context'},
+    {kind:'wrist', label:'Wrist views', name:'Current wrist-camera views'},
+    {kind:'state', label:'State', name:'Current robot state'},
+    {kind:'language', label:'Language', name:'Language instruction and subtask'},
     {kind:'action', label:'Action expert', name:'Action expert'},
   ];
+  const contextQueries=[8,9,10];
   const canRead = (query, key) => query >= 8 || history[key].frame <= history[query].frame;
   const queryButton = (index, content, attributes = '') => `<button type="button" data-query="${index}" aria-pressed="false" aria-label="Inspect ${queries[index].name}" ${attributes}>${content}</button>`;
   const cameraToken = (frame, port = '') => queryButton(frame*2+1, 'C', `class="as-camera-token" ${port}`);
@@ -20,7 +23,7 @@
   function backboneStrip(position) {
     return `<div class="as-backbone-strip as-${position}-strip" aria-label="Backbone ${position} token sequence">
       ${times.map((_,frame) => `<div class="as-strip-block" data-history-block="${frame}"><span class="as-strip-time">${times[frame]}</span>${visualToken(frame,`data-${position}-visual="${frame}"`)}${cameraToken(frame,`data-${position}-camera="${frame}"`)}</div>`).join('')}
-      <div class="as-strip-context">${position === 'input' ? 'Wrist · state<br>language' : 'Context<br>outputs'}</div>
+      ${contextQueries.map(index=>queryButton(index,queries[index].label,'class="as-strip-context"')).join('')}
     </div>`;
   }
   root.innerHTML = `
@@ -79,7 +82,7 @@
         <div class="as-context-flow" aria-hidden="true"><span>Encoded<br>context</span><i></i></div>
         <div class="as-expert as-processor">
           <div class="as-action-token-strip">a₁ · a₂ · … · a₅₀</div>
-          ${queryButton(9,'<strong>🦾 Action expert</strong><span>Transformer · flow matching</span>')}
+          ${queryButton(11,'<strong>🦾 Action expert</strong><span>Transformer · flow matching</span>')}
           <div class="as-action-token-strip">Denoising input</div>
         </div>
         <div class="as-prefix-gap"><span>Input token sequence</span></div>
@@ -97,12 +100,12 @@
               ${queryButton(8,'<img loading="lazy" src="assets/replay/backpack-episode-128-cam_left-initial.jpg" alt="AMP left wrist camera view"><span>Left wrist</span>')}
               ${queryButton(8,'<img loading="lazy" src="assets/replay/backpack-episode-128-cam_right-initial.jpg" alt="AMP right wrist camera view"><span>Right wrist</span>')}
             </div>
-            ${queryButton(8,'<strong><span aria-hidden="true">🤖</span> State sₜ</strong>')}
+            ${queryButton(9,'<strong><span aria-hidden="true">🤖</span> State sₜ</strong>')}
           </div>
           <div class="as-language-inputs">
             <div class="as-label"><span aria-hidden="true">💬</span> Language</div>
-            ${queryButton(8,'<small>High-level instruction</small><span>“Reach the bottle”</span>')}
-            ${queryButton(8,'<small>Low-level subtask</small><span>“Open the bag”</span>')}
+            ${queryButton(10,'<small>High-level instruction</small><span>“Reach the bottle”</span>')}
+            ${queryButton(10,'<small>Low-level subtask</small><span>“Open the bag”</span>')}
           </div>
         </div>
         <div class="as-action-input as-action">
@@ -115,7 +118,7 @@
           <strong data-action-input></strong>
           <small data-flow-input-detail></small>
         </div>
-        <div class="as-legend"><span>Visual features V</span><span>📷 Camera tokens C</span><span>State + language</span><span>Action tokens</span></div>
+        <div class="as-legend"><span>Visual features V</span><span class="as-legend-camera">📷 Camera tokens C</span><span class="as-legend-context">Wrist views</span><span class="as-legend-context">State</span><span class="as-legend-context">Language</span><span class="as-legend-action">Action tokens</span></div>
       </div>
     </div>
     <div class="as-attention-link"><span><span aria-hidden="true">↕</span> Click a visual or camera token to highlight its attention row.</span><strong data-linked-query aria-live="polite"></strong></div>

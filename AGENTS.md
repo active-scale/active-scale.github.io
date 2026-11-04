@@ -27,6 +27,7 @@ User-approved preferences collected while designing this project. Apply these to
 - Use consistent, intentional heading breaks. Keep short phrases such as “to look around” together; avoid isolated last words and text clipping on narrow screens.
 - Prefer intuitive output animations and clear module colors to implementation details. Model heads need a role, name, supervision signal, and a recognizable icon; compactness must preserve visual explanations.
 - Show the action trajectory in the Action chunk output. Keep camera tokens visibly connected to camera-pose reconstruction and the attention mask visible near the architecture.
+- Represent wrist views, robot state, and language separately in the architecture and attention mask, with independent selection and highlighting.
 - Avoid excess copy, empty vertical space, tiny icons, repeated labels, hidden major sections, and gratuitous collapsibles. Keep related controls near their heading.
 - Distinguish evaluation conditions from metrics. Show all tasks and their average for each comparison; success and task progress are separate metrics. Explain progress using the paper's scoring rubric.
 - Hardware videos may play as fixed demonstrations. Use official dataset previews and institution logos; do not substitute paper task-definition images for diverse robot datasets.

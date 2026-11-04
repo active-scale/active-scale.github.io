@@ -133,8 +133,14 @@ async function teleoperation() {
     if(egg?.active){pause();finishEgg();draw();if(inView&&!userPaused&&motionAllowed())start();return;}
     eggLoading=true;surprise.disabled=true;replay.disabled=true;
     try {
-      egg??=await (await import('./teleop-easter-egg.mjs?v=20261104visitor2')).createTeleopEasterEgg({scene,rig});
-      if(!inView||document.hidden)return;
+      egg??=await (await import('./teleop-easter-egg.mjs?v=20261104punch1')).createTeleopEasterEgg({scene,rig});
+      if(document.hidden)return;
+      // The button sits below the stacked readouts on narrow screens. Bring the
+      // actual scene into view before playing the explicitly requested vignette.
+      canvas.scrollIntoView({block:'center',behavior:'instant'});
+      const bounds=canvas.getBoundingClientRect();
+      inView=(Math.min(innerHeight,bounds.bottom)-Math.max(0,bounds.top))/bounds.height>=.25;
+      if(!inView)return;
       pause();eggSaved={progress:timeline.value,paused:userPaused,view:{...view},visibility:normalProps.map(object=>object.visible)};
       eggTime=0;egg.start();userPaused=false;normalProps.forEach(object=>object.visible=false);timeline.disabled=true;
       timelineLabel.textContent='Cartoon interlude · Esc to return';setSurpriseState(true);draw();start();
