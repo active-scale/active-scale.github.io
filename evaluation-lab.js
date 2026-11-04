@@ -69,7 +69,7 @@ export function initEvaluationLab() {
     </div>
     <div class="ev-player">
       <div class="ev-video-wrap">
-        <video controls muted loop playsinline data-scroll-play preload="metadata"></video>
+        <video controls muted playsinline data-scroll-play data-auto-sequence preload="metadata"></video>
         <div class="ev-current-moment" aria-live="off"><span></span><strong></strong></div>
       </div>
       <aside class="ev-context">
@@ -87,6 +87,39 @@ export function initEvaluationLab() {
   const markers = mount.querySelector('.ev-markers');
   let selected = 0;
   let pendingSeek;
+  let autoAdvance = true;
+  let pendingAdvance = false;
+  let visible = false;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+  function retainCurrentTask() {
+    autoAdvance = false;
+    pendingAdvance = false;
+    video.removeAttribute('data-auto-sequence');
+    video.loop = true;
+  }
+
+  function advanceWhenVisible() {
+    if (!pendingAdvance || !autoAdvance || !visible || document.hidden || reduced.matches) return;
+    choose((selected + 1) % tasks.length);
+  }
+
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting && entry.intersectionRatio >= .35;
+    advanceWhenVisible();
+  }, {threshold: [0, .35]}).observe(video);
+  document.addEventListener('visibilitychange', advanceWhenVisible);
+  reduced.addEventListener('change', advanceWhenVisible);
+  video.addEventListener('ended', () => {
+    if (!autoAdvance) return;
+    pendingAdvance = true;
+    advanceWhenVisible();
+  });
+  video.addEventListener('pointerdown', retainCurrentTask);
+  video.addEventListener('keydown', event => {
+    if (['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.code)) retainCurrentTask();
+  });
+  scrub.addEventListener('pointerdown', retainCurrentTask);
   function updateMoment() {
     const task = tasks[selected];
     scrub.value = video.currentTime || 0;
@@ -103,6 +136,7 @@ export function initEvaluationLab() {
   }
 
   function seek(time) {
+    retainCurrentTask();
     if (video.readyState >= 1) video.currentTime = Math.min(time, video.duration || time);
     else pendingSeek = time;
     updateMoment();
@@ -112,6 +146,8 @@ export function initEvaluationLab() {
     const task = tasks[index];
     if (!task) return;
     selected = index;
+    pendingAdvance = false;
+    video.loop = !autoAdvance;
     mount.dataset.taskFamily = index < 3 ? 'occlusion' : 'search';
     pendingSeek = undefined;
     video.pause();
@@ -165,7 +201,7 @@ export function initEvaluationLab() {
     const name = document.createElement('strong');
     name.textContent = task.name;
     button.append(image, name);
-    button.addEventListener('click', () => choose(i));
+    button.addEventListener('click', () => {retainCurrentTask(); choose(i);});
     selector.querySelectorAll('.ev-task-list')[i < 3 ? 0 : 1].append(button);
   });
   scrub.addEventListener('input', () => seek(Number(scrub.value)));
@@ -182,6 +218,9 @@ export function initEvaluationLab() {
   choose(0);
   return {selectTask: name => {
     const index = tasks.findIndex(task => task.name === name);
-    if (index >= 0 && index !== selected) choose(index);
+    if (index >= 0) {
+      retainCurrentTask();
+      if (index !== selected) choose(index);
+    }
   }};
 }

@@ -51,7 +51,7 @@ async function teleoperation() {
   const [avatar,gear,rig,{createTeleopTask},{createTeleopHud}]=await Promise.all([
     import('./human-avatar.mjs?v=20261104shorts1').then(module=>module.createHumanAvatar(hx)),
     import('./vr-gear.mjs?v=20261104k').then(module=>module.createQuestGear()),
-    createAmp(),import('./teleop-task.mjs?v=20261104controls1'),import('./teleop-hud.mjs?v=20261104polish6')
+    createAmp(),import('./teleop-task.mjs?v=20261104motion2'),import('./teleop-hud.mjs?v=20261104polish6')
   ]);
   scene.add(avatar.scene);
   const head=new T.Group();head.add(gear.headset);scene.add(head,...gear.controllers);
@@ -133,7 +133,7 @@ async function teleoperation() {
     if(egg?.active){pause();finishEgg();draw();if(inView&&!userPaused&&motionAllowed())start();return;}
     eggLoading=true;surprise.disabled=true;replay.disabled=true;
     try {
-      egg??=await (await import('./teleop-easter-egg.mjs?v=20261104visitor1')).createTeleopEasterEgg({scene,rig});
+      egg??=await (await import('./teleop-easter-egg.mjs?v=20261104visitor2')).createTeleopEasterEgg({scene,rig});
       if(!inView||document.hidden)return;
       pause();eggSaved={progress:timeline.value,paused:userPaused,view:{...view},visibility:normalProps.map(object=>object.visible)};
       eggTime=0;egg.start();userPaused=false;normalProps.forEach(object=>object.visible=false);timeline.disabled=true;

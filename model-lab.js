@@ -44,12 +44,17 @@
             <span class="as-output-icon" aria-hidden="true">📷</span>
             <span class="as-label">Reconstruct viewpoint geometry</span>
             <strong>Camera-pose head</strong>
+            <svg class="as-head-preview as-pose-preview" viewBox="0 0 180 42" role="img" aria-label="Illustration of reconstructed camera geometry">
+              <g class="as-preview-view"><path d="M57 26L97 8 126 15 101 35Z M57 26L94 22 M97 8L94 22 126 15 M94 22L101 35"/><path d="M45 24H56V32H45Z"/></g>
+              <path class="as-preview-axis" d="M145 29H166 M145 29V9 M145 29L134 37"/>
+            </svg>
             <b data-pose-status></b>
           </div>
           <div class="as-output as-language" data-language-head>
             <span class="as-output-icon" aria-hidden="true">💬</span>
             <span class="as-label" data-language-role>Predict the current subtask</span>
             <strong data-subtask-title>Autoregressive head</strong>
+            <div class="as-head-preview as-subtask-preview" aria-label="Example predicted subtask: Open the bag"><span>Open the bag</span><i aria-hidden="true"></i></div>
             <b data-language-status></b>
           </div>
         </div>
@@ -57,9 +62,10 @@
           <span class="as-output-icon" aria-hidden="true">🦾</span>
           <span class="as-label">Generate robot commands</span>
           <strong>Action chunk</strong>
+          <svg class="as-head-preview as-action-preview" viewBox="0 0 180 42" role="img" aria-label="Illustration of a generated action trajectory"><path class="as-trajectory-guide" d="M7 34C42 34 48 8 87 8s43 23 86 7"/><path class="as-trajectory" d="M7 34C42 34 48 8 87 8s43 23 86 7"/></svg>
           <b data-action-status></b>
         </div>
-        <div class="as-readout-gap"><span class="as-readout-label">Output hidden states</span><i class="as-language-flow"></i></div>
+        <div class="as-readout-gap"><i class="as-language-flow"></i></div>
         <div class="as-action-flow"><i></i></div>
         <div class="as-vla as-processor">
           ${backboneStrip('output')}
@@ -195,8 +201,49 @@
     })).join('');
   }
   buttons.forEach(button=>button.addEventListener('click',()=>selectQuery(Number(button.dataset.query))));
-  modes.forEach(button=>button.addEventListener('click',()=>selectMode(button.dataset.mode)));
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const modeOrder = Object.keys(stage);
+  const cycleDelay = 10000;
+  let manualMode;
+  let modelVisible = false;
+  let cycleTimer;
+  function syncPresentation() {
+    const active = modelVisible && !document.hidden && !reducedMotion.matches;
+    root.dataset.motion = active ? 'playing' : 'paused';
+    clearTimeout(cycleTimer);
+    cycleTimer = undefined;
+    if (!active || manualMode) return;
+    cycleTimer = setTimeout(() => {
+      const current = modeOrder.indexOf(root.dataset.mode);
+      selectMode(modeOrder[(current + 1) % modeOrder.length]);
+      syncPresentation();
+    }, cycleDelay);
+  }
+  modes.forEach(button => button.addEventListener('click', () => {
+    manualMode = button.dataset.mode;
+    selectMode(manualMode);
+    syncPresentation();
+  }));
+  new IntersectionObserver(entries => {
+    const entry = entries[0];
+    modelVisible = entry.isIntersecting && entry.intersectionRatio >= .15;
+    syncPresentation();
+  }, {threshold:[0,.15]}).observe(root.querySelector('.as-architecture-scroll'));
+  document.addEventListener('visibilitychange', syncPresentation);
+  reducedMotion.addEventListener('change', syncPresentation);
   new ResizeObserver(drawConnections).observe(root.querySelector('.as-architecture'));
+  // Keep camera-token connections attached while a hovered head lifts.
+  let connectionFrame;
+  function followHeadLift(){
+    cancelAnimationFrame(connectionFrame);
+    const finish=performance.now()+280;
+    function follow(now){drawConnections();if(now<finish)connectionFrame=requestAnimationFrame(follow);}
+    connectionFrame=requestAnimationFrame(follow);
+  }
+  root.querySelectorAll('.as-output').forEach(head=>{
+    head.addEventListener('pointerenter',followHeadLift);
+    head.addEventListener('pointerleave',followHeadLift);
+  });
   root.querySelectorAll('img').forEach(image=>image.addEventListener('load',drawConnections));
-  selectQuery(7);selectMode('mid-training');requestAnimationFrame(drawConnections);
+  selectQuery(7);selectMode(manualMode || 'mid-training');syncPresentation();requestAnimationFrame(drawConnections);
 })();

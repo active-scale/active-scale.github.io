@@ -58,6 +58,7 @@ function solvePose(arm,target,orientation,initial) {
 }
 
 export function createTeleopTask(scene,rig) {
+  const duration=16;
   rig.root.updateWorldMatrix(true,true);
   const root=new T.Group();scene.add(root);
   const surface=.79;
@@ -135,8 +136,8 @@ export function createTeleopTask(scene,rig) {
   }
   function baseMotion(progress) {
     const ease=(start,end)=>T.MathUtils.smoothstep(progress,start,end);
-    const travel=-.030*(ease(0,.04)-ease(.12,.17));
-    const yaw=T.MathUtils.degToRad(3)*(ease(.04,.08)-ease(.08,.12));
+    const travel=-.120*(ease(0,.04)-ease(.12,.17));
+    const yaw=T.MathUtils.degToRad(12)*(ease(.04,.08)-ease(.08,.12));
     return {travel,yaw,button:progress<.04?'A':progress<.08?'X':progress<.12?'Y':progress<.17?'B':null};
   }
   function moveBase(progress) {
@@ -146,7 +147,7 @@ export function createTeleopTask(scene,rig) {
     base.updateMatrixWorld(true);
     // Velocities are finite differences of the same physical transform trajectory.
     const h=1e-5,a=baseMotion(Math.max(0,progress-h)),b=baseMotion(Math.min(1,progress+h));
-    const seconds=(Math.min(1,progress+h)-Math.max(0,progress-h))*24;
+    const seconds=(Math.min(1,progress+h)-Math.max(0,progress-h))*duration;
     const realizedDisplacement=base.position.clone().sub(initialBasePosition).applyQuaternion(initialBaseRotation.clone().invert());
     const realizedYaw=new T.Euler().setFromQuaternion(initialBaseRotation.clone().invert().multiply(base.quaternion),'YXZ').y;
     return {travel:realizedDisplacement.x,yaw:realizedYaw,button,forwardVelocity:(b.travel-a.travel)/seconds,yawVelocity:(b.yaw-a.yaw)/seconds};
@@ -174,7 +175,10 @@ export function createTeleopTask(scene,rig) {
     const phase=manipulation<=.5?manipulation*2:2-manipulation*2;
     const {angles,jaw}=sample(phase);
     const calibration=structuredClone(defaults);
-    names.forEach((name,index)=>calibration.joints.right[name]=degrees(angles[index]));
+    // Keep the manipulation arm in its calibrated home pose while turning the
+    // base, then ease into the reach. This also keeps it out of the camera ray.
+    const armBlend=T.MathUtils.smoothstep(progress,.12,.23)*(1-T.MathUtils.smoothstep(progress,.94,1));
+    names.forEach((name,index)=>calibration.joints.right[name]=T.MathUtils.lerp(name==='joint2'?5:0,degrees(angles[index]),armBlend));
     calibration.joints.right.joint7=jaw;calibration.joints.right.joint8=-jaw;
     calibration.joints.left={joint2:5,joint7:18,joint8:-18};
     calibration.joints.center={joint1:0,joint2:40,joint3:-20,joint4:0,joint5:50,joint6:0};
@@ -195,5 +199,5 @@ export function createTeleopTask(scene,rig) {
     return {hand,handMotion,headDirection,reach:Math.sin(phase*Math.PI)**2,phase,calibration,mobile,stage};
   }
   update(0);
-  return {update,keys,table,block,markers,surface,pick,place,sample,baseMotion,duration:24};
+  return {update,keys,table,block,markers,surface,pick,place,sample,baseMotion,duration};
 }

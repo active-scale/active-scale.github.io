@@ -24,7 +24,7 @@
     videos.set(video, state);
     video.muted = true;
     video.defaultMuted = true;
-    video.loop = true;
+    video.loop = !video.hasAttribute('data-auto-sequence');
     video.addEventListener('pause', () => {
       if (state.automaticPause) state.automaticPause = false;
       else if (state.visible && !document.hidden && !video.ended) state.userPaused = true;

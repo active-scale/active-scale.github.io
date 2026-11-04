@@ -93,11 +93,13 @@
     index=Number(step.dataset.step);elapsed=0;lastTime=undefined;render();resume();
   }));
   new IntersectionObserver(([entry])=>{
-    visible=entry.isIntersecting;
+    const entering=!visible&&entry.isIntersecting&&entry.intersectionRatio>=.15;
+    visible=entry.isIntersecting&&entry.intersectionRatio>=.15;
+    if(entering&&!reduced.matches){story.classList.remove('is-entering');void story.offsetWidth;story.classList.add('is-entering');}
     if(visible){resume();if(stages[index][0]==='human')loadHuman();if(stages[index][0]==='gap')loadGap();}
     else pause();
     syncMedia();
-  },{threshold:.15}).observe(mount);
+  },{threshold:[0,.15]}).observe(mount);
   reduced.addEventListener('change',()=>{if(reduced.matches)pause();else resume();syncMedia();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else resume();syncMedia();});render();
 })();

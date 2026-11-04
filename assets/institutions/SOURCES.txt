@@ -1,0 +1,22 @@
+Downloaded 2026-11-04 from the institutions' own public websites.
+
+cmu-robotics-institute.svg
+  Official RI branding page
+    https://www.ri.cmu.edu/about/brand-and-identity/
+  Also used as the official RI site header logo
+    https://www.ri.cmu.edu/
+  Original file
+    https://www.ri.cmu.edu/app/uploads/2024/03/cmu-ri-logo-march-2024.svg
+  Local file is the unmodified official vector. Its native viewBox is
+  0 0 1186.14 203.56, with a white background included by RI.
+
+hkust-guangzhou.png
+  Official HKUST(GZ) admissions website
+    https://studyathkustgz.hkust-gz.edu.cn/
+  Original file, used in that site's header
+    https://studyathkustgz.hkust-gz.edu.cn/src/img/common/header_logo.png
+  Local file is the unmodified 1920 x 494 transparent PNG.
+  It contains the blue/gold university logo and English campus name only.
+
+The marks are displayed to identify the project authors' institutional
+affiliations. Their artwork, proportions, and colors have not been altered.

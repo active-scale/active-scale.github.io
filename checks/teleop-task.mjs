@@ -34,6 +34,7 @@ let maximumJawGap = -Infinity;
 let maximumAttachmentDrift = 0;
 let attachmentReference;
 let minimumHeadAimDot=1,maximumHeadClip=0;
+let minimumBaseTravel=0,maximumBaseYaw=0;
 scene.updateMatrixWorld(true);
 const fixedTableTransform=task.table.matrixWorld.clone();
 const initialBasePosition=rig.root.position.clone(),initialBaseRotation=rig.root.quaternion.clone();
@@ -71,6 +72,8 @@ function intersectsTable(mesh, tableBox, inverseFrame) {
 for (let frame = 0; frame <= 400; frame++) {
   const progress = frame / 400;
   const state = task.update(progress);
+  minimumBaseTravel=Math.min(minimumBaseTravel,state.mobile.travel);
+  maximumBaseYaw=Math.max(maximumBaseYaw,state.mobile.yaw);
   scene.updateMatrixWorld(true);
   assert.ok(task.table.matrixWorld.elements.every((x,i)=>Math.abs(x-fixedTableTransform.elements[i])<1e-9),'The environment table moves with the base.');
   const optical=rig.arms.center.optical;
@@ -151,6 +154,8 @@ assert.ok(minimumTableClearance >= -1e-5, 'The block penetrates the tabletop.');
 assert.ok(minimumJawClearance >= -2e-5, 'The closed fingers penetrate the block.');
 assert.ok(maximumJawGap <= .0002, 'The closed fingers leave more than 0.2 mm clearance.');
 assert.ok(maximumAttachmentDrift < 1e-7, 'The held block drifts relative to the gripper.');
+assert.ok(minimumBaseTravel<=-.10&&maximumBaseYaw>=T.MathUtils.degToRad(10),'The opening base movement is too small to see clearly.');
+assert.ok(task.duration<=18,'The illustrative teleoperation loop is too slow.');
 
 // Verify the displayed controls match the actual differential-drive trajectory.
 for(const [progress,key,axis,sign] of [[.02,'A','travel',-1],[.06,'X','yaw',1],[.10,'Y','yaw',-1],[.145,'B','travel',1]]){
@@ -180,17 +185,21 @@ task.update(0);
 const firstBasePosition=rig.root.position.clone(),firstBaseRotation=rig.root.quaternion.clone();
 const firstPosition = task.block.position.clone();
 const firstRotation = task.block.quaternion.clone();
+const firstTools=Object.fromEntries(Object.entries(rig.arms).map(([name,arm])=>[name,arm.links.link6.matrixWorld.clone()]));
 task.update(1);
 assert.ok(rig.root.position.distanceTo(firstBasePosition)<1e-9&&rig.root.quaternion.angleTo(firstBaseRotation)<1e-7,'Mobile base jumps at loop boundary');
 assert.ok(task.block.position.distanceTo(firstPosition) < 1e-8, 'The block jumps at the loop boundary.');
 assert.ok(task.block.quaternion.angleTo(firstRotation) < 1e-7, 'The block rotates at the loop boundary.');
+for(const [name,arm]of Object.entries(rig.arms)){
+  assert.ok(arm.links.link6.matrixWorld.elements.every((value,index)=>Math.abs(value-firstTools[name].elements[index])<1e-7),name+' arm jumps at loop boundary.');
+}
 
 console.log(JSON.stringify({
   samples: 401,
   minimumHeadAimDot,maximumHeadClip,minimumVisibleCubeCorners,
   accidentalRobotBlockCollisions:accidentalBlockIntersections.length,
   environmentTable:'fixed in world coordinates',
-  baseMotion:'30 mm reverse/forward; 3 degrees left/right turn; Quest mapping per Appendix B.1',
+  baseMotion:{reverseForwardMm:-minimumBaseTravel*1000,leftRightDegrees:T.MathUtils.radToDeg(maximumBaseYaw),durationSeconds:task.duration,questMapping:'Appendix B.1'},
   robotTableTriangleCollisions: collisions.length,
   minimumBlockTableClearanceMm: Number((minimumTableClearance * 1000).toFixed(4)),
   minimumJawClearanceMm: Number((minimumJawClearance * 1000).toFixed(4)),

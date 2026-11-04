@@ -131,7 +131,7 @@ function initQuantitativeResults() {
 }
 
 // Qualitative task selection intentionally leaves every quantitative result visible.
-import('./evaluation-lab.js?v=20261104polish6').then(({initEvaluationLab}) => initEvaluationLab()).catch(error => console.error('Could not initialize task videos.', error));
+import('./evaluation-lab.js?v=20261104sequence1').then(({initEvaluationLab}) => initEvaluationLab()).catch(error => console.error('Could not initialize task videos.', error));
 initQuantitativeResults();
 import('./progress-scoring.mjs?v=20261104polish6').then(({initProgressScoring}) => initProgressScoring()).catch(console.error);
 $('copy')?.addEventListener('click',async()=>{
