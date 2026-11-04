@@ -184,10 +184,10 @@
 
   const heading = document.createElement('h2');
   heading.className = 'section-title';
-  heading.textContent = 'Evolving active perception trends';
+  heading.textContent = 'Emerging active perception trends';
   const updated = document.createElement('p');
   updated.className = 'related-updated';
-  updated.textContent = 'A selected, evolving reading list · Updated 4 November 2026';
+  updated.textContent = 'A selected reading list · Updated 4 November 2026';
 
   // ViA stays first by request; the rest run from earliest to latest.
   const chronologyKey = paper => paper.firstSubmitted || `${paper.year}-99-99`;

@@ -25,7 +25,7 @@ User-approved preferences collected while designing this project. Apply these to
 
 ## Layout and explanation
 
-- Tell the story in order: motivation, hardware, data recipe, model, evaluation, conclusion/limitations, citation, evolving active-perception reading list.
+- Tell the story in order: motivation, hardware, data recipe, model, evaluation, conclusion/limitations, citation, emerging active-perception reading list.
 - Use consistent, intentional heading breaks. Keep short phrases such as “to look around” together; avoid isolated last words and text clipping on narrow screens.
 - Prefer intuitive output animations and clear module colors to implementation details. Model heads need a role, name, supervision signal, and a recognizable icon; compactness must preserve visual explanations.
 - Show the action trajectory in the Action chunk output. Keep camera tokens visibly connected to camera-pose reconstruction and the attention mask visible near the architecture.
@@ -33,7 +33,7 @@ User-approved preferences collected while designing this project. Apply these to
 - Avoid excess copy, empty vertical space, tiny icons, repeated labels, hidden major sections, and gratuitous collapsibles. Keep related controls near their heading.
 - Distinguish evaluation conditions from metrics. Show all tasks and their average for each comparison; success and task progress are separate metrics. Explain progress using the paper's scoring rubric.
 - Hardware videos may play as fixed demonstrations. Use official dataset previews and institution logos; do not substitute paper task-definition images for diverse robot datasets.
-- Keep the CMU RI and HKUST Guangzhou logos side by side. Place the teleoperation Easter egg button on the left and label it “Try a mobile manipulation task”.
+- Keep the CMU RI and HKUST Guangzhou logos side by side at a clearly legible size. Place the teleoperation Easter egg button on the left and label it “Click to try a mobile manipulation task”.
 - Preserve factual scope, original experimental results, and explicitly preliminary observations. Do not invent experiments, scaling results, or evidence.
 
 ## Verification and delivery

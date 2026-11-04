@@ -95,10 +95,10 @@ async function teleoperation() {
   const timelineHeading=document.createElement('div');timelineHeading.className='teleop-timeline-heading';
   const surprise=document.createElement('button');surprise.type='button';surprise.className='teleop-surprise';
   function setSurpriseState(playing=false){
-    surprise.innerHTML=`<span class="teleop-surprise-icon" aria-hidden="true">${playing?'↩':'🥊'}</span><span>${playing?'Back to demo':'Try a mobile manipulation task'}</span>`;
+    surprise.innerHTML=`<span class="teleop-surprise-icon" aria-hidden="true">${playing?'↩':'🥊'}</span><span>${playing?'Back to demo':'Click to try a <span class="teleop-task-name">mobile manipulation task</span>'}</span>`;
     surprise.classList.toggle('is-playing',playing);
-    surprise.title=playing?'Back to teleoperation':'Try a mobile manipulation task';
-    surprise.setAttribute('aria-label',playing?'Return to the teleoperation demonstration':'Try a mobile manipulation task');
+    surprise.title=playing?'Back to teleoperation':'Click to try a mobile manipulation task';
+    surprise.setAttribute('aria-label',playing?'Return to the teleoperation demonstration':'Click to try a mobile manipulation task');
   }
   setSurpriseState();
   timelineLabel.before(timelineHeading);timelineHeading.append(surprise,timelineLabel);
