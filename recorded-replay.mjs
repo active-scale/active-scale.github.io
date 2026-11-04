@@ -32,7 +32,7 @@ export async function initRecordedReplay(container, options = {}) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
     style.dataset.recordedStyle = '';
-    style.href = new URL('./recorded-replay.css?v=20261104refine3', import.meta.url).href;
+    style.href = new URL('./recorded-replay.css?v=20261104layout1', import.meta.url).href;
     document.head.append(style);
   }
   const body = document.createElement('div');
@@ -55,8 +55,10 @@ export async function initRecordedReplay(container, options = {}) {
     <p class="recorded-limits" role="status"></p>
     <p class="recorded-note">The same 30 Hz demonstration drives the robot and all three camera videos. Table, shelf and pot placement illustrate the task.</p>`;
   container.append(body);
-  const speed = body.querySelector('select');
-  const play = body.querySelector('button');
+  const toolbar = body.querySelector('.recorded-toolbar');
+  const speed = toolbar.querySelector('select');
+  const play = toolbar.querySelector('button');
+  if (options.controlsMount && !options.compact) options.controlsMount.append(toolbar);
   const timeline = body.querySelector('input');
   const clock = body.querySelector('output');
   const limits = body.querySelector('.recorded-limits');
