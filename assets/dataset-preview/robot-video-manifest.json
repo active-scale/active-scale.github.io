@@ -1,0 +1,72 @@
+{
+  "montage": [
+    {
+      "id": "agibot-fridge",
+      "dataset": "AgiBot World",
+      "video": "robot-agibot-fridge.mp4",
+      "poster": "robot-agibot-fridge-poster.jpg",
+      "sourceUrl": "https://agibot-world.com/videos/dataset/storeRestocking.mp4"
+    },
+    {
+      "id": "agibot-freezer",
+      "dataset": "AgiBot World",
+      "video": "robot-agibot-freezer.mp4",
+      "poster": "robot-agibot-freezer-poster.jpg",
+      "sourceUrl": "https://agibot-world.com/videos/dataset/foodOrganizing.mp4"
+    },
+    {
+      "id": "agibot-popcorn",
+      "dataset": "AgiBot World",
+      "video": "robot-agibot-popcorn.mp4",
+      "poster": "robot-agibot-popcorn-poster.jpg",
+      "sourceUrl": "https://agibot-world.com/videos/dataset/popcornScooping.mp4"
+    },
+    {
+      "id": "robocoin-egg",
+      "dataset": "RoboCOIN",
+      "video": "robot-robocoin-egg.mp4",
+      "poster": "robot-robocoin-egg-poster.jpg",
+      "sourceUrl": "https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/AI2_Alphabot_2_brush_egg_wash.mp4"
+    },
+    {
+      "id": "robocoin-fold",
+      "dataset": "RoboCOIN",
+      "video": "robot-robocoin-fold.mp4",
+      "poster": "robot-robocoin-fold-poster.jpg",
+      "sourceUrl": "https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/Agilex_Cobot_Magic_fold_clothes.mp4"
+    },
+    {
+      "id": "robocoin-kettle",
+      "dataset": "RoboCOIN",
+      "video": "robot-robocoin-kettle.mp4",
+      "poster": "robot-robocoin-kettle-poster.jpg",
+      "sourceUrl": "https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/Galaxea_R1_Lite_boil_water_in_a_kettle.mp4"
+    },
+    {
+      "id": "robocoin-parts",
+      "dataset": "RoboCOIN",
+      "video": "robot-robocoin-parts.mp4",
+      "poster": "robot-robocoin-parts-poster.jpg",
+      "sourceUrl": "https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/Leju_Kuavo_4_moving_parts_a.mp4"
+    },
+    {
+      "id": "robocoin-pour",
+      "dataset": "RoboCOIN",
+      "video": "robot-robocoin-pour.mp4",
+      "poster": "robot-robocoin-pour-poster.jpg",
+      "sourceUrl": "https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/Unitree_G1edu-u3_pour_drink.mp4"
+    }
+  ],
+  "featured": {
+    "agibot": {
+      "video": "robot-agibot-featured.mp4",
+      "poster": "robot-agibot-featured-poster.jpg",
+      "sourceUrl": "https://agibot-world.com/"
+    },
+    "robocoin": {
+      "video": "robot-robocoin-featured.mp4",
+      "poster": "robot-robocoin-featured-poster.jpg",
+      "sourceUrl": "https://flagopen.github.io/RoboCOIN/"
+    }
+  }
+}

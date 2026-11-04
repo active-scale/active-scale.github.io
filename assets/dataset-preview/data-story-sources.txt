@@ -17,10 +17,17 @@ https://egosuite100k.lightwheel.ai/
 EgoSuite official promo excerpt, trimmed/re-encoded from 18–27 seconds
 https://huggingface.co/spaces/LightwheelAI/README/resolve/main/assets/egosuite-open100k-promo.mp4
 
-The robot montage shows repeated crops from the five ActiveScale tasks and AMP
-teleoperation. AgiBot World/RoboCOIN source cards use an abstract robot icon,
-while AMP footage is the author's own preview.
+The robot montage uses eight distinct video excerpts from official AgiBot World
+and RoboCOIN previews, plus an AgiBot highlight reel. The selected-source stage
+uses AgiBot World/RoboCOIN highlight reels and the author's AMP teleoperation
+video. These are dataset illustrations, not the exact episodes used in training.
+Original URLs, excerpt ranges and processing details: robot-video-sources.txt.
+Runtime asset mapping: robot-video-manifest.json.
 
-The human motion uses the existing licensed MPFB/MakeHuman rig and a staged
-reach/grasp/lift animation. The small cube follows the hand during the grasp
-phase for visible contact. This is a kinematic illustration.
+The human motion uses the existing licensed MPFB/MakeHuman rig with a staged
+head-and-wrist reach toward a stationary mug. Labeled local XYZ frames and motion
+trails illustrate the supervision signals; this is not a recorded data replay.
+
+The grasp-offset scene uses the vendor PiPER gripper mesh and a stationary bottle.
+The gripper closes beside the target to illustrate the preliminary human-only
+observation. The illustrated displacement is not a measured experimental value.

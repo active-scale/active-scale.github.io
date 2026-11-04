@@ -1,125 +1,84 @@
-'use strict';
-
 (() => {
-  const mount = document.getElementById('dataset-wall');
-  if (!mount) return;
-  mount.classList.replace('dataset-wall', 'data-recipe');
-  const base = 'assets/dataset-preview/';
-  const humanSources = [
-    ['EgoLive', 'https://arxiv.org/abs/2604.23570', base + 'egolive-cover.png'],
-    ['EgoVerse', 'https://egoverse.ai/', base + 'egoverse-human-ego-poster.jpg', base + 'egoverse-human-ego.mp4'],
-    ['EgoSuite', 'https://egosuite100k.lightwheel.ai/', base + 'egosuite-human-ego-poster.jpg', base + 'egosuite-human-ego.mp4'],
+  'use strict';
+  const mount=document.getElementById('dataset-wall');if(!mount)return;
+  mount.classList.replace('dataset-wall','data-recipe');
+  const base='assets/dataset-preview/';
+  const humanSources=[
+    ['EgoLive','https://arxiv.org/abs/2604.23570',base+'egolive-cover.png'],
+    ['EgoVerse','https://egoverse.ai/',base+'egoverse-human-ego-poster.jpg',base+'egoverse-human-ego.mp4'],
+    ['EgoSuite','https://egosuite100k.lightwheel.ai/',base+'egosuite-human-ego-poster.jpg',base+'egosuite-human-ego.mp4'],
   ];
-  const robotSources = [
-    ['AgiBot World', 'https://agibot-world.com/'],
-    ['RoboCOIN', 'https://arxiv.org/abs/2511.17441'],
-    ['AMP', '#system'],
+  const stages=[
+    ['internet','Internet-scale egocentric data','Across people, scenes and viewpoints, coordinated head and hand motion captures how people search, reveal and reach.',6000],
+    ['human','How does ego data supervise active perception?','Curated videos come with head-camera and wrist trajectories. Head motion supervises viewpoint changes; wrist motion supervises manipulation.',9500],
+    ['gap','Why keep robot data in the mix?','In our preliminary human-only mid-training trials, downstream robot grasps became offset. We therefore retain a robot-aligned action signal during adaptation.',7500],
+    ['robot','Robot experience, across embodiments.','Interleave diverse robot demonstrations while learning from human motion, so robot-aligned state and action supervision stays in the training loop.',7000],
+    ['robot-selected','The robot data in our recipe.','AgiBot World, RoboCOIN and AMP contribute diverse robot demonstrations. AMP adds coordinated active-camera and bimanual motion.',7500],
+    ['mixed','Adapt the VLA to looking and acting.','Mixed mid-training adapts the pretrained VLA to temporal observations and camera-pose supervision, learning from human active-view experience while retaining robot-aligned actions.',10000],
   ];
-  const stages = [
-    ['internet', 'Internet-scale egocentric data', 'Everyday activities offer a scalable source of how people look and act across scenes, objects, and tasks.', 4800],
-    ['human', 'From video to head and hand motion', 'We curate EgoLive, EgoVerse, and EgoSuite. Head-camera poses supervise viewpoint changes, while wrist trajectories supervise manipulation.', 8000],
-    ['gap', 'Human-only mid-training', 'A pretrained VLA can learn from these signals. In our preliminary human-only trials, downstream grasps became offset, suggesting degradation of pretrained robot control.', 6500],
-    ['robot', 'Keep learning from robot demonstrations', 'Robot data supplies action supervision in the robot embodiment as the model adapts to human motion.', 4800],
-    ['robot-selected', 'The robot data in our recipe', 'AgiBot World, RoboCOIN, and AMP contribute robot demonstrations. AMP captures coordinated head-camera and bimanual motion.', 5800],
-    ['mixed', 'Human–robot mid-training', 'We sample human and robot demonstrations at a 1:1 ratio to learn human active-view priors while retaining robot-aligned action learning.', 8000],
-  ];
-  const robotIcon = '<svg viewBox="0 0 100 70" aria-hidden="true"><path d="M19 61h25M31 60V40L58 26 76 39M31 40 22 24 44 13"/><circle cx="31" cy="40" r="5"/><circle cx="58" cy="26" r="5"/><path d="m75 35 8 7-8 7"/></svg>';
-  mount.innerHTML = `
-    <div class="recipe-toolbar"><div class="recipe-progress" aria-hidden="true">${stages.map(() => '<span></span>').join('')}</div><button type="button" class="recipe-play">Play story</button></div>
+  const video=(label,stages,attrs='')=>`<video ${attrs} data-stages="${stages}" muted playsinline loop preload="none" aria-label="${label}"></video>`;
+  const humanCards=humanSources.map(([name,href,poster,clip])=>`<a href="${href}" class="recipe-source-card"><div class="recipe-source-media">${clip?video(name+' egocentric preview','human,gap',`data-source="${clip}" poster="${poster}"`):`<img src="${poster}" alt="EgoLive dataset overview" loading="lazy">`}</div><strong>${name} ↗</strong></a>`).join('');
+  const goals=`<div class="recipe-learning-goals"><div><span class="recipe-history-glyph" aria-hidden="true"><i></i><i></i><i></i></span><small>Temporal observations</small><strong>Connect changing views</strong></div><div><span class="recipe-pose-glyph" aria-hidden="true">↗ <b>XYZ</b></span><small>Camera-pose supervision</small><strong>Learn viewpoint motion</strong></div><div><span class="recipe-action-glyph" aria-hidden="true">⌁ → ⌁</span><small>Robot action supervision</small><strong>Retain robot control</strong></div></div>`;
+  mount.innerHTML=`
+    <div class="recipe-toolbar"><div class="recipe-progress" role="group" aria-label="Data recipe scenes">${stages.map(([id,title],i)=>`<button type="button" data-step="${i}" aria-label="Scene ${i+1}: ${title}" title="${title}"><span></span></button>`).join('')}</div><button type="button" class="recipe-play" title="Pause or resume automatic scene changes; examples keep looping.">Play story</button></div>
     <div class="recipe-story" data-stage="internet">
       <div class="recipe-stage-heading"><h3></h3><p aria-live="polite"></p></div>
       <div class="recipe-scenes">
         <div class="recipe-source-side">
           <div class="recipe-layer recipe-net"><div class="recipe-count-label">Internet-scale egocentric video</div><div class="recipe-mosaic recipe-net-mosaic" aria-hidden="true"></div></div>
-          <div class="recipe-layer recipe-selected"><div class="recipe-source-cards">${humanSources.map(([name, href, poster, video]) => `<a href="${href}" class="recipe-source-card"><div class="recipe-source-media">${video ? `<video data-source="${video}" poster="${poster}" muted playsinline loop preload="none" aria-label="${name} preview"></video>` : `<img src="${poster}" alt="EgoLive dataset overview" loading="lazy">`}</div><strong>${name} ↗</strong></a>`).join('')}</div><div class="recipe-pose-signals"><span>Head-camera pose</span><span>Left wrist pose</span><span>Right wrist pose</span></div></div>
-          <div class="recipe-layer recipe-robot-net"><div class="recipe-count-label">Robot demonstrations</div><div class="recipe-mosaic recipe-robot-mosaic" aria-hidden="true"></div></div>
-          <div class="recipe-layer recipe-robot-selected"><div class="recipe-source-cards recipe-robot-cards">${robotSources.map(([name, href]) => `<a href="${href}" class="recipe-source-card">${robotIcon}<strong>${name} ↗</strong></a>`).join('')}</div><video class="recipe-amp-video" data-source="assets/trimmed/teleoperation.mp4" poster="assets/trimmed/teleoperation-poster.jpg" muted playsinline loop preload="none" aria-label="AMP human-robot data collection"></video></div>
+          <div class="recipe-layer recipe-selected"><div class="recipe-source-cards">${humanCards}</div><div class="recipe-pose-signals"><span>Head-camera trajectory</span><span>Left wrist trajectory</span><span>Right wrist trajectory</span></div></div>
+          <div class="recipe-layer recipe-robot-net"><div class="recipe-count-label">Real robot demonstrations · public dataset previews</div><div class="recipe-mosaic recipe-robot-mosaic"></div></div>
+          <div class="recipe-layer recipe-robot-selected"><div class="recipe-source-cards recipe-robot-cards"><a href="https://agibot-world.com/" class="recipe-source-card"><div class="recipe-source-media">${video('AgiBot World robot demonstrations','robot-selected',`data-robot-feature="agibot"`)}</div><strong>AgiBot World ↗</strong></a><a href="https://flagopen.github.io/RoboCOIN/" class="recipe-source-card"><div class="recipe-source-media">${video('RoboCOIN robot demonstrations','robot-selected',`data-robot-feature="robocoin"`)}</div><strong>RoboCOIN ↗</strong></a><a href="#system" class="recipe-source-card"><div class="recipe-source-media">${video('AMP data collection','robot-selected',`data-source="assets/trimmed/teleoperation.mp4" poster="assets/trimmed/teleoperation-poster.jpg"`)}</div><strong>AMP ↗</strong></a></div><div class="recipe-data-summary"><span>Diverse robot bodies</span><span>Robot state + actions</span><span>Head-camera motion where available</span></div></div>
         </div>
         <div class="recipe-right-side">
-          <div class="recipe-layer recipe-scale"><span>Many people</span><span>Many scenes</span><span>Many viewpoints</span><div class="recipe-scale-flow" aria-hidden="true">→</div><strong>Head + hand motion</strong></div>
-          <div class="recipe-layer recipe-human-motion"><canvas aria-label="Egocentric human demonstration with head and wrist coordinate frames"></canvas><div class="recipe-axes-key"><b>X</b><b>Y</b><b>Z</b><span>Head and wrist frames · Drag to orbit</span></div></div>
-          <div class="recipe-layer recipe-gap"><div class="recipe-training-block">Pretrained VLA</div><span class="recipe-data-arrow">↓</span><div class="recipe-training-block">Human pose supervision</div><span class="recipe-data-arrow">↓</span><div class="recipe-offset"><i></i><b></b></div><strong>Embodiment gap</strong><p>Preliminary robot grasp offsets</p></div>
-          <div class="recipe-layer recipe-retain"><div class="recipe-training-block">Human motion priors</div><span class="recipe-data-arrow">+</span><div class="recipe-training-block recipe-robot-block">Robot action supervision</div><span class="recipe-data-arrow">↓</span><strong>Co-training recipe</strong></div>
+          <div class="recipe-layer recipe-scale"><span>Many people</span><span>Many scenes</span><span>Many viewpoints</span><small>Head + hand motion</small><div class="recipe-scale-flow" aria-hidden="true">↓</div><strong>Implicit active-perception priors</strong><p>Where to look · when to move · how to reach</p></div>
+          <div class="recipe-layer recipe-human-motion"><canvas aria-label="Head and wrist trajectories provide viewpoint and manipulation supervision"></canvas><div class="recipe-supervision-key"><span><b>Head pose</b> → active-view targets</span><span><b>Wrist poses</b> → manipulation targets</span></div></div>
+          <div class="recipe-layer recipe-gap"><div class="recipe-gap-scene"><canvas aria-label="Illustration of a robot gripper closing beside its target"></canvas><span class="recipe-target-label">Target object</span><span class="recipe-miss-label">Gripper closes beside it</span></div><strong>Grasp offset</strong><p>Illustration of the preliminary human-only observation</p></div>
+          <div class="recipe-layer recipe-retain"><div class="recipe-training-block"><small>From human experience</small><strong>Active-view + manipulation priors</strong></div><span class="recipe-data-arrow">+</span><div class="recipe-training-block recipe-robot-block"><small>From robot experience</small><strong>Robot-aligned state and actions</strong></div><span class="recipe-data-arrow">↓</span><strong>Keep robot control in the loop</strong></div>
         </div>
-        <div class="recipe-layer recipe-final"><div class="recipe-final-input"><strong>Human demonstrations</strong><div class="recipe-final-tags">EgoLive · EgoVerse · EgoSuite</div></div><div class="recipe-final-flow" aria-hidden="true">→</div><div class="recipe-final-model"><span>1:1 sampling</span><strong>Shared VLA</strong><small>Mixed mid-training</small></div><div class="recipe-final-flow" aria-hidden="true">←</div><div class="recipe-final-input"><strong>Robot demonstrations</strong><div class="recipe-final-tags">AgiBot World · RoboCOIN · AMP</div></div></div>
+        <div class="recipe-layer recipe-final">
+          <div class="recipe-mixing-row"><div class="recipe-final-input recipe-final-human">${video('Human motion for mixed mid-training','mixed',`data-source="${humanSources[1][3]}" poster="${humanSources[1][2]}"`)}<strong>Human demonstrations</strong><span>Active-view + manipulation experience</span></div><div class="recipe-final-model"><small>Start from pretrained π₀.₅</small><strong>Mixed mid-training</strong><span>1:1 human / robot sampling</span><div class="recipe-mix-packets" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="recipe-final-input recipe-final-robot">${video('Robot actions for mixed mid-training','mixed',`data-robot-feature="robocoin"`)}<strong>Robot demonstrations</strong><span>Robot-aligned action learning</span></div></div>
+          ${goals}
+          <div class="recipe-next-training"><span>Then: task-specific AMP post-training</span><b>↓</b><strong>Specialize looking and acting for the target robot.</strong></div>
+        </div>
       </div>
     </div>`;
-  const story = mount.querySelector('.recipe-story');
-  const title = mount.querySelector('.recipe-stage-heading h3');
-  const caption = mount.querySelector('.recipe-stage-heading p');
-  const button = mount.querySelector('.recipe-play');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const netMosaic = mount.querySelector('.recipe-net-mosaic');
-  const robotMosaic = mount.querySelector('.recipe-robot-mosaic');
-  for (let i = 0; i < 56; i++) {
-    const tile = document.createElement('div'); tile.className = 'recipe-tile';
-    tile.style.setProperty('--tile', i); tile.style.setProperty('--offset', (i % 4) * -11 + 'px');
-    const image = document.createElement('img');image.loading = 'lazy';image.alt = '';
-    image.src = base + 'net-ego-' + String(i % 28).padStart(2,'0') + '.webp';
-    tile.append(image);netMosaic.append(tile);
+  const story=mount.querySelector('.recipe-story'),title=mount.querySelector('h3'),caption=mount.querySelector('.recipe-stage-heading p');
+  const button=mount.querySelector('.recipe-play'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  for(let i=0;i<56;i++){
+    const tile=document.createElement('div');tile.className='recipe-tile';tile.style.setProperty('--tile',i);
+    const image=document.createElement('img');image.loading='lazy';image.alt='';image.src=base+'net-ego-'+String(i%28).padStart(2,'0')+'.webp';tile.append(image);mount.querySelector('.recipe-net-mosaic').append(tile);
   }
-  const tasks = ['bag', 'drawer', 'table', 'pot', 'box', 'teleoperation'];
-  for (let i = 0; i < 36; i++) {
-    const tile = document.createElement('div');tile.className = 'recipe-tile';tile.style.setProperty('--tile', i);
-    const image = document.createElement('img');image.loading = 'lazy';image.alt = '';
-    image.src = 'assets/trimmed/' + tasks[i % tasks.length] + '-poster.jpg';
-    image.style.objectPosition = (i % 3) * 50 + '% ' + (Math.floor(i / 6) % 3) * 50 + '%';
-    image.style.transform = 'scale(' + (1 + (i % 3) * .15) + ')';
-    tile.append(image);robotMosaic.append(tile);
-  }
-  let index = 0, playing = false, visible = false, started = false, elapsed = 0, lastTime, animation = 0, human;
-  let humanLoading;
-  function loadHuman() {
-    humanLoading ??= import('./data-human.mjs?v=20261104k').then(module => module.initDataHuman(mount.querySelector('.recipe-human-motion canvas'))).then(controller => {human = controller; syncMedia();}).catch(error => {console.warn('Human motion preview unavailable',error);});
-  }
-  function syncMedia() {
-    const kind = stages[index][0];
-    human?.setPlaying(visible && playing && kind === 'human' && !reduced.matches);
-    for (const video of mount.querySelectorAll('video')) {
-      const layer = video.closest('.recipe-layer');
-      const shown = layer.classList.contains('recipe-selected') ? ['human','gap'].includes(kind) : kind === 'robot-selected';
-      if (visible && playing && shown) {
-        if (!video.hasAttribute('src')) video.src = video.dataset.source;
-        video.play().catch(() => {});
-      } else video.pause();
+  let index=0,playing=false,visible=false,started=false,elapsed=0,lastTime,animation=0,human,gap,humanLoading,gapLoading;
+  function loadHuman(){humanLoading??=import('./data-human.mjs?v=20261104data2').then(module=>module.initDataHuman(mount.querySelector('.recipe-human-motion canvas'))).then(controller=>{human=controller;syncMedia();}).catch(console.error);}
+  function loadGap(){gapLoading??=import('./data-gap.mjs?v=20261104data2').then(module=>module.initDataGap(mount.querySelector('.recipe-gap canvas'))).then(controller=>{gap=controller;syncMedia();}).catch(console.error);}
+  function syncMedia(){
+    const kind=stages[index][0],animate=visible&&!document.hidden&&!reduced.matches;
+    human?.setPlaying(animate&&kind==='human');gap?.setPlaying(animate&&kind==='gap');
+    for(const media of mount.querySelectorAll('video')){
+      const shown=media.dataset.stages?.split(',').includes(kind);
+      if(animate&&shown&&media.dataset.source){if(!media.hasAttribute('src'))media.src=media.dataset.source;media.play().catch(()=>{});}else media.pause();
     }
   }
-  function render() {
-    const [kind, heading, description] = stages[index];
-    story.dataset.stage = kind;
-    title.textContent = heading;caption.textContent = description;
-    [...mount.querySelector('.recipe-progress').children].forEach((step,i) => step.classList.toggle('is-current',i === index));
-    button.textContent = reduced.matches ? (index === stages.length-1 ? 'Restart story' : 'Next scene') : playing ? 'Pause story' : index === stages.length-1 ? 'Replay story' : 'Play story';
-    if (['human','gap'].includes(kind) && visible) loadHuman();
-    syncMedia();
-  }
-  function pause() {playing = false;cancelAnimationFrame(animation);lastTime = undefined;render();}
-  function tick(now) {
-    if(lastTime !== undefined) elapsed += now-lastTime;
-    lastTime = now;
-    if(elapsed >= stages[index][3]) {
-      if(index === stages.length-1){pause();return;}
-      index++;elapsed = 0;render();
+  fetch(base+'robot-video-manifest.json').then(response=>{if(!response.ok)throw new Error('Robot dataset previews unavailable');return response.json();}).then(manifest=>{
+    for(const media of mount.querySelectorAll('[data-robot-feature]')){
+      const feature=manifest.featured[media.dataset.robotFeature];media.dataset.source=base+feature.video;media.poster=base+feature.poster;
     }
-    animation = requestAnimationFrame(tick);
+    const clips=[...manifest.montage];if(clips.length===8)clips.push({...manifest.featured.agibot,dataset:'AgiBot World highlights'});
+    const wall=mount.querySelector('.recipe-robot-mosaic');
+    clips.forEach((clip,i)=>{const tile=document.createElement('div');tile.className='recipe-tile';tile.style.setProperty('--tile',i);tile.innerHTML=video(clip.dataset+' robot data example','robot',`data-source="${base+clip.video}" poster="${base+clip.poster}"`);wall.append(tile);});syncMedia();
+  }).catch(error=>{console.error(error);mount.querySelector('.recipe-robot-mosaic').textContent='Robot dataset previews could not load.';});
+  function render(){
+    const [kind,heading,description]=stages[index];story.dataset.stage=kind;title.textContent=heading;caption.textContent=description;
+    [...mount.querySelectorAll('[data-step]')].forEach((step,i)=>{step.classList.toggle('is-current',i===index);step.setAttribute('aria-current',i===index?'step':'false');});
+    button.textContent=reduced.matches?(index===stages.length-1?'Restart story':'Next scene'):playing?'Pause story':index===stages.length-1?'Replay story':'Play story';
+    if(visible&&kind==='human')loadHuman();if(visible&&kind==='gap')loadGap();syncMedia();
   }
-  function play() {
-    started = true;
-    if(index === stages.length-1){index=0;elapsed=0;}
-    playing = true;lastTime=undefined;render();animation=requestAnimationFrame(tick);
-  }
-  button.addEventListener('click',() => {
-    if(reduced.matches){index=(index+1)%stages.length;elapsed=0;render();}
-    else if(playing) pause();else play();
-  });
-  new IntersectionObserver(([entry]) => {
-    visible=entry.isIntersecting;
-    if(visible && !started && !reduced.matches) play();
-    else if(!visible && playing) pause();
-    if(visible)loadHuman();
-    syncMedia();
-  },{threshold:.2}).observe(mount);
-  reduced.addEventListener('change',pause);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden && playing)pause();});
-  render();
+  function pause(){playing=false;cancelAnimationFrame(animation);lastTime=undefined;render();}
+  function tick(now){if(lastTime!==undefined)elapsed+=now-lastTime;lastTime=now;if(elapsed>=stages[index][3]){if(index===stages.length-1){pause();return;}index++;elapsed=0;render();}animation=requestAnimationFrame(tick);}
+  function play(){started=true;if(index===stages.length-1){index=0;elapsed=0;}playing=true;lastTime=undefined;render();animation=requestAnimationFrame(tick);}
+  button.addEventListener('click',()=>{if(reduced.matches){index=(index+1)%stages.length;elapsed=0;render();}else if(playing)pause();else play();});
+  mount.querySelectorAll('[data-step]').forEach(step=>step.addEventListener('click',()=>{pause();started=true;index=Number(step.dataset.step);elapsed=0;render();}));
+  new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(visible&&!started&&!reduced.matches)play();else if(!visible&&playing)pause();if(visible&&stages[index][0]==='human')loadHuman();if(visible&&stages[index][0]==='gap')loadGap();syncMedia();},{threshold:.15}).observe(mount);
+  reduced.addEventListener('change',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();syncMedia();});render();
 })();

@@ -1,0 +1,73 @@
+Real robot dataset preview videos
+Retrieved and visually checked: 2026-11-04
+
+Primary publishers
+AgiBot World: https://agibot-world.com/
+RoboCOIN (BAAI): https://flagopen.github.io/RoboCOIN/
+RoboCOIN official page-asset repository:
+https://huggingface.co/datasets/RoboCOIN/pageAssets/tree/main/videos
+
+These are real video excerpts released on the dataset publishers' pages,
+not still-image animations, simulated rollouts, or ActiveScale/AMP task footage.
+They illustrate the source datasets, not the exact episodes selected for
+ActiveScale training. Original motion speed is preserved.
+
+Output encoding
+640x360 H.264, yuv420p, 24 fps, silent, fast-start MP4.
+Original aspect ratios are preserved; 4:3 sources have narrow dark sidebars.
+Each JPG poster comes from second 1 of the matching output clip.
+
+Individual clips (all times refer to the original official asset)
+1. robot-agibot-fridge.mp4, 8.000s
+   AgiBot World; put food in the refrigerator.
+   Original seconds 6-14, external robot view in a kitchen.
+   https://agibot-world.com/videos/dataset/storeRestocking.mp4
+
+2. robot-agibot-freezer.mp4, 8.000s
+   AgiBot World; frozen-food organizing.
+   Original seconds 8-16, robot head-camera view in a supermarket.
+   https://agibot-world.com/videos/dataset/foodOrganizing.mp4
+
+3. robot-agibot-popcorn.mp4, 8.000s
+   AgiBot World; popcorn scooping.
+   Original seconds 5-13, external robot view at a cinema concession.
+   https://agibot-world.com/videos/dataset/popcornScooping.mp4
+
+4. robot-robocoin-egg.mp4, 6.000s
+   RoboCOIN; AI2 AlphaBot 2; brush egg wash.
+   Original seconds 3-9, robot camera view with brush and bowl.
+   https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/AI2_Alphabot_2_brush_egg_wash.mp4
+
+5. robot-robocoin-fold.mp4, 8.000s
+   RoboCOIN; Agilex Cobot Magic; fold clothes.
+   Original seconds 9-17, bimanual robot camera view.
+   https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/Agilex_Cobot_Magic_fold_clothes.mp4
+
+6. robot-robocoin-kettle.mp4, 8.000s
+   RoboCOIN; Galaxea R1 Lite; kettle manipulation.
+   Original seconds 6-14, bimanual robot camera view.
+   Official task name: boil water in a kettle.
+   https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/Galaxea_R1_Lite_boil_water_in_a_kettle.mp4
+
+7. robot-robocoin-parts.mp4, 8.000s
+   RoboCOIN; Leju Kuavo 4; moving industrial parts.
+   Original seconds 5-13, robot camera view in an industrial work cell.
+   https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/Leju_Kuavo_4_moving_parts_a.mp4
+
+8. robot-robocoin-pour.mp4, 8.000s
+   RoboCOIN; Unitree G1edu-u3; pour drink.
+   Original seconds 6-14, bimanual robot camera view.
+   https://huggingface.co/datasets/RoboCOIN/pageAssets/resolve/main/videos/Unitree_G1edu-u3_pour_drink.mp4
+
+Featured source previews
+robot-agibot-featured.mp4, 9.000s:
+Concatenates the first 3 seconds of fridge, freezer, and popcorn excerpts above.
+robot-robocoin-featured.mp4, 9.000s:
+Concatenates the first 3 seconds of parts, fold, and pour excerpts above.
+No footage crosses dataset labels.
+
+Source metadata
+Task/platform labels are those in the publishers' official asset names and page
+descriptions. No new license is assigned to these excerpts. Refer to the original
+publishers for their terms; the pageAssets and AgiBotWorld-Alpha HF metadata did
+not expose a license tag when checked.
