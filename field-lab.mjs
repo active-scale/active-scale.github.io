@@ -69,7 +69,13 @@ async function teleoperation() {
   const timelineLabel=timeline.previousElementSibling;
   const timelineHeading=document.createElement('div');timelineHeading.className='teleop-timeline-heading';
   const surprise=document.createElement('button');surprise.type='button';surprise.className='teleop-surprise';
-  surprise.textContent='🥊';surprise.title='One more move?';surprise.setAttribute('aria-label','Play a cartoon teleoperation Easter egg');
+  function setSurpriseState(playing=false){
+    surprise.innerHTML=`<span class="teleop-surprise-icon" aria-hidden="true">${playing?'↩':'🥊'}</span><span>${playing?'Back to demo':'Try a secret move'}</span>`;
+    surprise.classList.toggle('is-playing',playing);
+    surprise.title=playing?'Back to teleoperation':'A little teleoperation Easter egg';
+    surprise.setAttribute('aria-label',playing?'Return to the teleoperation demonstration':'Play a cartoon teleoperation Easter egg');
+  }
+  setSurpriseState();
   timelineLabel.before(timelineHeading);timelineHeading.append(timelineLabel,surprise);
   const normalProps=[task.table,task.block,...task.markers];
   const note=$('transfer-note');
@@ -110,8 +116,7 @@ async function teleoperation() {
     egg.stop();normalProps.forEach((object,index)=>object.visible=eggSaved.visibility[index]);
     timeline.value=eggSaved.progress;timeline.disabled=false;userPaused=eggSaved.paused;
     Object.assign(view,eggSaved.view);eggSaved=undefined;eggTime=0;lastTime=undefined;
-    timelineLabel.textContent='Teleoperation timeline';surprise.textContent='🥊';surprise.title='One more move?';
-    surprise.setAttribute('aria-label','Play a cartoon teleoperation Easter egg');
+    timelineLabel.textContent='Teleoperation timeline';setSurpriseState();
   }
   function tick(now){
     if(lastTime!==undefined){
@@ -130,8 +135,7 @@ async function teleoperation() {
       if(!inView||document.hidden)return;
       pause();eggSaved={progress:timeline.value,paused:userPaused,view:{...view},visibility:normalProps.map(object=>object.visible)};
       eggTime=0;egg.start();userPaused=false;normalProps.forEach(object=>object.visible=false);timeline.disabled=true;
-      timelineLabel.textContent='Cartoon interlude · Esc to return';surprise.textContent='↩';surprise.title='Back to teleoperation';
-      surprise.setAttribute('aria-label','Return to the teleoperation demonstration');draw();start();
+      timelineLabel.textContent='Cartoon interlude · Esc to return';setSurpriseState(true);draw();start();
     } catch(error){console.error(error);finishEgg();draw();}
     finally {eggLoading=false;surprise.disabled=false;}
   });
