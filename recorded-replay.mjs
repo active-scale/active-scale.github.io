@@ -9,6 +9,12 @@ const episodes = [
   ['Pot · episode 38', './assets/replay/pot-episode-38.json'],
 ];
 const cameraNames = ['cam_front', 'cam_left', 'cam_right'];
+const playbackRate = 1.5;
+
+function applyPlaybackRate(video) {
+  video.defaultPlaybackRate = playbackRate;
+  video.playbackRate = playbackRate;
+}
 
 function stage() {
   const scene = new T.Scene();
@@ -102,12 +108,16 @@ export async function initRecordedReplay(container, options = {}) {
     play.textContent = episode && elapsed >= duration() ? 'Replay' : 'Play demonstration';
   }
 
+  let renderedWidth = 0, renderedHeight = 0;
   function draw() {
     const width = canvas.clientWidth, height = canvas.clientHeight;
     if (!width || !height) return;
-    renderer.setSize(width, height, false);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+    if (width !== renderedWidth || height !== renderedHeight) {
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderedWidth = width;renderedHeight = height;
+    }
     const radius = 3.45 / zoom * Math.max(1, .8 / camera.aspect);
     camera.position.set(.30 + radius * Math.cos(tilt) * Math.sin(orbit), .78 + radius * Math.sin(tilt), radius * Math.cos(tilt) * Math.cos(orbit));
     camera.lookAt(.30, .78, -.10);
@@ -146,25 +156,36 @@ export async function initRecordedReplay(container, options = {}) {
     draw();
   }
 
-  let lastTime;
+  let lastTime, lastDrawTime;
+  const lastCorrection = new WeakMap();
   function tick(now) {
     if (!playing) return;
     if (hasVideo) {
       elapsed = Math.min(duration(), videos[0].currentTime);
       for (const video of videos.slice(1)) {
-        if (video.readyState >= 2 && Math.abs(video.currentTime - elapsed) > .10) video.currentTime = elapsed;
+        // Repeated small seeks can keep a camera stream waiting for decoded frames.
+        if (!video.seeking && video.readyState >= 2 &&
+            now - (lastCorrection.get(video) ?? -Infinity) >= 1000 &&
+            Math.abs(video.currentTime - elapsed) > .25) {
+          video.currentTime = elapsed;
+          lastCorrection.set(video, now);
+        }
       }
     } else if (lastTime !== undefined) {
-      elapsed = Math.min(duration(), elapsed + (now-lastTime) / 1000);
+      elapsed = Math.min(duration(), elapsed + (now-lastTime) / 1000 * playbackRate);
     }
     lastTime = now;
-    draw();
-    if (elapsed >= duration() || (hasVideo && videos[0].ended)) stop();
+    const finished = elapsed >= duration() || (hasVideo && videos[0].ended);
+    if (finished || lastDrawTime === undefined || now - lastDrawTime >= 1000 / 30) {
+      draw();lastDrawTime = now;
+    }
+    if (finished) stop();
     else animation = requestAnimationFrame(tick);
   }
 
   function mediaReady(video, src, poster) {
     return new Promise((resolve, reject) => {
+      video.onloadedmetadata = () => applyPlaybackRate(video);
       video.onloadeddata = () => resolve();
       video.onerror = () => reject(new Error('The recorded camera video could not load.'));
       video.preload = 'auto';
@@ -218,12 +239,12 @@ export async function initRecordedReplay(container, options = {}) {
     try {
       if (elapsed >= duration()) seek(0);
       if (hasVideo) {
-        for (const video of videos) {video.playbackRate = 1;video.currentTime = elapsed;}
+        for (const video of videos) {applyPlaybackRate(video);video.currentTime = elapsed;}
         const results = await Promise.allSettled(videos.map(video => video.play()));
         if (results.some(result => result.status === 'rejected')) {stop();return;}
       }
       if (!inView || document.hidden || userPaused) {stop();return;}
-      playing = true;play.textContent = 'Pause';lastTime = undefined;
+      playing = true;play.textContent = 'Pause';lastTime = lastDrawTime = undefined;
       animation = requestAnimationFrame(tick);
     } finally {starting = false;}
   }

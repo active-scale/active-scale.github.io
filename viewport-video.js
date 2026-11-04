@@ -1,7 +1,19 @@
 (() => {
   'use strict';
   const videos = new Map();
+  const speedConfigured = new WeakSet();
+  const robotPlaybackRate = 1.5;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  function configureRobotSpeed(video) {
+    if (speedConfigured.has(video)) return;
+    speedConfigured.add(video);
+    const applySpeed = () => {
+      video.defaultPlaybackRate = robotPlaybackRate;
+      video.playbackRate = robotPlaybackRate;
+    };
+    applySpeed();
+    video.addEventListener('loadedmetadata', applySpeed);
+  }
   function sync(video, state) {
     if (state.visible && !document.hidden && !state.userPaused && !reduced.matches) {
       video.play().catch(() => {});
@@ -36,8 +48,13 @@
   }
   function scan(node) {
     if (node.nodeType !== 1) return;
-    if (node.matches('video[data-scroll-play]')) register(node);
-    node.querySelectorAll('video[data-scroll-play]').forEach(register);
+    const selector = 'video[data-scroll-play],video[data-robot-video]';
+    const prepare = video => {
+      configureRobotSpeed(video);
+      if (video.hasAttribute('data-scroll-play')) register(video);
+    };
+    if (node.matches(selector)) prepare(node);
+    node.querySelectorAll(selector).forEach(prepare);
   }
   scan(document.body);
   new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(scan)))
