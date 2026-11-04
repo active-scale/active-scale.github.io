@@ -155,6 +155,11 @@ p {text-wrap:pretty}
 .teleop-stage .teleop-phase {margin-top:6px;font-size:11px}
 .teleop-stage .teleop-control-key {font-size:10px;gap:5px;margin-top:8px}
 .teleop-stage .teleop-control-key small {display:block;margin-top:3px;font-size:10px}
+.teleop-timeline-heading {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+.teleop-timeline-heading label {margin:0}
+.teleop-surprise {width:32px;height:30px;padding:0;border:1px solid #d9cedf;border-radius:7px;background:#fffaf5;font-size:17px;line-height:1;transition:transform .18s,background .18s}
+.teleop-surprise:hover {transform:rotate(-12deg);background:#eee3f6}
+.teleop-surprise:disabled {cursor:wait;opacity:.6}
 #task-replay:empty {min-height:calc(clamp(200px,23vw,280px) * 2.25 + 210px)}
 @media(max-width:1050px){
   .teleop-stage {grid-template-columns:1fr}

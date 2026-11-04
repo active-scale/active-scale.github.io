@@ -195,5 +195,5 @@ export function createTeleopTask(scene,rig) {
     return {hand,handMotion,headDirection,reach:Math.sin(phase*Math.PI)**2,phase,calibration,mobile,stage};
   }
   update(0);
-  return {update,keys,table,block,surface,pick,place,sample,baseMotion,duration:24};
+  return {update,keys,table,block,markers,surface,pick,place,sample,baseMotion,duration:24};
 }

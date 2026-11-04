@@ -16,5 +16,6 @@ Also inspect the replay from the side in the browser. This is a check of the ren
 - `node checks/viewpoint-scenes.mjs` checks that the bin really occludes the bottle, the shelf mug starts outside the optical view, both targets become visible, and sampled robot meshes stay clear of the scene props.
 
 - `node checks/teleop-task.mjs` checks the 24-second illustrative base/pick-and-place loop through 401 samples: mounted-camera aim and target visibility, actual pose/base readouts, controller mapping, table/leg clearance, joint limits, gripper contact, and loop continuity.
+- `node checks/teleop-easter-egg.mjs` checks the user-triggered cartoon vignette: joint limits, glove contact before the visitor launches, finite poses, and cleanup restoring the base transform. The flight is a cartoon animation.
 
 These are geometric checks of the displayed scene. The illustrative motion does not use contact dynamics.
