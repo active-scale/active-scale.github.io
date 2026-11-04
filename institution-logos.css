@@ -32,3 +32,12 @@
   .institution-logos {gap:16px}
   .institution-logos a {width:min(43%,175px)}
 }
+/* Desktop: the author list gets its own full-width line; affiliations and links sit beside the logos. */
+@media(min-width:1281px) {
+  .hero-authors-row {grid-template-columns:minmax(0,1fr) 480px;grid-template-areas:"authors authors" "quiet logos" "actions logos";column-gap:28px;row-gap:0}
+  .hero-authors-row .project-credits {display:contents}
+  .hero-authors-row .authors {grid-area:authors;text-wrap:wrap}
+  .hero-authors-row .quiet {grid-area:quiet;margin:0}
+  .hero-authors-row .actions {grid-area:actions}
+  .hero-authors-row .institution-logos {grid-area:logos;align-self:center}
+}
