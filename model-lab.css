@@ -46,7 +46,7 @@
 .as-backbone-strip {display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1.25fr);gap:3px;padding:7px 5px;background:#f6effb}
 .as-strip-block {display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;padding:3px 1px;border-right:1px solid #d7cbe0;min-width:0}
 .as-strip-time {width:100%;text-align:center;font:10px/1.1 ui-serif,Georgia,serif;color:var(--as-sub)}
-#model-lab .as-camera-token,#model-lab .as-visual-token {display:inline-flex;align-items:center;justify-content:center;min-width:0;padding:5px 6px;border-radius:5px;font:650 13px/1.2 ui-serif,Georgia,serif!important;white-space:nowrap}
+#model-lab .as-camera-token,#model-lab .as-visual-token {display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;min-width:32px;padding:5px 6px;border-radius:5px;font:650 13px/1.2 ui-serif,Georgia,serif!important;white-space:nowrap}
 #model-lab .as-camera-token {background:#ffe28a;color:#614809;border:1px solid #c89b2a;box-shadow:0 1px 0 #fff9 inset}
 #model-lab .as-visual-token {background:#ede2f8;color:#573579;border:1px solid #c5acd9}
 #model-lab .as-camera-token[aria-pressed=true] {outline:2px solid #916000;outline-offset:2px;background:#ffd34f}
@@ -151,9 +151,10 @@
 @media(max-width:650px){.as-model-head h3{font-size:24px}.as-model-modes button{font-size:.78rem!important;padding:6px 9px}.as-mask{border-spacing:3px}.as-mask th:first-child{width:150px}.as-legend{gap:12px}}
 @media(prefers-reduced-motion:reduce){.as-token-connections path,.as-context-flow i,.as-denoise-curve,.as-action-flow i,.as-noise-flow i{animation:none!important}}
 
-.as-history-blocks .as-visual-token,.as-history-blocks .as-camera-token {padding:4px 3px!important;font-size:11px!important}
+#model-lab .as-history-blocks .as-visual-token,#model-lab .as-history-blocks .as-camera-token {flex-basis:25px;width:25px;min-width:25px;padding:4px 2px!important;font-size:12px!important}
 .as-current-inputs>button {min-height:31px}
-.as-current-inputs>button strong {font-size:12px;font-weight:600}
+.as-current-inputs>button strong {display:flex;align-items:center;gap:6px;font-size:inherit;font-weight:400}
+.as-current-inputs>button strong>span {font-size:16px;line-height:1}
 .as-language-inputs button {gap:2px}
 .as-language-inputs button+button {margin-top:12px}
 .as-language-inputs button span {font-size:11px}
@@ -165,6 +166,7 @@
   .as-architecture {grid-template-columns:minmax(0,2.7fr) 44px minmax(0,1fr);padding:13px;grid-template-rows:auto 49px auto 30px auto auto}
   .as-vlm-output {gap:8px}
   .as-output {padding:9px}
+  #model-lab .as-camera-token,#model-lab .as-visual-token {flex-basis:28px;width:28px;min-width:28px}
   .as-processor-title {padding:12px 10px}
   .as-processor-title strong {font-size:21px}
   .as-processor-title span {font-size:10px}
@@ -173,13 +175,14 @@
   .as-prefix {gap:6px}
   .as-prefix>div {padding:6px}
   .as-history-blocks {gap:3px}
-  .as-history-blocks .as-visual-token,.as-history-blocks .as-camera-token {padding:4px 2px!important;font-size:10px!important}
+  #model-lab .as-history-blocks .as-visual-token,#model-lab .as-history-blocks .as-camera-token {flex-basis:21px;width:21px;min-width:21px;padding:4px 2px!important;font-size:12px!important}
   .as-frame-input>div {gap:2px}
   .as-frame-input>strong {font-size:10px}
   .as-ego-example {gap:6px}
   .as-ego-example img {width:36px;flex-basis:36px}
   .as-wrist-pair img {width:34px;height:26px;flex-basis:34px}
   .as-wrist-pair button span {font-size:10px}
+  .as-current-inputs>button strong {font-size:10px}
   .as-action-input {padding:8px}
   .as-action-input strong {font-size:13px}
   .as-action-input small {font-size:11px}
@@ -188,6 +191,12 @@
 }
 
 .as-head-preview {display:block;width:100%;height:38px;margin:3px 0;color:var(--branch)}
+.as-vlm-output .as-output {min-height:178px}
+.as-vlm-output .as-output>strong {font-size:clamp(17px,1.7vw,22px)}
+.as-vlm-output .as-output>.as-label {font-size:11px!important;padding-right:38px}
+.as-vlm-output .as-output>b {font-size:12px}
+.as-vlm-output .as-output-icon {font-size:32px}
+.as-vlm-output .as-head-preview {height:50px}
 .as-pose-preview path {fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}
 .as-preview-view {transform-origin:41px 29px;animation:as-viewpoint 7s ease-in-out infinite}
 .as-pose-preview .as-preview-camera {fill:currentColor;fill-opacity:.1}
@@ -195,8 +204,8 @@
 .as-pose-preview .as-preview-plane {fill:currentColor;fill-opacity:.12;stroke-width:1.8}
 .as-pose-preview .as-preview-grid {opacity:.35;stroke-width:1}
 .as-subtask-preview {display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;color:#98564e}
-.as-subtask-preview>span {display:block;max-width:12ch;overflow:hidden;white-space:nowrap;font:600 12px/1.8 ui-monospace,Consolas,monospace;animation:as-subtask 7s steps(12,end) infinite}
-.as-subtask-preview>i {width:1px;height:14px;background:currentColor;animation:as-caret 1s steps(2,end) infinite}
+.as-subtask-preview>span {display:block;max-width:12ch;overflow:hidden;white-space:nowrap;font:600 14px/1.8 ui-monospace,Consolas,monospace;animation:as-subtask 7s steps(12,end) infinite}
+.as-subtask-preview>i {width:1px;height:16px;background:currentColor;animation:as-caret 1s steps(2,end) infinite}
 .as-trajectory-guide,.as-trajectory {fill:none;stroke:var(--as-action);stroke-width:2;stroke-linecap:round}
 .as-trajectory-guide {opacity:.15;stroke-width:5}
 .as-trajectory {stroke-dasharray:4 6;animation:as-packet 2s linear infinite}
