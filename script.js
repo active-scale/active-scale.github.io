@@ -113,7 +113,7 @@ function initQuantitativeResults() {
 }
 
 // Qualitative task selection intentionally leaves every quantitative result visible.
-import('./evaluation-lab.js?v=20261104k').then(({initEvaluationLab}) => initEvaluationLab()).catch(error => console.error('Could not initialize task videos.', error));
+import('./evaluation-lab.js?v=20261104polish1').then(({initEvaluationLab}) => initEvaluationLab()).catch(error => console.error('Could not initialize task videos.', error));
 initQuantitativeResults();
 $('copy')?.addEventListener('click',async()=>{
   try { await navigator.clipboard.writeText($('bibtex').textContent); $('copy').textContent='Copied'; }

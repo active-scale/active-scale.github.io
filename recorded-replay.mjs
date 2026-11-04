@@ -1,7 +1,7 @@
 import * as T from './vendor/three.module.min.js';
 import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104k';
 import {recordedJoints, setRecordedOptics} from './recorded-motion.mjs?v=20261104k';
-import {createReplayScene} from './replay-scene.mjs?v=20261104k';
+import {createReplayScene} from './replay-scene.mjs?v=20261104polish1';
 
 const episodes = [
   ['Backpack · episode 128', './assets/replay/backpack-episode-128.json'],
@@ -80,7 +80,8 @@ export async function initRecordedReplay(container, options = {}) {
   const placement = createReplayScene(scene);
   const calibration = structuredClone(defaults);
   let episode, elapsed = 0, animation = 0, generation = 0, orbit = .77, tilt = .31, zoom = 1;
-  let hasVideo = false, playing = false;
+  let hasVideo = false, playing = false, inView = false, userPaused = false, starting = false;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const pending = new Map();
   const duration = () => (episode.frameCount - 1) / episode.fps;
 
@@ -200,31 +201,41 @@ export async function initRecordedReplay(container, options = {}) {
         if (currentGeneration !== generation) return;
       }
       play.disabled = false;limits.textContent = '';stop();
+      if (inView && !userPaused && !reduced.matches) startPlayback();
     } catch (error) {
       if (currentGeneration !== generation) return;
       play.textContent = 'Recording unavailable';limits.textContent = error.message;
     }
   }
 
-  play.addEventListener('click', async () => {
-    if (!episode) return;
-    if (playing) {stop();return;}
-    if (elapsed >= duration()) seek(0);
-    if (hasVideo) {
-      for (const video of videos) {video.playbackRate = Number(speed.value);video.currentTime = elapsed;}
-      const results = await Promise.allSettled(videos.map(video => video.play()));
-      if (results.some(result => result.status === 'rejected')) {
-        stop();limits.textContent = 'Playback could not start. Press play to try again.';return;
+  async function startPlayback() {
+    if (!episode || play.disabled || playing || starting || document.hidden) return;
+    starting = true;
+    try {
+      if (elapsed >= duration()) seek(0);
+      if (hasVideo) {
+        for (const video of videos) {video.playbackRate = Number(speed.value);video.currentTime = elapsed;}
+        const results = await Promise.allSettled(videos.map(video => video.play()));
+        if (results.some(result => result.status === 'rejected')) {stop();return;}
       }
-    }
-    playing = true;play.textContent = 'Pause';lastTime = undefined;
-    animation = requestAnimationFrame(tick);
+      if (!inView || document.hidden || userPaused) {stop();return;}
+      playing = true;play.textContent = 'Pause';lastTime = undefined;
+      animation = requestAnimationFrame(tick);
+    } finally {starting = false;}
+  }
+  play.addEventListener('click', () => {
+    if (playing) {userPaused = true;stop();}
+    else {userPaused = false;startPlayback();}
   });
   speed.addEventListener('change', () => {videos.forEach(video => {video.playbackRate = Number(speed.value);});});
-  timeline.addEventListener('input', () => {stop();seek(Number(timeline.value));});
+  timeline.addEventListener('input', () => {userPaused=true;stop();seek(Number(timeline.value));});
   if (container.tagName === 'DETAILS') container.addEventListener('toggle', () => {if (!container.open) stop();});
-  document.addEventListener('visibilitychange', () => {if (document.hidden) stop();});
-  new IntersectionObserver(([entry]) => {if(!entry.isIntersecting)stop();}).observe(body);
+  document.addEventListener('visibilitychange', () => {if(document.hidden)stop();else if(inView&&!userPaused&&!reduced.matches)startPlayback();});
+  new IntersectionObserver(([entry]) => {
+    inView=entry.isIntersecting&&entry.intersectionRatio>=.25;
+    if(inView&&!userPaused&&!reduced.matches)startPlayback();
+    else if(!inView){userPaused=false;stop();}
+  },{threshold:[0,.25]}).observe(body);
   let drag;
   canvas.addEventListener('pointerdown', event => {drag=[event.clientX,event.clientY];canvas.setPointerCapture(event.pointerId);});
   canvas.addEventListener('pointermove', event => {

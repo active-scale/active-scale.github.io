@@ -58,6 +58,32 @@ function reachWithArm(arm, target, side) {
   pointBoneAt(arm.lower, arm.hand, shoulder.addScaledVector(aim, distance));
 }
 
+function wrapController(arm, side, wrist) {
+  const direction = arm.middle.getWorldPosition(new T.Vector3()).sub(wrist).normalize();
+  const across = arm.fingers[0][0].getWorldPosition(new T.Vector3()).sub(
+    arm.fingers[3][0].getWorldPosition(new T.Vector3())
+  ).projectOnPlane(direction).normalize();
+  const right = across.clone().cross(direction).normalize();
+  const palm = right.clone().multiplyScalar(-side);
+  const center = wrist.clone().addScaledVector(direction, .084).addScaledVector(palm, .021);
+  const rotation = new T.Quaternion().setFromRotationMatrix(
+    new T.Matrix4().makeBasis(right, across, direction)
+  );
+  const at = (height, depth, forwardOffset) => center.clone()
+    .addScaledVector(across, height).addScaledVector(palm, depth).addScaledVector(direction, forwardOffset);
+  arm.fingers.forEach(([first, second, third], index) => {
+    const height = first.getWorldPosition(new T.Vector3()).sub(center).dot(across);
+    pointBoneAt(first, second, at(height, index ? .025 : .018, index ? .026 : .031));
+    pointBoneAt(second, third, at(height, .031, -.009));
+    pointBoneAt(third, arm.tips[index], at(height, .012, -.025));
+  });
+  const [thumbBase, thumbMiddle, thumbEnd] = arm.thumb;
+  pointBoneAt(thumbBase, thumbMiddle, at(.055, .027, -.025));
+  pointBoneAt(thumbMiddle, thumbEnd, at(.060, .012, .006));
+  pointBoneAt(thumbEnd, arm.thumbTip, at(.055, -.003, .018));
+  return {position:center, rotation};
+}
+
 export async function createHumanAvatar(x) {
   const {scene} = await new GLTFLoader().loadAsync(source.href);
   paintWorkwear(scene);
@@ -68,16 +94,26 @@ export async function createHumanAvatar(x) {
   const head = bone('head');
   const arms = ['r', 'l'].map(side => {
     const lower = bone('lowerarm_' + side), hand = bone('hand_' + side);
+    const fingers = ['index', 'middle', 'ring', 'pinky'].map(finger =>
+      ['01', '02', '03'].map(segment => bone(finger + '_' + segment + '_' + side))
+    );
+    const thumb = ['01', '02', '03'].map(segment => bone('thumb_' + segment + '_' + side));
+    const tip = end => {
+      const point = new T.Object3D();
+      point.position.y = .018;
+      end.add(point);
+      return point;
+    };
     return {
       upper: bone('upperarm_' + side), lower, hand,
       upperLength: lower.position.length(), lowerLength: hand.position.length(),
       middle: bone('middle_01_' + side),
-      fingers: ['index', 'middle', 'ring', 'pinky'].map(finger =>
-        ['01', '02', '03'].map(segment => bone(finger + '_' + segment + '_' + side))
-      ),
+      fingers, thumb,
+      tips: fingers.map(chain => tip(chain[2])),
+      thumbTip: tip(thumb[2]),
     };
   });
-  const rest = new Map([chest, neck, head, ...arms.flatMap(arm => [arm.upper, arm.lower, arm.hand, ...arm.fingers.flat()])]
+  const rest = new Map([chest, neck, head, ...arms.flatMap(arm => [arm.upper, arm.lower, arm.hand, ...arm.fingers.flat(), ...arm.thumb])]
     .map(joint => [joint, joint.quaternion.clone()]));
 
   function pose({reach, lift, turn, object, handTargets, holdingControllers = false}) {
@@ -86,6 +122,7 @@ export async function createHumanAvatar(x) {
     chest.rotateY(-.08 * reach);
     neck.rotateY(turn);
     head.rotateX(.16 * reach + .05);
+    const controllerGrips = [];
     const frames = arms.map((arm, i) => {
       const side = i ? 1 : -1;
       const target = new T.Vector3(x + side * .26, .995 + i * .075, .17 - i * .06);
@@ -99,7 +136,12 @@ export async function createHumanAvatar(x) {
       const rotation = new T.Quaternion().setFromRotationMatrix(
         new T.Matrix4().lookAt(wrist.clone().add(direction), wrist, up)
       );
-      const curl = holdingControllers ? 1.05 : i ? .19 : .19 + .30 * reach;
+      if (holdingControllers) {
+        const grip = wrapController(arm, side, wrist);
+        controllerGrips.push(grip);
+        return {position:wrist, rotation:grip.rotation.clone()};
+      }
+      const curl = i ? .19 : .19 + .30 * reach;
       for (const [first, second, third] of arm.fingers) {
         for (const [joint, tip] of [[first, second], [second, third]]) {
           const jointPosition = joint.getWorldPosition(new T.Vector3());
@@ -114,6 +156,7 @@ export async function createHumanAvatar(x) {
       headPosition: head.getWorldPosition(new T.Vector3()),
       headRotation: head.getWorldQuaternion(new T.Quaternion()),
       hands: frames,
+      controllerGrips,
     };
   }
 

@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.min.js';
-import {createAmp, defaults, shortFrustum} from './assets/robot-models/amp.mjs?v=20261104k';
+import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104k';
 import {createAmpParts} from './amp-parts.mjs?v=20261104k';
 import {initViewpointDemo} from './viewpoint-demo.mjs?v=20261104k';
 
@@ -49,7 +49,7 @@ async function teleoperation() {
   const scene=stage(),camera=new T.PerspectiveCamera(36,1,.04,30);
   const hx=-.87,rx=.87;
   const [avatar,gear,rig]=await Promise.all([
-    import('./human-avatar.mjs?v=20261104k').then(module=>module.createHumanAvatar(hx)),
+    import('./human-avatar.mjs?v=20261104polish1').then(module=>module.createHumanAvatar(hx)),
     import('./vr-gear.mjs?v=20261104k').then(module=>module.createQuestGear()),
     createAmp()
   ]);
@@ -58,7 +58,6 @@ async function teleoperation() {
   rig.root.position.set(rx,0,-.22);rig.root.rotation.y=-Math.PI/2;
   scene.add(rig.root,...rig.frusta());
   const axes=Array.from({length:6},()=>new T.AxesHelper(.12));scene.add(...axes);
-  const humanFrusta=Array.from({length:3},()=>shortFrustum());humanFrusta.forEach(item=>{item.helper.material.transparent=true;item.helper.material.opacity=.42;});scene.add(...humanFrusta.map(item=>item.helper));
   const view={yaw:0,pitch:.17,zoom:1};
   const timeline=$('motion'),button=$('motion-play');let animation=0,lastTime;
   button.disabled=false;button.textContent='Play teleoperation';
@@ -76,10 +75,9 @@ async function teleoperation() {
     const pose=avatar.pose({reach:.25,lift,turn:-.18*wave,handTargets,holdingControllers:true});
     head.position.copy(pose.headPosition);head.quaternion.copy(pose.headRotation);head.updateMatrixWorld(true);
     const frames=[{position:head.localToWorld(vector(0,.035,.13)),rotation:pose.headRotation},...pose.hands];
-    pose.hands.forEach((hand,index)=>{gear.controllers[index].position.copy(hand.position);gear.controllers[index].quaternion.copy(hand.rotation);});
+    pose.controllerGrips.forEach((grip,index)=>{gear.controllers[index].position.copy(grip.position);gear.controllers[index].quaternion.copy(grip.rotation);});
     frames.forEach((frame,index)=>{
       axes[index].position.copy(frame.position);axes[index].quaternion.copy(frame.rotation);
-      const camera=humanFrusta[index].camera;camera.position.copy(frame.position);camera.quaternion.copy(frame.rotation);camera.rotateY(Math.PI);camera.updateMatrixWorld(true);
     });
     const calibration=structuredClone(defaults),joints=calibration.joints;
     Object.assign(joints.right,{joint1:10*wave,joint2:5+40*lift,joint3:-28*lift,joint4:-8*wave,joint5:12*lift,joint7:16+9*wave,joint8:-16-9*wave});
@@ -92,12 +90,15 @@ async function teleoperation() {
     });
     r.render(scene,camera);
   }
+  let inView=false,userPaused=false;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   function pause(){cancelAnimationFrame(animation);animation=0;lastTime=undefined;button.textContent='Play teleoperation';}
+  function start(){if(animation||document.hidden)return;button.textContent='Pause teleoperation';lastTime=undefined;animation=requestAnimationFrame(tick);}
   function tick(now){if(lastTime!==undefined)timeline.value=(Number(timeline.value)+(now-lastTime)/100)%100;lastTime=now;draw();animation=requestAnimationFrame(tick);}
-  button.onclick=()=>{if(animation)pause();else{button.textContent='Pause teleoperation';lastTime=undefined;animation=requestAnimationFrame(tick);}};
-  timeline.oninput=()=>{pause();draw();};
-  new IntersectionObserver(([entry])=>{if(!entry.isIntersecting)pause();}).observe(canvas);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+  button.onclick=()=>{if(animation){userPaused=true;pause();}else{userPaused=false;start();}};
+  timeline.oninput=()=>{userPaused=true;pause();draw();};
+  new IntersectionObserver(([entry])=>{inView=entry.isIntersecting&&entry.intersectionRatio>=.25;if(inView&&!userPaused&&!reduced.matches)start();else if(!inView){userPaused=false;pause();}},{threshold:[0,.25]}).observe(canvas);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else if(inView&&!userPaused&&!reduced.matches)start();});
   inspect(canvas,view,draw);new ResizeObserver(draw).observe(canvas);draw();
 }
 
@@ -123,4 +124,4 @@ initViewpointDemo();
 whenVisible($('transfer-scene'),()=>teleoperation().catch(error=>{console.error(error);$('transfer-note').textContent='The real hardware is shown in the photograph above.';}));
 whenVisible($('assembly'),()=>hardwareAssembly().catch(console.error));
 const replayMount=$('task-replay');
-if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104k').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));
+if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104polish1').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));

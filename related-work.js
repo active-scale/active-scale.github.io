@@ -5,7 +5,60 @@
   if (!mount) return;
 
   // Keep this list editable as new active-perception work appears.
-  // Dates are first arXiv submissions, checked on 2026-11-03.
+  // Foundations use journal publication years; recent entries use first arXiv submissions.
+  // Foundational titles, authors and dates checked against primary sources on 2026-11-04.
+  const foundations = [
+    {
+      name: 'Active Touch and Robot Perception',
+      title: 'Active Touch and Robot Perception',
+      authors: 'Kenneth Y. Goldberg · Ruzena Bajcsy',
+      year: 1984, publicationDate: '1984-01-01',
+      venue: 'Cognition and Brain Theory',
+      href: 'https://goldberg.berkeley.edu/pubs/Active-Touch-and-Robot-Perception-Goldberg-Bajcsy-1984.pdf',
+      detail: 'A robot actively explores object contours with a tactile probe to support recognition.'
+    },
+    {
+      name: 'Active Vision', title: 'Active Vision',
+      authors: 'John Aloimonos · Isaac Weiss · Amit Bandyopadhyay',
+      year: 1988, publicationDate: '1988-01-01',
+      venue: 'International Journal of Computer Vision',
+      href: 'https://link.springer.com/article/10.1007/BF00133571',
+      detail: 'Controlling the observer’s motion and viewing geometry can simplify visual computation.'
+    },
+    {
+      name: 'Active Perception', title: 'Active Perception',
+      authors: 'Ruzena Bajcsy',
+      year: 1988, publicationDate: '1988-08-31',
+      venue: 'Proceedings of the IEEE',
+      href: 'https://ieeexplore.ieee.org/document/5968',
+      detail: 'Models and control strategies guide sensing toward informative observations.'
+    },
+    {
+      name: 'Animate Vision', title: 'Animate Vision',
+      authors: 'Dana H. Ballard',
+      year: 1991, publicationDate: '1991-02-01',
+      venue: 'Artificial Intelligence',
+      href: 'https://www.sciencedirect.com/science/article/pii/0004370291900804',
+      detail: 'Gaze control connects visual computation to behavior and task demands.'
+    },
+    {
+      name: 'Interactive Perception',
+      title: 'Leveraging Action in Perception and Perception in Action',
+      authors: 'Jeannette Bohg · Karol Hausman · Bharath Sankaran et al.',
+      year: 2017, publicationDate: '2017-12-01',
+      venue: 'IEEE Transactions on Robotics',
+      href: 'https://arxiv.org/abs/1604.03670',
+      detail: 'A survey of how physical interaction creates informative signals for robot perception.'
+    },
+    {
+      name: 'Revisiting Active Perception', title: 'Revisiting Active Perception',
+      authors: 'Ruzena Bajcsy · Yiannis Aloimonos · John K. Tsotsos',
+      year: 2018, publicationDate: '2018-02-01',
+      venue: 'Autonomous Robots · online 2017',
+      href: 'https://link.springer.com/article/10.1007/s10514-017-9615-3',
+      detail: 'Revisits the history of active perception and its role in embodied sensing.'
+    },
+  ];
   const papers = [
     {
       name: 'Act, Sense, Act',
@@ -130,37 +183,47 @@
   ];
 
   const heading = document.createElement('h2');
+  heading.className = 'section-title';
   heading.textContent = 'Related active perception work';
   const updated = document.createElement('p');
   updated.className = 'related-updated';
-  updated.textContent = 'A reading list for active vision and manipulation · Updated 3 November 2026';
-  const list = document.createElement('ul');
-  list.className = 'related-papers';
+  updated.textContent = 'A selected, evolving reading list · Updated 4 November 2026';
 
   // ViA stays first by request; the rest run from earliest to latest.
-  // A year-only future entry follows dated entries within that year.
   const chronologyKey = paper => paper.firstSubmitted || `${paper.year}-99-99`;
   papers.sort((a, b) => {
     if (a.name === 'Vision in Action') return -1;
     if (b.name === 'Vision in Action') return 1;
     return chronologyKey(a).localeCompare(chronologyKey(b)) || a.name.localeCompare(b.name);
   });
-  for (const paper of papers) {
-    const item = document.createElement('li');
-    const link = document.createElement('a');
-    link.href = paper.href;
-    link.title = paper.name + ': ' + paper.title;
-    const title = document.createElement('strong');
-    title.textContent = paper.name;
-    const year = document.createElement('span');
-    year.className = 'related-year';
-    year.textContent = paper.year + ' ↗';
-    const detail = document.createElement('span');
-    detail.className = 'related-detail';
-    detail.textContent = paper.detail;
-    link.append(title, year, detail);
-    item.append(link);
-    list.append(item);
+  foundations.sort((a,b) => a.publicationDate.localeCompare(b.publicationDate));
+
+  function paperGroup(id, title, description, entries, foundational = false) {
+    const group = document.createElement('section');
+    group.className = 'related-group' + (foundational ? ' related-foundations' : '');
+    group.setAttribute('aria-labelledby', id);
+    const label = document.createElement('h3');label.id = id;label.textContent = title;
+    const intro = document.createElement('p');intro.className = 'related-group-intro';intro.textContent = description;
+    const list = document.createElement('ul');list.className = 'related-papers';
+    for (const paper of entries) {
+      const item = document.createElement('li');
+      const link = document.createElement('a');link.href = paper.href;
+      link.title = paper.name === paper.title ? paper.name : paper.name + ': ' + paper.title;
+      const name = document.createElement('strong');name.textContent = paper.name;
+      const year = document.createElement('span');year.className = 'related-year';year.textContent = paper.year + ' ↗';
+      link.append(name, year);
+      if (paper.authors) {
+        const authors = document.createElement('span');authors.className = 'related-authors';authors.textContent = paper.authors;
+        const venue = document.createElement('span');venue.className = 'related-venue';venue.textContent = paper.venue;
+        link.append(authors, venue);
+      }
+      const detail = document.createElement('span');detail.className = 'related-detail';detail.textContent = paper.detail;
+      link.append(detail);item.append(link);list.append(item);
+    }
+    group.append(label, intro, list);return group;
   }
-  mount.replaceChildren(heading, updated, list);
+  mount.replaceChildren(heading, updated,
+    paperGroup('related-foundations', 'Foundations', 'Active touch, controlled viewpoints, and perception through interaction.', foundations, true),
+    paperGroup('related-learning', 'Learning to look and manipulate', 'Recent approaches to learning camera control together with robot manipulation.', papers)
+  );
 })();
