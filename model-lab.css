@@ -189,8 +189,11 @@
 
 .as-head-preview {display:block;width:100%;height:38px;margin:3px 0;color:var(--branch)}
 .as-pose-preview path {fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}
-.as-preview-view {transform-origin:87px 22px;animation:as-viewpoint 7s ease-in-out infinite}
-.as-pose-preview .as-preview-axis {opacity:.4}
+.as-preview-view {transform-origin:41px 29px;animation:as-viewpoint 7s ease-in-out infinite}
+.as-pose-preview .as-preview-camera {fill:currentColor;fill-opacity:.1}
+.as-pose-preview .as-preview-rays {opacity:.6;stroke-width:1.1}
+.as-pose-preview .as-preview-plane {fill:currentColor;fill-opacity:.12;stroke-width:1.8}
+.as-pose-preview .as-preview-grid {opacity:.35;stroke-width:1}
 .as-subtask-preview {display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;color:#98564e}
 .as-subtask-preview>span {display:block;max-width:12ch;overflow:hidden;white-space:nowrap;font:600 12px/1.8 ui-monospace,Consolas,monospace;animation:as-subtask 7s steps(12,end) infinite}
 .as-subtask-preview>i {width:1px;height:14px;background:currentColor;animation:as-caret 1s steps(2,end) infinite}
@@ -204,7 +207,7 @@
 @media(hover:hover) {
   #model-lab .as-model-modes button:hover,#model-lab [data-query]:hover {box-shadow:0 3px 8px #39224924;filter:brightness(1.035)}
 }
-@keyframes as-viewpoint {0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes as-viewpoint {0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 @keyframes as-subtask {0%,8%{width:0}48%,92%{width:12ch}100%{width:12ch}}
 @keyframes as-caret {50%{opacity:0}}
 @media(prefers-reduced-motion:reduce){

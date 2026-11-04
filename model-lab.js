@@ -44,9 +44,13 @@
             <span class="as-output-icon" aria-hidden="true">📷</span>
             <span class="as-label">Reconstruct viewpoint geometry</span>
             <strong>Camera-pose head</strong>
-            <svg class="as-head-preview as-pose-preview" viewBox="0 0 180 42" role="img" aria-label="Illustration of reconstructed camera geometry">
-              <g class="as-preview-view"><path d="M57 26L97 8 126 15 101 35Z M57 26L94 22 M97 8L94 22 126 15 M94 22L101 35"/><path d="M45 24H56V32H45Z"/></g>
-              <path class="as-preview-axis" d="M145 29H166 M145 29V9 M145 29L134 37"/>
+            <svg class="as-head-preview as-pose-preview" viewBox="0 0 180 52" role="img" aria-label="Camera frustum with a rectangular projection plane">
+              <path class="as-preview-camera" d="M23 22H34V36H23Z M34 25L41 22V36L34 33Z"/>
+              <g class="as-preview-view">
+                <path class="as-preview-rays" d="M41 29L93 7 M41 29L136 13 M41 29L136 42 M41 29L93 36"/>
+                <path class="as-preview-plane" d="M93 7L136 13V42L93 36Z"/>
+                <path class="as-preview-grid" d="M114.5 10V39 M93 21.5L136 27.5"/>
+              </g>
             </svg>
             <b data-pose-status></b>
           </div>
