@@ -184,7 +184,7 @@
 
   const heading = document.createElement('h2');
   heading.className = 'section-title';
-  heading.textContent = 'Related active perception work';
+  heading.textContent = 'Evolving active perception trends';
   const updated = document.createElement('p');
   updated.className = 'related-updated';
   updated.textContent = 'A selected, evolving reading list · Updated 4 November 2026';

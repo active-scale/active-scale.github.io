@@ -133,7 +133,7 @@ async function teleoperation() {
     if(egg?.active){pause();finishEgg();draw();if(inView&&!userPaused&&motionAllowed())start();return;}
     eggLoading=true;surprise.disabled=true;replay.disabled=true;
     try {
-      egg??=(await import('./teleop-easter-egg.mjs?v=20261104controls1')).createTeleopEasterEgg({scene,rig});
+      egg??=await (await import('./teleop-easter-egg.mjs?v=20261104visitor1')).createTeleopEasterEgg({scene,rig});
       if(!inView||document.hidden)return;
       pause();eggSaved={progress:timeline.value,paused:userPaused,view:{...view},visibility:normalProps.map(object=>object.visible)};
       eggTime=0;egg.start();userPaused=false;normalProps.forEach(object=>object.visible=false);timeline.disabled=true;

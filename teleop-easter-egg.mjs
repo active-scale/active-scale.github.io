@@ -1,5 +1,6 @@
 import * as T from './vendor/three.module.min.js';
 import {defaults} from './assets/robot-models/amp.mjs?v=20261104slots1';
+import {createVisitorAvatar} from './visitor-avatar.mjs?v=20261104visitor1';
 
 const names=['joint1','joint2','joint3','joint4','joint5','joint6'];
 const tool=new T.Vector3(0,0,.17);
@@ -24,43 +25,6 @@ function solvePoint(arm,target,seed) {
     }
   }
   return values;
-}
-
-function visitor() {
-  const root=new T.Group();
-  const orange=new T.MeshStandardMaterial({color:'#e8a447',roughness:.8});
-  const blue=new T.MeshStandardMaterial({color:'#596879',roughness:.85});
-  const skin=new T.MeshStandardMaterial({color:'#e3bba1',roughness:.9});
-  const shoe=new T.MeshStandardMaterial({color:'#35363d',roughness:.9});
-  const face=new T.MeshStandardMaterial({color:'#322d2c',roughness:.95});
-  function sphere(radius,material,x,y,z,scale=[1,1,1]){
-    const mesh=new T.Mesh(new T.SphereGeometry(radius,24,16),material);mesh.position.set(x,y,z);mesh.scale.set(...scale);root.add(mesh);return mesh;
-  }
-  function limb(a,b,radius,material){
-    const first=new T.Vector3(...a),last=new T.Vector3(...b);
-    const mesh=new T.Mesh(new T.CapsuleGeometry(radius,Math.max(0,first.distanceTo(last)-radius*2),6,14),material);
-    mesh.position.copy(first).add(last).multiplyScalar(.5);
-    mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),last.sub(first).normalize());root.add(mesh);return mesh;
-  }
-  // A deliberately toy-like visitor, with rounded limbs and a surprised face.
-  limb([0,-.12,0],[0,.42,0],.16,orange);
-  sphere(.14,skin,0,.64,0,[.93,1.08,1]);
-  sphere(.142,face,.016,.705,0,[.85,.59,1]);
-  for(const side of [-1,1]){
-    limb([0,.34,side*.18],[-.035,.02,side*.26],.065,orange);
-    limb([-.035,.02,side*.26],[-.13,-.12,side*.25],.052,skin);
-    sphere(.059,skin,-.14,-.13,side*.25);
-    limb([0,-.10,side*.085],[.015,-.47,side*.10],.074,blue);
-    limb([.015,-.47,side*.10],[0,-.75,side*.11],.065,blue);
-    sphere(.085,shoe,-.035,-.785,side*.11,[1.55,.65,.88]);
-    sphere(.012,face,-.125,.662,side*.049,[.65,1.2,1]);
-  }
-  sphere(.022,face,-.13,.602,0,[.48,1,1]);
-  const shadow=new T.Mesh(new T.CircleGeometry(.27,32),new T.MeshBasicMaterial({color:'#8d8374',transparent:true,opacity:.14,depthWrite:false}));
-  shadow.rotation.x=-Math.PI/2;shadow.position.y=-.846;root.add(shadow);
-  const materials=[orange,blue,skin,shoe,face];
-  materials.forEach(material=>{material.transparent=true;});
-  return {root,shadow,opacity(value){materials.forEach(material=>material.opacity=value);}};
 }
 
 function comicBurst() {
@@ -92,13 +56,14 @@ function comicBurst() {
 }
 
 /** A user-triggered cartoon vignette; the normal demonstration owns the environment. */
-export function createTeleopEasterEgg({scene,rig}) {
+export async function createTeleopEasterEgg({scene,rig}) {
   const duration=9.4,impact=3.75;
   const basePosition=rig.root.position.clone(),baseRotation=rig.root.quaternion.clone();
   const visitorPosition=new T.Vector3(2.30,.85,.08);
   const drive=.58,turn=Math.PI/2;
-  const guest=visitor(),burst=comicBurst();
+  const guest=await createVisitorAvatar(),burst=comicBurst();
   scene.add(guest.root,burst.root);guest.root.visible=false;burst.root.visible=false;
+  guest.root.position.copy(visitorPosition);guest.pose();
   const glove=new T.Group();glove.name='Cartoon boxing glove';
   const red=new T.MeshStandardMaterial({color:'#df554b',roughness:.62});
   const cuff=new T.Mesh(new T.CylinderGeometry(.053,.053,.052,24),new T.MeshStandardMaterial({color:'#f5dfbd',roughness:.85}));
@@ -110,7 +75,12 @@ export function createTeleopEasterEgg({scene,rig}) {
   const finalPosition=basePosition.clone().add(new T.Vector3(drive,0,0));
   rig.root.position.copy(finalPosition);rig.root.quaternion.copy(finalRotation);
   rig.pose(structuredClone(defaults));
-  const contact=new T.Vector3(visitorPosition.x-.16-.075,.99,visitorPosition.z);
+  // Find the actual clothed torso surface, rather than aiming at a primitive proxy.
+  const bodyRay=new T.Raycaster(new T.Vector3(visitorPosition.x-1,1.10,visitorPosition.z),new T.Vector3(1,0,0));
+  const bodyHit=bodyRay.intersectObject(guest.root,true)[0];
+  if(!bodyHit)throw new Error('The rigged visitor torso is outside the cartoon contact line.');
+  const surfacePoint=bodyHit.point.clone();
+  const contact=surfacePoint.clone().add(new T.Vector3(-.075,0,0));
   const arm=rig.arms.right;
   const windup=solvePoint(arm,contact.clone().add(new T.Vector3(-.23,.015,0)),[0,.1,0,0,0,0]);
   const punch=solvePoint(arm,contact,windup);
@@ -164,6 +134,7 @@ export function createTeleopEasterEgg({scene,rig}) {
       guest.root.rotation.z=-fly*Math.PI*1.6;
       guest.root.rotation.y=fly*.8;
     }
+    guest.pose(t,ease(t,impact,impact+.22));
     guest.opacity(ease(t,0,.35)*(1-ease(t,5.0,5.6)));
     guest.root.visible=t<5.6;
     guest.shadow.visible=t<impact;
@@ -187,5 +158,5 @@ export function createTeleopEasterEgg({scene,rig}) {
   }
   return {start,stop,update,get active(){return active;},duration,impact,contactError,
     framing:{target:new T.Vector3(1.05,1.02,.04),distance:6.2},
-    guest:guest.root,glove,contact};
+    guest:guest.root,glove,contact,surfacePoint};
 }

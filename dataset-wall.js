@@ -9,12 +9,12 @@
     ['EgoSuite','https://egosuite100k.lightwheel.ai/',base+'egosuite-human-ego-poster.jpg',base+'egosuite-human-ego.mp4'],
   ];
   const stages=[
-    ['internet','Internet-scale egocentric data','Egocentric video captures how people coordinate their viewpoint and hands during everyday activities.',6000],
-    ['human','How does ego data supervise active perception?','Curated videos come with head-camera and wrist trajectories. Head motion supervises viewpoint changes; wrist motion supervises manipulation.',9500],
-    ['gap','Why keep robot data in the mix?','In our preliminary human-only mid-training trials, downstream robot grasps became offset. We therefore retain a robot-aligned action signal during adaptation.',7500],
-    ['robot','Robot experience, across embodiments.','Co-train on robot demonstrations to support transfer from human motion while preserving the VLA’s pretrained robot-control capabilities.',7000],
-    ['robot-selected','The robot data in our recipe.','AgiBot World, RoboCOIN and AMP contribute diverse robot demonstrations. AMP adds coordinated active-camera and bimanual motion.',7500],
-    ['mixed','Adapt the VLA to looking and acting.','Mixed mid-training adapts the pretrained VLA to temporal observations and camera-pose supervision, learning from human active-view experience while retaining robot-aligned actions.',10000],
+    ['internet','Internet-scale egocentric data','Egocentric video captures how people coordinate their viewpoint and hands during everyday activities.',3800],
+    ['human','How does ego data supervise active perception?','Curated videos come with head-camera and wrist trajectories. Head motion supervises viewpoint changes; wrist motion supervises manipulation.',4600],
+    ['gap','Why keep robot data in the mix?','In our preliminary human-only mid-training trials, downstream robot grasps became offset. We therefore retain a robot-aligned action signal during adaptation.',4600],
+    ['robot','Robot experience, across embodiments.','Co-train on robot demonstrations to support transfer from human motion while preserving the VLA’s pretrained robot-control capabilities.',4200],
+    ['robot-selected','The robot data in our recipe.','AgiBot World, RoboCOIN and AMP contribute diverse robot demonstrations. AMP adds coordinated active-camera and bimanual motion.',4200],
+    ['mixed','Adapt the VLA to looking and acting.','Mixed mid-training adapts the pretrained VLA to temporal observations and camera-pose supervision, learning from human active-view experience while retaining robot-aligned actions.',4800],
   ];
   const video=(label,stages,attrs='')=>`<video ${attrs} data-stages="${stages}" muted playsinline loop preload="none" aria-label="${label}"></video>`;
   const humanCards=humanSources.map(([name,href,poster,clip])=>`<a href="${href}" class="recipe-source-card"><div class="recipe-source-media">${clip?video(name+' egocentric preview','human,gap',`data-source="${clip}" poster="${poster}"`):`<img src="${poster}" alt="EgoLive dataset overview" loading="lazy">`}</div><strong>${name} ↗</strong></a>`).join('');
@@ -54,6 +54,7 @@
   function loadGap(){gapLoading??=import('./data-gap.mjs?v=20261104data2').then(module=>module.initDataGap(mount.querySelector('.recipe-gap canvas'))).then(controller=>{gap=controller;syncMedia();}).catch(console.error);}
   function syncMedia(){
     const kind=stages[index][0],animate=visible&&!document.hidden&&!reduced.matches;
+    mount.classList.toggle('is-active',visible&&!document.hidden);
     human?.setPlaying(animate&&kind==='human');gap?.setPlaying(animate&&kind==='gap');
     for(const media of mount.querySelectorAll('video')){
       const shown=media.dataset.stages?.split(',').includes(kind);
@@ -70,6 +71,9 @@
   }).catch(error=>{console.error(error);mount.querySelector('.recipe-robot-mosaic').textContent='Robot dataset previews could not load.';});
   function render(){
     const [kind,heading,description]=stages[index];story.dataset.stage=kind;title.textContent=heading;caption.textContent=description;
+    // Restart entrances even when the selected scene has not changed.
+    story.classList.remove('is-entering');
+    if(!reduced.matches){void story.offsetWidth;story.classList.add('is-entering');}
     [...mount.querySelectorAll('[data-step]')].forEach((step,i)=>{step.classList.toggle('is-current',i===index);step.setAttribute('aria-current',i===index?'step':'false');});
     if(visible&&kind==='human')loadHuman();if(visible&&kind==='gap')loadGap();syncMedia();
   }

@@ -68,6 +68,7 @@ function createMetricPanel(study, metric) {
       const label = name + ' · ' + study.methods[method] + ' · ' + metricName + ': ' + value.toFixed(1) + '%';
       bar.style.setProperty('--result-width', value + '%');
       bar.style.setProperty('--result-color', study.colors[method]);
+      bar.style.setProperty('--bar-delay', (rowIndex * 55 + method * 65) + 'ms');
       bar.setAttribute('role', 'img');
       bar.setAttribute('aria-label', label);
       bar.tabIndex = 0;
@@ -86,7 +87,7 @@ function initQuantitativeResults() {
   if (!mount) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = new URL('./quantitative-results.css?v=20261104k', document.baseURI).href;
+  stylesheet.href = new URL('./quantitative-results.css?v=20261104motion1', document.baseURI).href;
   document.head.append(stylesheet);
   resultStudies.forEach(study => {
     const section = resultElement('section', 'qr-study');
@@ -110,6 +111,23 @@ function initQuantitativeResults() {
     section.append(legend, metrics);
     mount.append(section);
   });
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  if (!reduced.matches) {
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    }, {threshold: .12});
+    mount.querySelectorAll('.qr-metric').forEach(panel => {
+      panel.classList.add('qr-reveal-ready');
+      observer.observe(panel);
+      panel.addEventListener('focusin', () => {panel.classList.add('is-visible');observer.unobserve(panel);}, {once:true});
+    });
+    reduced.addEventListener('change', () => {
+      if (reduced.matches) {observer.disconnect();mount.querySelectorAll('.qr-metric').forEach(panel => panel.classList.add('is-visible'));}
+    });
+  }
 }
 
 // Qualitative task selection intentionally leaves every quantitative result visible.

@@ -14,7 +14,7 @@ const rig=await createAmp();
 rig.root.position.set(.87,0,-.22);rig.root.rotation.y=-Math.PI/2;
 const scene=new T.Scene();scene.add(rig.root);
 const restPosition=rig.root.position.clone(),restRotation=rig.root.quaternion.clone();
-const egg=createTeleopEasterEgg({scene,rig});
+const egg=await createTeleopEasterEgg({scene,rig});
 assert.ok(!egg.active&&!egg.guest.visible&&!egg.glove.visible);
 egg.start();
 assert.ok(egg.active);
@@ -30,6 +30,10 @@ for(let frame=0;frame<=564;frame++){
 }
 const contact=egg.update(egg.impact);
 assert.ok(contact.fistPoint.distanceTo(egg.contact)<.00002,'Fist misses the visitor at impact.');
+const bodyRay=new T.Raycaster(contact.fistPoint.clone().add(new T.Vector3(-.5,0,0)),new T.Vector3(1,0,0));
+const actualBodyHit=bodyRay.intersectObject(egg.guest,true)[0];
+assert.ok(actualBodyHit,'The punch line misses the rigged torso.');
+assert.ok(Math.abs(actualBodyHit.point.distanceTo(contact.fistPoint)-.075)<.00003,'Fist does not touch the actual visitor mesh.');
 assert.ok(Math.abs(egg.guest.position.x-2.3)<1e-12);
 egg.update(egg.impact+.1);assert.ok(egg.guest.position.x>2.3&&egg.guest.position.y>.85);
 assert.ok(egg.update(egg.duration).done);

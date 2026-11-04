@@ -42,7 +42,7 @@
         <div class="as-vlm-output">
           <div class="as-output as-pose" data-pose-head>
             <span class="as-label">From the four yellow output camera tokens</span>
-            <strong>Camera-pose reconstruction</strong>
+            <strong><span aria-hidden="true">📷</span> Camera-pose reconstruction</strong>
             <span>Linear projection → shared VGGT-style head</span>
             <small>3 translation + 4 quaternion + 2 FoV values</small>
             <b data-pose-status></b>
@@ -56,7 +56,7 @@
           </div>
         </div>
         <div class="as-output as-action as-action-output">
-          <span class="as-label">Continuous output</span><strong>Action chunk</strong>
+          <span class="as-label">Continuous output</span><strong><span aria-hidden="true">🦾</span> Action chunk</strong>
           <svg viewBox="0 0 180 46" role="img" aria-label="A continuous action trajectory"><path class="as-trajectory-guide" d="M5 37C42 37 48 8 87 8s43 23 88 8"/><path class="as-trajectory" d="M5 37C42 37 48 8 87 8s43 23 88 8"/></svg>
           <small>Camera motion + bimanual manipulation</small><b data-action-status></b>
         </div>
@@ -70,7 +70,7 @@
         <div class="as-context-flow" aria-hidden="true"><span>Encoded<br>context</span><i></i></div>
         <div class="as-expert as-processor">
           <div class="as-action-token-strip">a₁ · a₂ · … · a₅₀</div>
-          ${queryButton(9,'<strong>Action expert</strong><span>Transformer · flow matching</span>')}
+          ${queryButton(9,'<strong>🦾 Action expert</strong><span>Transformer · flow matching</span>')}
           <div class="as-action-token-strip">xτ + flow time τ</div>
         </div>
         <div class="as-prefix-gap"><span>Input token sequence</span></div>
@@ -86,28 +86,28 @@
           <div class="as-current-inputs">
             <div class="as-label">Current robot context · where available</div>
             <div class="as-wrist-pair">
-              ${queryButton(8,'<img loading="lazy" src="assets/replay/backpack-episode-128-cam_left-initial.jpg" alt="AMP left wrist camera view"><span>Left wrist image</span>')}
-              ${queryButton(8,'<img loading="lazy" src="assets/replay/backpack-episode-128-cam_right-initial.jpg" alt="AMP right wrist camera view"><span>Right wrist image</span>')}
+              ${queryButton(8,'<img loading="lazy" src="assets/replay/backpack-episode-128-cam_left-initial.jpg" alt="AMP left wrist camera view"><span>Left wrist</span>')}
+              ${queryButton(8,'<img loading="lazy" src="assets/replay/backpack-episode-128-cam_right-initial.jpg" alt="AMP right wrist camera view"><span>Right wrist</span>')}
             </div>
-            ${queryButton(8,'<strong>State sₜ</strong><span>Tokenized proprioception</span>')}
+            ${queryButton(8,'<strong><span aria-hidden="true">🤖</span> State sₜ</strong>')}
           </div>
           <div class="as-language-inputs">
-            <div class="as-label">Language conditioning</div>
+            <div class="as-label"><span aria-hidden="true">💬</span> Language</div>
             ${queryButton(8,'<small>High-level instruction</small><span>“Reach the bottle”</span>')}
             <span class="as-language-route">High-level subtask → low-level conditioning</span>
             ${queryButton(8,'<small>Current low-level subtask</small><span>“Open the bag”</span>')}
           </div>
         </div>
         <div class="as-action-input as-action">
-          <span class="as-label">Action input</span>
+          <span class="as-label"><span aria-hidden="true">🦾</span> Action input</span>
           <svg viewBox="0 0 180 64" aria-hidden="true" class="as-noise">${Array.from({length:62},(_,i)=>`<circle cx="${14+((i*37)%153)}" cy="${8+((i*23)%49)}" r="1.6"/>`).join('')}</svg>
           <strong data-action-input></strong><span>Flow time τ</span><small data-flow-input-detail></small>
           <span class="as-command">Subtask-conditioned context</span>
         </div>
-        <div class="as-legend"><span>Visual features V</span><span>Camera tokens C</span><span>State + language</span><span>Action tokens</span></div>
+        <div class="as-legend"><span>Visual features V</span><span>📷 Camera tokens C</span><span>State + language</span><span>Action tokens</span></div>
       </div>
     </div>
-    <div class="as-mode-summary"><strong data-objective></strong><p data-mode-note></p></div>
+    <div class="as-attention-link"><span><span aria-hidden="true">↕</span> Click a visual or camera token to highlight its attention row.</span><strong data-linked-query aria-live="polite"></strong></div>
     <section class="as-attention" aria-labelledby="as-attention-title">
       <div class="as-attention-heading"><h3 id="as-attention-title">What can each camera token read?</h3><span>Block-causal attention mask</span></div>
       <p>Pick a query row or a yellow camera token. Each temporal block reads itself and earlier blocks, including their visual and camera tokens.</p>
@@ -120,6 +120,7 @@
       <div class="as-query-detail" aria-live="polite"><strong data-query-title></strong><p data-query-detail></p><div data-read-frames class="as-read-frames"></div></div>
       <p class="as-mask-note">Only access to front-camera history is expanded here. The wrist / state / language and action-expert rows show their access to that history; their internal attention details are not depicted. The temporal mask stays the same across all three stages.</p>
     </section>
+    <div class="as-mode-summary"><strong data-objective></strong><p data-mode-note></p></div>
   `;
   const buttons = [...root.querySelectorAll('[data-query]')];
   const cells = [...root.querySelectorAll('[data-cell]')];
@@ -135,6 +136,7 @@
     root.querySelector('[data-query-title]').innerHTML=query.label;
     const earlier = index>=8 ? 3 : query.frame;
     const read = times.slice(0,earlier+1);
+    root.querySelector('[data-linked-query]').innerHTML = query.label + ' → ' + read.length + (read.length === 1 ? ' view' : ' views');
     root.querySelector('[data-query-detail]').textContent = index>=8
       ? `${query.name} can read every valid front-camera block: ${read.join(', ')}.`
       : query.kind==='camera'

@@ -6,11 +6,12 @@
 .recipe-stage-heading{max-width:870px;min-height:0;margin-bottom:26px}.recipe-stage-heading h3{font-size:clamp(24px,3vw,36px);margin:0 0 10px;line-height:1.1}.recipe-stage-heading p{font-size:15px;line-height:1.55;color:#e2d7ec;margin:0}
 .recipe-scenes{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,2.5vw,32px);min-height:455px}
 .recipe-source-side,.recipe-right-side{position:relative;min-width:0;min-height:455px}
-.recipe-layer{position:absolute;inset:0;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .8s,visibility .8s;min-width:0}
+.recipe-layer{position:absolute;inset:0;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .55s ease,visibility .55s;min-width:0}
 .recipe-count-label{font-size:12px;font-weight:650;letter-spacing:.025em;color:#dfc9fb;margin-bottom:10px}
 .recipe-mosaic{display:grid;gap:3px;overflow:hidden;border-radius:10px}.recipe-net-mosaic{grid-template-columns:repeat(8,minmax(0,1fr));height:420px}.recipe-robot-mosaic{grid-template-columns:repeat(3,minmax(0,1fr));height:410px;gap:5px}
-.recipe-tile{overflow:hidden;border:1px solid #77658b75;border-radius:4px;background:#2c1f3a;min-width:0;animation:recipe-rise .7s both;animation-delay:calc(var(--tile)*26ms)}
-.recipe-tile img,.recipe-tile video{height:100%;width:100%;display:block;object-fit:cover}.recipe-net-mosaic .recipe-tile:nth-child(4n+1){animation:recipe-breathe 9s ease-in-out infinite;animation-delay:calc(var(--tile)*-290ms)}
+.recipe-tile{overflow:hidden;border:1px solid #77658b75;border-radius:4px;background:#2c1f3a;min-width:0}
+.recipe-tile img,.recipe-tile video{height:100%;width:100%;display:block;object-fit:cover}
+.recipe-story[data-stage="internet"] .recipe-net-mosaic .recipe-tile:nth-child(4n+1) img{animation:recipe-breathe 6s ease-in-out infinite;animation-delay:calc(var(--tile)*-190ms)}
 .recipe-source-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start;padding-top:60px}
 .recipe-source-card{display:block;min-width:0;border:1px solid #77618f;background:#4b355f;border-radius:10px;overflow:hidden;transition:transform .4s,background .3s;color:#fff;text-decoration:none}
 .recipe-source-card:hover{transform:translateY(-4px);background:#65477e;text-decoration:none}
@@ -44,7 +45,37 @@
 .recipe-story[data-stage="robot"] .recipe-retain,.recipe-story[data-stage="robot-selected"] .recipe-robot-selected,
 .recipe-story[data-stage="robot-selected"] .recipe-retain,.recipe-story[data-stage="mixed"] .recipe-final{opacity:1;visibility:visible;pointer-events:auto}
 .recipe-story[data-stage="gap"] .recipe-selected{opacity:.28;visibility:visible}
-@keyframes recipe-rise{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:none}}@keyframes recipe-breathe{50%{opacity:.58;transform:scale(.96)}}@keyframes recipe-packet{50%{opacity:.35;transform:translateY(-3px)}}
+/* Each scene entry receives this class again, including manual reselection. */
+.recipe-story.is-entering .recipe-stage-heading h3{animation:recipe-rise .36s ease-out both}
+.recipe-story.is-entering .recipe-stage-heading p{animation:recipe-rise .42s .06s ease-out both}
+.recipe-story.is-entering[data-stage="internet"] .recipe-net .recipe-count-label{animation:recipe-rise .4s ease-out both}
+.recipe-story.is-entering[data-stage="internet"] .recipe-net-mosaic .recipe-tile{animation:recipe-rise .48s cubic-bezier(.2,.65,.3,1) both;animation-delay:calc(var(--tile)*12ms)}
+.recipe-story.is-entering[data-stage="internet"] .recipe-scale>*{animation:recipe-rise .44s ease-out both;animation-delay:.12s}
+.recipe-story.is-entering[data-stage="internet"] .recipe-scale>:nth-child(2){animation-delay:.2s}
+.recipe-story.is-entering[data-stage="internet"] .recipe-scale>:nth-child(3){animation-delay:.28s}
+.recipe-story.is-entering[data-stage="internet"] .recipe-scale>:nth-child(n+4){animation-delay:.38s}
+.recipe-story.is-entering[data-stage="human"] .recipe-selected .recipe-source-card,
+.recipe-story.is-entering[data-stage="robot-selected"] .recipe-robot-selected .recipe-source-card{animation:recipe-rise .48s ease-out backwards}
+.recipe-story.is-entering[data-stage="human"] .recipe-selected .recipe-source-card:nth-child(2),
+.recipe-story.is-entering[data-stage="robot-selected"] .recipe-robot-selected .recipe-source-card:nth-child(2){animation-delay:.08s}
+.recipe-story.is-entering[data-stage="human"] .recipe-selected .recipe-source-card:nth-child(3),
+.recipe-story.is-entering[data-stage="robot-selected"] .recipe-robot-selected .recipe-source-card:nth-child(3){animation-delay:.16s}
+.recipe-story.is-entering[data-stage="human"] .recipe-human-motion canvas,
+.recipe-story.is-entering[data-stage="gap"] .recipe-gap-scene{animation:recipe-rise .52s .1s ease-out both}
+.recipe-story.is-entering[data-stage="human"] .recipe-pose-signals,
+.recipe-story.is-entering[data-stage="human"] .recipe-supervision-key,
+.recipe-story.is-entering[data-stage="gap"] .recipe-gap>strong,
+.recipe-story.is-entering[data-stage="gap"] .recipe-gap>p,
+.recipe-story.is-entering[data-stage="robot-selected"] .recipe-data-summary{animation:recipe-rise .4s .24s ease-out both}
+.recipe-story.is-entering[data-stage="robot"] .recipe-robot-mosaic .recipe-tile{animation:recipe-rise .44s ease-out both;animation-delay:calc(var(--tile)*40ms)}
+.recipe-story.is-entering[data-stage="robot"] .recipe-retain>*,
+.recipe-story.is-entering[data-stage="robot-selected"] .recipe-retain>*{animation:recipe-rise .48s .12s ease-out both}
+.recipe-story.is-entering[data-stage="mixed"] .recipe-final-input{animation:recipe-rise .48s ease-out both}
+.recipe-story.is-entering[data-stage="mixed"] .recipe-final-model{animation:recipe-rise .48s .12s ease-out both}
+.recipe-story.is-entering[data-stage="mixed"] .recipe-learning-goals>div{animation:recipe-rise .44s .24s ease-out both}
+.recipe-story.is-entering[data-stage="mixed"] .recipe-next-training{animation:recipe-rise .44s .36s ease-out both}
+.data-recipe:not(.is-active) *{animation-play-state:paused!important}
+@keyframes recipe-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes recipe-breathe{50%{opacity:.72;transform:scale(.98)}}@keyframes recipe-packet{50%{opacity:.35;transform:translateY(-3px)}}
 @media(max-width:760px){.recipe-scenes{grid-template-columns:1fr;gap:16px;min-height:700px}.recipe-source-side{min-height:325px}.recipe-right-side{min-height:350px}.recipe-net-mosaic,.recipe-robot-mosaic{height:310px}.recipe-source-cards,.recipe-robot-cards{padding-top:15px}.recipe-source-media,.recipe-robot-cards .recipe-source-media{height:170px}.recipe-human-motion canvas{height:315px}.recipe-scale{padding:8px}.recipe-scale>span{font-size:28px}.recipe-scale strong{font-size:22px}.recipe-gap-scene{height:275px}.recipe-stage-heading{min-height:0}.recipe-final{gap:18px}.recipe-mixing-row{grid-template-columns:1fr;gap:14px}.recipe-final-input video{height:115px}.recipe-final-input strong{font-size:14px}.recipe-final-model{padding:14px 10px}.recipe-final-model::before,.recipe-final-model::after{display:none}.recipe-learning-goals{gap:8px}.recipe-learning-goals strong{font-size:12px}.recipe-learning-goals small{font-size:10px}.recipe-next-training{gap:6px;font-size:11px}.recipe-next-training strong{font-size:11px}.recipe-supervision-key{font-size:10px}}
 @media(max-width:760px){.recipe-story[data-stage="mixed"] .recipe-scenes{display:block;min-height:0}.recipe-story[data-stage="mixed"] .recipe-source-side,.recipe-story[data-stage="mixed"] .recipe-right-side{display:none}.recipe-story[data-stage="mixed"] .recipe-final{position:relative;inset:auto}}
 @media(prefers-reduced-motion:reduce){.data-recipe *{animation:none!important;transition:none!important}}
