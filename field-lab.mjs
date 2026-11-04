@@ -95,13 +95,13 @@ async function teleoperation() {
   const timelineHeading=document.createElement('div');timelineHeading.className='teleop-timeline-heading';
   const surprise=document.createElement('button');surprise.type='button';surprise.className='teleop-surprise';
   function setSurpriseState(playing=false){
-    surprise.innerHTML=`<span class="teleop-surprise-icon" aria-hidden="true">${playing?'↩':'🥊'}</span><span>${playing?'Back to demo':'Try a secret move'}</span>`;
+    surprise.innerHTML=`<span class="teleop-surprise-icon" aria-hidden="true">${playing?'↩':'🥊'}</span><span>${playing?'Back to demo':'Try a mobile manipulation task'}</span>`;
     surprise.classList.toggle('is-playing',playing);
-    surprise.title=playing?'Back to teleoperation':'A little teleoperation Easter egg';
-    surprise.setAttribute('aria-label',playing?'Return to the teleoperation demonstration':'Play a cartoon teleoperation Easter egg');
+    surprise.title=playing?'Back to teleoperation':'Try a mobile manipulation task';
+    surprise.setAttribute('aria-label',playing?'Return to the teleoperation demonstration':'Try a mobile manipulation task');
   }
   setSurpriseState();
-  timelineLabel.before(timelineHeading);timelineHeading.append(timelineLabel,surprise);
+  timelineLabel.before(timelineHeading);timelineHeading.append(surprise,timelineLabel);
   const normalProps=[task.table,task.block,...task.markers];
   const note=$('transfer-note');
   note.innerHTML='Equipment assets: <a href="https://sketchfab.com/3d-models/oculus-quest-2-c6a1c2623d224a1bbb81a38915f7e898">Quest 2 by NosTeam · CC BY 4.0</a> · <a href="https://github.com/immersive-web/webxr-input-profiles/tree/main/packages/assets/profiles/oculus-touch-v3">WebXR Touch controllers · MIT</a>';

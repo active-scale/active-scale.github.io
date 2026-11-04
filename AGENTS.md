@@ -33,6 +33,7 @@ User-approved preferences collected while designing this project. Apply these to
 - Avoid excess copy, empty vertical space, tiny icons, repeated labels, hidden major sections, and gratuitous collapsibles. Keep related controls near their heading.
 - Distinguish evaluation conditions from metrics. Show all tasks and their average for each comparison; success and task progress are separate metrics. Explain progress using the paper's scoring rubric.
 - Hardware videos may play as fixed demonstrations. Use official dataset previews and institution logos; do not substitute paper task-definition images for diverse robot datasets.
+- Keep the CMU RI and HKUST Guangzhou logos side by side. Place the teleoperation Easter egg button on the left and label it “Try a mobile manipulation task”.
 - Preserve factual scope, original experimental results, and explicitly preliminary observations. Do not invent experiments, scaling results, or evidence.
 
 ## Verification and delivery

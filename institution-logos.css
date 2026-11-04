@@ -1,20 +1,20 @@
 .hero-authors-row {
   display:grid;
-  grid-template-columns:minmax(0,1fr) clamp(185px,18vw,230px);
+  grid-template-columns:minmax(0,1fr) 340px;
   align-items:center;
-  gap:clamp(20px,4vw,56px);
+  gap:28px;
   margin-top:24px;
 }
 .hero-authors-row .project-credits {margin-top:0;max-width:none}
 .hero-authors-row .authors a {white-space:nowrap}
 .institution-logos {
   display:flex;
-  flex-direction:column;
+  flex-direction:row;
   align-items:center;
-  gap:19px;
+  gap:20px;
   min-width:0;
 }
-.institution-logos a {display:block;width:100%;line-height:0}
+.institution-logos a {display:block;flex:1;min-width:0;line-height:0}
 .institution-logos img {
   display:block;
   width:100%;
@@ -23,10 +23,9 @@
 }
 .institution-logos a:focus-visible {outline-offset:7px;border-radius:2px}
 .institution-logos .institution-logo--cmu {padding:2px 0}
-@media(max-width:900px) {
+@media(max-width:1280px) {
   .hero-authors-row {grid-template-columns:1fr;gap:20px}
-  .institution-logos {flex-direction:row;justify-content:flex-start;gap:25px}
-  .institution-logos a {width:clamp(145px,28vw,205px)}
+  .institution-logos {justify-content:flex-start;gap:20px;width:min(340px,100%)}
 }
 @media(max-width:420px) {
   .institution-logos {gap:16px}
