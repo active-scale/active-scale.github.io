@@ -1,7 +1,7 @@
 import * as T from './vendor/three.module.min.js';
-import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104mast1';
-import {createAmpParts} from './amp-parts.mjs?v=20261104mast1';
-import {initViewpointDemo} from './viewpoint-demo.mjs?v=20261104mast1';
+import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104slots1';
+import {createAmpParts} from './amp-parts.mjs?v=20261104slots1';
+import {initViewpointDemo} from './viewpoint-demo.mjs?v=20261104controls1';
 
 const $ = id => document.getElementById(id);
 const vector = (x=0,y=0,z=0) => new T.Vector3(x,y,z);
@@ -51,7 +51,7 @@ async function teleoperation() {
   const [avatar,gear,rig,{createTeleopTask},{createTeleopHud}]=await Promise.all([
     import('./human-avatar.mjs?v=20261104shorts1').then(module=>module.createHumanAvatar(hx)),
     import('./vr-gear.mjs?v=20261104k').then(module=>module.createQuestGear()),
-    createAmp(),import('./teleop-task.mjs?v=20261104egg2'),import('./teleop-hud.mjs?v=20261104polish6')
+    createAmp(),import('./teleop-task.mjs?v=20261104controls1'),import('./teleop-hud.mjs?v=20261104polish6')
   ]);
   scene.add(avatar.scene);
   const head=new T.Group();head.add(gear.headset);scene.add(head,...gear.controllers);
@@ -65,6 +65,7 @@ async function teleoperation() {
   const axes=Array.from({length:6},()=>new T.AxesHelper(.12));scene.add(...axes);
   const view={yaw:.08,pitch:.24,zoom:1};
   const timeline=$('motion');let animation=0,lastTime;
+  const replay=$('teleop-replay');
   let egg,eggTime=0,eggSaved,eggLoading=false;
   const timelineLabel=timeline.previousElementSibling;
   const timelineHeading=document.createElement('div');timelineHeading.className='teleop-timeline-heading';
@@ -107,8 +108,9 @@ async function teleoperation() {
     });
     hud.update(rig,state);r.render(scene,camera);
   }
-  let inView=false,userPaused=false;
+  let inView=false,userPaused=false,scrubbing=false,explicitPlayback=false;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const motionAllowed=()=>!reduced.matches||explicitPlayback||egg?.active;
   function pause(){cancelAnimationFrame(animation);animation=0;lastTime=undefined;}
   function start(){if(animation||document.hidden)return;lastTime=undefined;animation=requestAnimationFrame(tick);}
   function finishEgg(){
@@ -124,27 +126,41 @@ async function teleoperation() {
       else timeline.value=(Number(timeline.value)+(now-lastTime)/(task.duration*10))%100;
     }
     lastTime=now;draw();
-    if(inView&&!document.hidden&&!userPaused&&(!reduced.matches||egg?.active))animation=requestAnimationFrame(tick);else pause();
+    if(inView&&!document.hidden&&!userPaused&&!scrubbing&&motionAllowed())animation=requestAnimationFrame(tick);else pause();
   }
   surprise.addEventListener('click',async()=>{
     if(eggLoading)return;
-    if(egg?.active){pause();finishEgg();draw();if(inView&&!userPaused&&!reduced.matches)start();return;}
-    eggLoading=true;surprise.disabled=true;
+    if(egg?.active){pause();finishEgg();draw();if(inView&&!userPaused&&motionAllowed())start();return;}
+    eggLoading=true;surprise.disabled=true;replay.disabled=true;
     try {
-      egg??=(await import('./teleop-easter-egg.mjs?v=20261104egg2')).createTeleopEasterEgg({scene,rig});
+      egg??=(await import('./teleop-easter-egg.mjs?v=20261104controls1')).createTeleopEasterEgg({scene,rig});
       if(!inView||document.hidden)return;
       pause();eggSaved={progress:timeline.value,paused:userPaused,view:{...view},visibility:normalProps.map(object=>object.visible)};
       eggTime=0;egg.start();userPaused=false;normalProps.forEach(object=>object.visible=false);timeline.disabled=true;
       timelineLabel.textContent='Cartoon interlude · Esc to return';setSurpriseState(true);draw();start();
     } catch(error){console.error(error);finishEgg();draw();}
-    finally {eggLoading=false;surprise.disabled=false;}
+    finally {eggLoading=false;surprise.disabled=false;replay.disabled=false;}
   });
-  timeline.oninput=()=>{userPaused=true;pause();draw();};
+  // Scrubbing is a temporary hold, rather than a hidden permanent pause.
+  function finishScrub(){
+    scrubbing=false;userPaused=false;explicitPlayback=true;lastTime=undefined;
+    if(inView&&!document.hidden)start();
+  }
+  timeline.addEventListener('pointerdown',()=>{scrubbing=true;pause();});
+  timeline.addEventListener('input',()=>{pause();draw();});
+  timeline.addEventListener('change',finishScrub);
+  for(const event of ['pointerup','pointercancel'])window.addEventListener(event,()=>{if(scrubbing)finishScrub();});
+  replay.disabled=false;
+  replay.addEventListener('click',()=>{
+    pause();if(egg?.active)finishEgg();
+    timeline.value=0;scrubbing=false;userPaused=false;explicitPlayback=true;draw();
+    if(inView&&!document.hidden)start();
+  });
   canvas.tabIndex=0;canvas.setAttribute('aria-keyshortcuts','Space Escape');
-  canvas.addEventListener('keydown',event=>{if(event.code!=='Space')return;event.preventDefault();userPaused=!userPaused;if(userPaused)pause();else start();});
-  $('transfer').addEventListener('keydown',event=>{if(event.code==='Escape'&&egg?.active){event.preventDefault();pause();finishEgg();draw();if(inView&&!userPaused&&!reduced.matches)start();}});
-  new IntersectionObserver(([entry])=>{inView=entry.isIntersecting&&entry.intersectionRatio>=.25;if(inView&&!userPaused&&!reduced.matches)start();else if(!inView){if(egg?.active)finishEgg();userPaused=false;pause();}},{threshold:[0,.25]}).observe(canvas);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else if(inView&&!userPaused&&(egg?.active||!reduced.matches))start();});
+  canvas.addEventListener('keydown',event=>{if(event.code!=='Space')return;event.preventDefault();userPaused=!userPaused;if(userPaused)pause();else {explicitPlayback=true;start();}});
+  $('transfer').addEventListener('keydown',event=>{if(event.code==='Escape'&&egg?.active){event.preventDefault();pause();finishEgg();draw();if(inView&&!userPaused&&motionAllowed())start();}});
+  new IntersectionObserver(([entry])=>{inView=entry.isIntersecting&&entry.intersectionRatio>=.25;if(inView&&!userPaused&&!scrubbing&&motionAllowed())start();else if(!inView){if(egg?.active)finishEgg();scrubbing=false;userPaused=false;pause();}},{threshold:[0,.25]}).observe(canvas);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){scrubbing=false;pause();}else if(inView&&!userPaused&&motionAllowed())start();});
   inspect(canvas,view,draw);new ResizeObserver(draw).observe(canvas);draw();
 }
 
@@ -152,7 +168,10 @@ async function hardwareAssembly() {
   const section=$('assembly'),canvas=$('assembly-scene');
   const comparison=document.createElement('div');comparison.className='amp-comparison';
   const mount=document.createElement('section');const title=document.createElement('h4');title.textContent='AMP mounting view';
-  canvas.before(comparison);mount.append(title,canvas);comparison.append(mount,createAmpParts());
+  const hint=document.createElement('span');hint.className='amp-orbit-hint';hint.textContent='↔ Drag to rotate';
+  const heading=document.createElement('div');heading.className='amp-mount-heading';heading.append(title,hint);
+  canvas.setAttribute('aria-label','AMP robot setup. Drag to rotate and inspect the mounting.');
+  canvas.before(comparison);mount.append(heading,canvas);comparison.append(mount,createAmpParts());
   const r=renderer(canvas);if(!r)return;
   const rig=await createAmp(),scene=stage(),camera=new T.PerspectiveCamera(36,1,.03,30);
   rig.pose(structuredClone(defaults));scene.add(rig.root,...rig.frusta());
@@ -170,4 +189,4 @@ initViewpointDemo();
 whenVisible($('transfer-scene'),()=>teleoperation().catch(error=>{console.error(error);$('transfer-note').textContent='The real hardware is shown in the photograph above.';}));
 whenVisible($('assembly'),()=>hardwareAssembly().catch(console.error));
 const replayMount=$('task-replay');
-if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104layout1').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2,controlsMount:document.querySelector('#recorded-demo .recorded-header-controls')})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));
+if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104controls1').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2,controlsMount:document.querySelector('#recorded-demo .recorded-header-controls')})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));

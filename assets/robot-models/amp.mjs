@@ -1,7 +1,7 @@
 import * as T from '../../vendor/three.module.min.js';
 import {STLLoader} from '../../vendor/STLLoader.js';
 import {loadCobotMagic, loadPiper} from './loaders.js';
-import {mastSpec} from './mast-spec.mjs';
+import {mastSpec, createMast} from './mast-spec.mjs?v=20261104slots1';
 
 const armNames = ['left', 'center', 'right'];
 const storageKey = 'activeScale.amp.calibration.v1';
@@ -61,8 +61,7 @@ export async function createAmp() {
   const arms = {left, center, right};
   left.root.position.fromArray(base.mounts.left);
   right.root.position.fromArray(base.mounts.right);
-  // Conservative outer envelope: slot geometry and custom hole positions are unmeasured.
-  const post = new T.Mesh(new T.BoxGeometry(mastSpec.width, mastSpec.depth, 1), new T.MeshStandardMaterial({color: '#b8c1c5', metalness: .50, roughness: .42}));
+  const post = createMast(T, 1);
   post.name = 'Aluminum extrusion mast';
   base.zUp.add(post);
   for (const name of armNames) {

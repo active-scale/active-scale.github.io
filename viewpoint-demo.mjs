@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.min.js';
-import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104mast1';
+import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104slots1';
 
 const degrees = Math.PI / 180;
 const vector = (...values) => new T.Vector3(...values);

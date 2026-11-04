@@ -1,7 +1,6 @@
 .recorded-toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin:0 0 10px}
-.recorded-toolbar label{display:flex;align-items:center;gap:7px;font-size:13px}
 .recorded-source{font-size:13px;font-weight:650;margin-right:auto;color:#354540}
-.recorded-toolbar select,.recorded-toolbar button{font:inherit;border:1px solid #b9c2c5;background:#fff;color:#2c363a;border-radius:6px;padding:7px 9px}
+.recorded-toolbar button{font:inherit;border:1px solid #b9c2c5;background:#fff;color:#2c363a;border-radius:6px;padding:7px 9px}
 .recorded-toolbar button{background:#334b4b;color:#fff;cursor:pointer}
 .recorded-toolbar button:disabled{opacity:.65}
 .recorded-replay .recorded-instruction{color:#505d60!important;font-size:14px;margin:0 0 14px}

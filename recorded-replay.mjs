@@ -1,7 +1,7 @@
 import * as T from './vendor/three.module.min.js';
-import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104mast1';
+import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104slots1';
 import {recordedJoints, setRecordedOptics} from './recorded-motion.mjs?v=20261104k';
-import {createReplayScene} from './replay-scene.mjs?v=20261104polish6';
+import {createReplayScene} from './replay-scene.mjs?v=20261104controls1';
 
 const episodes = [
   ['Backpack · episode 128', './assets/replay/backpack-episode-128.json'],
@@ -32,7 +32,7 @@ export async function initRecordedReplay(container, options = {}) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
     style.dataset.recordedStyle = '';
-    style.href = new URL('./recorded-replay.css?v=20261104layout1', import.meta.url).href;
+    style.href = new URL('./recorded-replay.css?v=20261104controls1', import.meta.url).href;
     document.head.append(style);
   }
   const body = document.createElement('div');
@@ -40,7 +40,6 @@ export async function initRecordedReplay(container, options = {}) {
   body.innerHTML = `
     <div class="recorded-toolbar">
       <button type="button" disabled>Loading…</button>
-      <label>Speed <select aria-label="Recorded playback speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
     </div>
     <p class="recorded-instruction"></p>
     <div class="recorded-views">
@@ -56,7 +55,6 @@ export async function initRecordedReplay(container, options = {}) {
     <p class="recorded-note">The same 30 Hz demonstration drives the robot and all three camera videos. Table, shelf and pot placement illustrate the task.</p>`;
   container.append(body);
   const toolbar = body.querySelector('.recorded-toolbar');
-  const speed = toolbar.querySelector('select');
   const play = toolbar.querySelector('button');
   if (options.controlsMount && !options.compact) options.controlsMount.append(toolbar);
   const timeline = body.querySelector('input');
@@ -157,7 +155,7 @@ export async function initRecordedReplay(container, options = {}) {
         if (video.readyState >= 2 && Math.abs(video.currentTime - elapsed) > .10) video.currentTime = elapsed;
       }
     } else if (lastTime !== undefined) {
-      elapsed = Math.min(duration(), elapsed + (now-lastTime) / 1000 * Number(speed.value));
+      elapsed = Math.min(duration(), elapsed + (now-lastTime) / 1000);
     }
     lastTime = now;
     draw();
@@ -220,7 +218,7 @@ export async function initRecordedReplay(container, options = {}) {
     try {
       if (elapsed >= duration()) seek(0);
       if (hasVideo) {
-        for (const video of videos) {video.playbackRate = Number(speed.value);video.currentTime = elapsed;}
+        for (const video of videos) {video.playbackRate = 1;video.currentTime = elapsed;}
         const results = await Promise.allSettled(videos.map(video => video.play()));
         if (results.some(result => result.status === 'rejected')) {stop();return;}
       }
@@ -233,7 +231,6 @@ export async function initRecordedReplay(container, options = {}) {
     if (playing) {userPaused = true;stop();}
     else {userPaused = false;startPlayback();}
   });
-  speed.addEventListener('change', () => {videos.forEach(video => {video.playbackRate = Number(speed.value);});});
   timeline.addEventListener('input', () => {userPaused=true;stop();seek(Number(timeline.value));});
   if (container.tagName === 'DETAILS') container.addEventListener('toggle', () => {if (!container.open) stop();});
   document.addEventListener('visibilitychange', () => {if(document.hidden)stop();else if(inView&&!userPaused&&!reduced.matches)startPlayback();});

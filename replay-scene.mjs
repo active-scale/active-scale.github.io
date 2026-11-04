@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.min.js';
-import {defaults} from './assets/robot-models/amp.mjs?v=20261104mast1';
+import {defaults} from './assets/robot-models/amp.mjs?v=20261104slots1';
 import {recordedJoints} from './recorded-motion.mjs?v=20261104k';
 
 function box(x, y, z, material) {
