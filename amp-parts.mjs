@@ -1,11 +1,12 @@
 import * as T from './vendor/three.module.min.js';
 import {STLLoader} from './vendor/STLLoader.js';
 import {loadCobotMagic, loadPiper} from './assets/robot-models/loaders.js';
+import {mastSpec} from './assets/robot-models/mast-spec.mjs';
 
 const silhouettes = [
   '<path d="M58 133h73l11 12v21H45v-21z" fill="#35434a"/><path d="M65 67h59l12 67H53z" fill="#9ca9ad"/><path d="M78 79H55V61l-9-17-17-6m78 42h25V59l12-17 14-6" fill="none" stroke="#39494d" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M94 67V26" stroke="#8d9a9f" stroke-width="6"/><rect x="81" y="15" width="31" height="18" rx="2" fill="#46555b"/>',
   '<ellipse cx="73" cy="153" rx="25" ry="9" fill="#3e4c50"/><path d="M73 145V109l-24-38 58-30 42 24" fill="none" stroke="#8a999e" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><circle cx="73" cy="111" r="11" fill="#3b484e"/><circle cx="49" cy="71" r="11" fill="#3b484e"/><circle cx="108" cy="42" r="10" fill="#3b484e"/><path d="m142 60 19 10" stroke="#39464c" stroke-width="13"/>',
-  '<path d="m76 25 18-8 24 8-19 9z" fill="#ced6d9"/><path d="m76 25 23 9v133l-23-10z" fill="#9caab0"/><path d="m99 34 19-9v132l-19 10z" fill="#64757d"/><path d="M84 31v127m7-123v126" stroke="#b9c3c7" stroke-width="2"/>',
+  '<path d="m76 25 18-8 24 8-19 9z" fill="#ced6d9"/><path d="m76 25 23 9v133l-23-10z" fill="#9caab0"/><path d="m99 34 19-9v132l-19 10z" fill="#64757d"/>',
 ];
 
 export function createAmpParts() {
@@ -14,7 +15,7 @@ export function createAmpParts() {
   const entries = [
     ['Stock Cobot Magic', 'Mobile base and two PiPER arms'],
     ['Extra PiPER', 'Independent camera arm'],
-    ['Steel mast', '300 mm'],
+    ['Aluminum extrusion', '100 × 100 × 300 mm'],
   ];
   panel.innerHTML = `
     <h4>AMP components</h4>
@@ -48,7 +49,6 @@ async function renderParts(canvases) {
     loadPiper(T, STLLoader, {...colors, zUp: true}),
     loadPiper(T, STLLoader, {...colors, fingers: false}),
   ]);
-  const jointMaterial = new T.MeshStandardMaterial({color: '#38464d', roughness: .58, metalness: .24});
   for (const [side, arm] of [['left', left], ['right', right]]) {
     arm.root.position.fromArray(stock.mounts[side]);
     arm.root.rotation.z = stock.mounts.joint1Yaw;
@@ -59,21 +59,13 @@ async function renderParts(canvases) {
   extra.setJoint('joint2', .54);
   extra.setJoint('joint3', -.68);
   extra.setJoint('joint5', .44);
-  const steel = new T.MeshStandardMaterial({color: '#aab7bd', roughness: .42, metalness: .46});
+  const aluminum = new T.MeshStandardMaterial({color: '#b8c1c5', roughness: .42, metalness: .50});
   const mast = new T.Group();
-  const tube = new T.Mesh(new T.BoxGeometry(.072, .3, .072), steel);
+  const tube = new T.Mesh(new T.BoxGeometry(mastSpec.width, mastSpec.defaultHeight, mastSpec.depth), aluminum);
   tube.position.y = .15;
   mast.add(tube);
-  for (const sign of [-1, 1]) {
-    for (const offset of [-.02, 0, .02]) {
-      const groove = new T.Mesh(new T.BoxGeometry(.0025, .296, .0025), jointMaterial);
-      groove.position.set(offset, .15, sign * .035);
-      mast.add(groove);
-      const sideGroove = groove.clone();
-      sideGroove.position.set(sign * .035, .15, offset);
-      mast.add(sideGroove);
-    }
-  }
+  // Show the verified outer envelope without inventing a vendor-specific slot
+  // section or custom mounting-hole locations.
   const renderer = new T.WebGLRenderer({antialias: true, alpha: true});
   try {
     renderer.setSize(canvases[0].width, canvases[0].height);

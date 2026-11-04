@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.min.js';
-import {defaults} from './assets/robot-models/amp.mjs';
+import {defaults} from './assets/robot-models/amp.mjs?v=20261104mast1';
 
 const names = ['joint1','joint2','joint3','joint4','joint5','joint6'];
 const gripPoint = new T.Vector3(0,0,.115);

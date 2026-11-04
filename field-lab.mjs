@@ -1,7 +1,7 @@
 import * as T from './vendor/three.module.min.js';
-import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104k';
-import {createAmpParts} from './amp-parts.mjs?v=20261104k';
-import {initViewpointDemo} from './viewpoint-demo.mjs?v=20261104refine3';
+import {createAmp, defaults} from './assets/robot-models/amp.mjs?v=20261104mast1';
+import {createAmpParts} from './amp-parts.mjs?v=20261104mast1';
+import {initViewpointDemo} from './viewpoint-demo.mjs?v=20261104mast1';
 
 const $ = id => document.getElementById(id);
 const vector = (x=0,y=0,z=0) => new T.Vector3(x,y,z);
@@ -57,7 +57,7 @@ async function teleoperation() {
   const head=new T.Group();head.add(gear.headset);scene.add(head,...gear.controllers);
   rig.root.position.set(rx,0,-.22);rig.root.rotation.y=-Math.PI/2;
   scene.add(rig.root,...rig.frusta());
-  const {createTeleopTask}=await import('./teleop-task.mjs?v=20261104refine3');
+  const {createTeleopTask}=await import('./teleop-task.mjs?v=20261104mast1');
   const task=createTeleopTask(scene,rig);
   const axes=Array.from({length:6},()=>new T.AxesHelper(.12));scene.add(...axes);
   const view={yaw:.08,pitch:.24,zoom:1};
@@ -126,4 +126,4 @@ initViewpointDemo();
 whenVisible($('transfer-scene'),()=>teleoperation().catch(error=>{console.error(error);$('transfer-note').textContent='The real hardware is shown in the photograph above.';}));
 whenVisible($('assembly'),()=>hardwareAssembly().catch(console.error));
 const replayMount=$('task-replay');
-if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104refine3').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));
+if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104mast1').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));
