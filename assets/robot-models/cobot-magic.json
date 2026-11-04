@@ -1,0 +1,49 @@
+{
+  "units": "meters",
+  "up": "Z",
+  "source": "https://github.com/agilexrobotics/mobile_aloha_sim/blob/v2.0.0/aloha_new_description/urdf/aloha_tracer2_dabai_dark.urdf",
+  "parts": [
+    {
+      "name": "Tracer 2 chassis",
+      "mesh": "meshes/tracer2.stl",
+      "pos": [
+        -0.019,
+        0,
+        0.031
+      ],
+      "rpy": [
+        0,
+        0,
+        1.57
+      ]
+    },
+    {
+      "name": "Cobot Magic frame",
+      "mesh": "meshes/cobot-frame.stl",
+      "pos": [
+        0,
+        0,
+        0.168
+      ],
+      "rpy": [
+        0,
+        0,
+        3.14
+      ]
+    }
+  ],
+  "stockFollowerMounts": {
+    "left": [
+      0.23875,
+      0.3,
+      0.775
+    ],
+    "right": [
+      0.23875,
+      -0.3,
+      0.775
+    ],
+    "joint1Yaw": -1.5708
+  },
+  "cameraMesh": "meshes/dabai.stl"
+}

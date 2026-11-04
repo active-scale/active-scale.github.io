@@ -1,0 +1,44 @@
+.ev-task-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:24px 0 16px}
+.ev-task-list button{padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;color:var(--ink);text-align:left;cursor:pointer}
+.ev-task-list button[aria-pressed=true]{border-color:var(--purple);box-shadow:0 0 0 2px var(--purple)}
+.ev-task-list img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.ev-task-list strong{display:block;padding:9px 12px;font-size:15px}
+.ev-player{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.ev-video-wrap{position:relative;background:#16111d;min-width:0}
+.ev-player video{display:block;width:100%;height:100%;aspect-ratio:4/3;object-fit:contain}
+.ev-current-moment{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:9px;align-items:center;pointer-events:none;color:#fff;font-size:13px}
+.ev-current-moment span{padding:4px 7px;background:#f7f2e9;color:#382c3e;border-radius:4px;font:11px var(--mono)}
+.ev-current-moment strong{padding:4px 7px;border-radius:4px;background:#1b1425d9;font-size:13px}
+.ev-context{padding:clamp(18px,3vw,36px);align-self:center}
+.ev-category{color:var(--purple);font-size:12px;margin:0 0 12px}
+.ev-context h3{font-size:clamp(28px,3vw,42px);margin-bottom:14px}
+.ev-description{font-size:15px;color:var(--muted)}
+.ev-attention{padding-top:15px;margin-top:20px;border-top:1px solid var(--line)}
+.ev-attention>span{font:11px var(--mono);color:#7d4a9f}
+.ev-attention p{font-size:15px;line-height:1.5;margin:8px 0 0}
+.ev-replay-link{display:inline-block;margin-top:22px;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.ev-replay-link[hidden]{display:none}
+.ev-chapters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.ev-chapters button{position:relative;padding:0 0 10px;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:9px;cursor:pointer;text-align:left;color:var(--ink)}
+.ev-chapters button[aria-current=true]{border-color:var(--purple);box-shadow:inset 0 -3px var(--purple)}
+.ev-chapters img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
+.ev-chapters span{display:inline-block;position:absolute;top:7px;left:7px;background:#1e152de6;color:#fff;border-radius:3px;padding:2px 5px;font:11px var(--mono)}
+.ev-chapters strong{display:block;font-size:13px;line-height:1.4;margin:9px 10px 0}
+.ev-chapter-note{font-size:12px;color:var(--muted);margin:8px 0 0}
+@media(max-width:650px){.ev-task-list{gap:6px}.ev-task-list strong{padding:7px 5px;font-size:12px}.ev-player{grid-template-columns:1fr}.ev-context{padding:18px}.ev-chapters{grid-template-columns:repeat(2,minmax(0,1fr))}.ev-task-list img{aspect-ratio:1}.ev-current-moment{top:7px;left:7px}}
+.ev-context .ev-replay-link{font:inherit;font-size:13px;border:0;background:none;color:var(--purple);padding:0;text-align:left;cursor:pointer}
+.ev-companion{min-width:0;padding:14px;background:#f6f5f0;color:#293339;border-left:1px solid var(--line)}
+.ev-companion[hidden]{display:none}
+.ev-companion-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;font-size:14px}
+.ev-close-replay{border:1px solid #c4cbd0;background:#fff;border-radius:5px;color:#39454a;font-size:20px;line-height:1;padding:2px 7px;cursor:pointer}
+.ev-companion-note{font-size:12px;color:#66716f;margin:7px 0 0}
+.ev-player.ev-has-replay{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+.ev-has-replay .ev-context{display:none}
+.ev-companion .recorded-replay canvas{height:clamp(250px,27vw,360px)}
+@media(max-width:650px){.ev-player.ev-has-replay{grid-template-columns:1fr}.ev-companion{border-left:0;border-top:1px solid var(--line)}}
+.ev-timeline{display:flex;align-items:end;gap:15px;margin-top:14px}
+.ev-clock{font:12px var(--mono);color:var(--muted);min-width:34px;padding-bottom:6px}
+.ev-seek{position:relative;flex:1;min-width:0;padding-top:22px}
+.ev-seek input{width:100%;margin:0;accent-color:var(--purple);display:block}
+.ev-markers button{position:absolute;top:0;transform:translateX(-50%);padding:0;border:1px solid #bc9edb;border-radius:50%;width:20px;height:20px;background:#eee4fa;color:#542e80;font:11px var(--mono);cursor:pointer}
+.ev-markers button:hover{background:#d5b9ef}

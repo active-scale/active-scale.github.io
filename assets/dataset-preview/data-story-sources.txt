@@ -1,0 +1,26 @@
+Data-story preview sources
+
+The opening montage uses 28 different official EgoSuite sample thumbnails.
+These illustrate the diversity of internet-scale egocentric activity. Source
+names appear when the animation selects the three sources used by ActiveScale.
+
+EgoLive cover image, Figure 1, Li et al. 2026 (CC BY 4.0)
+https://arxiv.org/html/2604.23570v1/figs/cover.png
+https://arxiv.org/abs/2604.23570
+
+EgoVerse official preview video (cup-on-saucer example)
+https://egoverse.ai/assets/videos/cup_on_saucer_silent.mp4
+https://egoverse.ai/
+
+EgoSuite official sample thumbnails (assets referenced by the project page)
+https://egosuite100k.lightwheel.ai/
+EgoSuite official promo excerpt, trimmed/re-encoded from 18–27 seconds
+https://huggingface.co/spaces/LightwheelAI/README/resolve/main/assets/egosuite-open100k-promo.mp4
+
+The robot montage shows repeated crops from the five ActiveScale tasks and AMP
+teleoperation. AgiBot World/RoboCOIN source cards use an abstract robot icon,
+while AMP footage is the author's own preview.
+
+The human motion uses the existing licensed MPFB/MakeHuman rig and a staged
+reach/grasp/lift animation. The small cube follows the hand during the grasp
+phase for visible contact. This is a kinematic illustration.

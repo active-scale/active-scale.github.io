@@ -1,0 +1,22 @@
+Selected human egocentric previews, checked 2026-11-03
+
+EgoVerse
+Official source: https://egoverse.ai/assets/videos/dense-language-overlay.mp4
+Linked by https://egoverse.ai/ under "What EgoVerse Captures".
+egoverse-human-ego.mp4 extracts seconds 3-12 and crops the source's right-hand
+human head-camera RGB panel (924x576 at x=996, y=350). Its hand-pose annotation
+overlay is retained. No robot footage is included.
+egoverse-human-ego-poster.jpg is a frame from this excerpt.
+
+EgoSuite
+Official source: https://huggingface.co/spaces/LightwheelAI/README/resolve/main/assets/egosuite-open100k-promo.mp4
+Linked by https://egosuite100k.lightwheel.ai/.
+egosuite-human-ego.mp4 extracts seconds 6-9 from the existing local 18-27s
+promo excerpt, corresponding to seconds 24-27 of the official source.
+It crops the human head-camera RGB panel (364x228 at x=0, y=75) from the
+existing 640x360 excerpt, excluding the body and wrist-camera panels and
+the introductory text. The source's hand-pose annotation overlay remains.
+egosuite-human-ego-poster.jpg is a frame from this excerpt.
+
+Both clips are silent H.264/yuv420p at 640x400, 25 fps, with fast-start metadata.
+EgoLive continues to use its verified official cover image.

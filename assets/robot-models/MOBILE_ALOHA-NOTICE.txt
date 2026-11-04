@@ -1,0 +1,8 @@
+AgileX Mobile ALOHA simulation geometry
+
+Source: https://github.com/agilexrobotics/mobile_aloha_sim/tree/v2.0.0/aloha_new_description
+Package manifest: https://github.com/agilexrobotics/mobile_aloha_sim/blob/v2.0.0/aloha_new_description/package.xml
+
+The upstream package description includes configuration data, 3D models and launch files. Its package manifest declares <license>BSD</license>. It does not identify a BSD variant or a complete copyright notice. No additional or different license is asserted here.
+
+This site uses simplified Tracer 2 chassis, Cobot Magic frame and Orbbec DaBai visual meshes derived from that package. COLLADA transforms were baked into STL; vertices were quantized for web delivery. The AMP frame additionally removes the display and upper upright to illustrate the author's hardware assembly. These edits are an illustrative reconstruction, not vendor measurements of AMP.

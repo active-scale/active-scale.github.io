@@ -1,0 +1,41 @@
+.amp-parts {min-width:0}
+.amp-parts-list {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(6px,1.35vw,16px);
+  padding:clamp(8px,1.6vw,18px);
+  border-radius:12px;
+  background:linear-gradient(155deg,#edf1ef,#e5eae8);
+  border:1px solid #d7dfdc;
+}
+.amp-parts-list figure {margin:0;min-width:0}
+.amp-parts .amp-part-view {
+  display:grid;
+  place-items:center;
+  aspect-ratio: .84;
+  border-radius:8px;
+  background:radial-gradient(ellipse at 50% 36%,#fafaf5 0%,#e5eae7 76%);
+}
+.amp-parts .amp-part-view canvas,
+.amp-parts .amp-part-view svg {
+  display:block;
+  width:100%;
+  height:100%;
+  aspect-ratio:auto;
+  object-fit:contain;
+  pointer-events:none;
+}
+.amp-parts .amp-part-view [hidden] {display:none}
+.amp-parts figcaption {padding-top:8px}
+.amp-parts figcaption strong {
+  display:block;
+  font-size:clamp(.8rem,1.3vw,1rem);
+  line-height:1.18;
+}
+.amp-parts figcaption span {
+  display:block;
+  margin-top:3px;
+  color:#566261;
+  font-size:clamp(.67rem,1vw,.85rem);
+  line-height:1.25;
+}

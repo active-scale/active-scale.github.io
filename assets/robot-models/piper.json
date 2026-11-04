@@ -1,0 +1,308 @@
+{
+  "units": "meters",
+  "up": "Z",
+  "quaternionOrder": "wxyz",
+  "model": {
+    "name": "base",
+    "pos": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "quat": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "meshes": [
+      "base_link"
+    ],
+    "joints": [],
+    "children": [
+      {
+        "name": "link1",
+        "pos": [
+          0.0,
+          0.0,
+          0.123
+        ],
+        "quat": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "meshes": [
+          "link1"
+        ],
+        "joints": [
+          {
+            "name": "joint1",
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "range": [
+              -2.618,
+              2.168
+            ],
+            "type": "hinge"
+          }
+        ],
+        "children": [
+          {
+            "name": "link2",
+            "pos": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quat": [
+              0.0356735,
+              -0.0356786,
+              -0.706207,
+              -0.706205
+            ],
+            "meshes": [
+              "link2"
+            ],
+            "joints": [
+              {
+                "name": "joint2",
+                "axis": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "range": [
+                  0.0,
+                  3.14
+                ],
+                "type": "hinge"
+              }
+            ],
+            "children": [
+              {
+                "name": "link3",
+                "pos": [
+                  0.28503,
+                  0.0,
+                  0.0
+                ],
+                "quat": [
+                  0.637536,
+                  0.0,
+                  0.0,
+                  -0.77042
+                ],
+                "meshes": [
+                  "link3"
+                ],
+                "joints": [
+                  {
+                    "name": "joint3",
+                    "axis": [
+                      0.0,
+                      0.0,
+                      1.0
+                    ],
+                    "range": [
+                      -2.967,
+                      0.0
+                    ],
+                    "type": "hinge"
+                  }
+                ],
+                "children": [
+                  {
+                    "name": "link4",
+                    "pos": [
+                      -0.021984,
+                      -0.25075,
+                      0.0
+                    ],
+                    "quat": [
+                      0.707105,
+                      0.707108,
+                      0.0,
+                      0.0
+                    ],
+                    "meshes": [
+                      "link4"
+                    ],
+                    "joints": [
+                      {
+                        "name": "joint4",
+                        "axis": [
+                          0.0,
+                          0.0,
+                          1.0
+                        ],
+                        "range": [
+                          -1.745,
+                          1.745
+                        ],
+                        "type": "hinge"
+                      }
+                    ],
+                    "children": [
+                      {
+                        "name": "link5",
+                        "pos": [
+                          0.0,
+                          0.0,
+                          0.0
+                        ],
+                        "quat": [
+                          0.707105,
+                          -0.707108,
+                          0.0,
+                          0.0
+                        ],
+                        "meshes": [
+                          "link5"
+                        ],
+                        "joints": [
+                          {
+                            "name": "joint5",
+                            "axis": [
+                              0.0,
+                              0.0,
+                              1.0
+                            ],
+                            "range": [
+                              -1.22,
+                              1.22
+                            ],
+                            "type": "hinge"
+                          }
+                        ],
+                        "children": [
+                          {
+                            "name": "link6",
+                            "pos": [
+                              8.8259e-05,
+                              -0.091,
+                              0.0
+                            ],
+                            "quat": [
+                              0.707105,
+                              0.707108,
+                              0.0,
+                              0.0
+                            ],
+                            "meshes": [
+                              "link6",
+                              "gripper_base"
+                            ],
+                            "joints": [
+                              {
+                                "name": "joint6",
+                                "axis": [
+                                  0.0,
+                                  0.0,
+                                  1.0
+                                ],
+                                "range": [
+                                  -2.0944,
+                                  2.0944
+                                ],
+                                "type": "hinge"
+                              }
+                            ],
+                            "children": [
+                              {
+                                "name": "link7",
+                                "pos": [
+                                  0.0,
+                                  0.0,
+                                  0.1358
+                                ],
+                                "quat": [
+                                  0.707105,
+                                  0.707108,
+                                  0.0,
+                                  0.0
+                                ],
+                                "meshes": [
+                                  "link7"
+                                ],
+                                "joints": [
+                                  {
+                                    "name": "joint7",
+                                    "axis": [
+                                      0.0,
+                                      0.0,
+                                      1.0
+                                    ],
+                                    "range": [
+                                      0.0,
+                                      0.035
+                                    ],
+                                    "type": "slide"
+                                  }
+                                ],
+                                "children": []
+                              },
+                              {
+                                "name": "link8",
+                                "pos": [
+                                  0.0,
+                                  0.0,
+                                  0.1358
+                                ],
+                                "quat": [
+                                  -2.59734e-06,
+                                  -2.59735e-06,
+                                  -0.707108,
+                                  -0.707105
+                                ],
+                                "meshes": [
+                                  "link8"
+                                ],
+                                "joints": [
+                                  {
+                                    "name": "joint8",
+                                    "axis": [
+                                      0.0,
+                                      0.0,
+                                      -1.0
+                                    ],
+                                    "range": [
+                                      -0.035,
+                                      0.0
+                                    ],
+                                    "type": "slide"
+                                  }
+                                ],
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "meshes": {
+    "base_link": "meshes/base_link.STL",
+    "link1": "meshes/link1.STL",
+    "link2": "meshes/link2.STL",
+    "link3": "meshes/link3.STL",
+    "link4": "meshes/link4.STL",
+    "link5": "meshes/link5.STL",
+    "link6": "meshes/link6.STL",
+    "gripper_base": "meshes/gripper_base.STL",
+    "link7": "meshes/link7.STL",
+    "link8": "meshes/link8.STL"
+  }
+}

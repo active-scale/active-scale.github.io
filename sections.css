@@ -1,0 +1,30 @@
+.project-credits{margin-top:24px;max-width:880px}.project-credits .authors{margin:0 0 10px;line-height:1.65}.project-credits .quiet{line-height:1.5}.project-credits .actions{margin-top:17px}.masthead>.tag{max-width:none;line-height:1.5;letter-spacing:.025em;white-space:nowrap;overflow-x:auto}
+.citation-wrap{padding-block:27px}.reading-list a strong{grid-column:1}
+.reading-list a{grid-template-columns:minmax(140px,1fr) minmax(0,2fr) auto}.reading-list a span{color:var(--muted);font-size:14px}@media(max-width:650px){.reading-list a{grid-template-columns:1fr auto}.reading-list a span{grid-column:1}.reading-list a b{grid-row:1}}
+.hardware-viewpoint{margin-top:clamp(28px,5vw,64px);scroll-margin-top:90px}
+.hardware-viewpoint .section-copy,.system>.wrap>.section-copy{color:#ddd0eb}
+.hardware-viewpoint h3{margin-bottom:.45em}
+.result-rollout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);margin:18px 0 0;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.result-rollout[hidden]{display:none}
+.result-rollout video{width:100%;aspect-ratio:16/10;object-fit:contain;background:#18121f;display:block}
+.result-rollout figcaption{align-self:center;padding:clamp(16px,3vw,32px)}
+.result-rollout h4{margin:0;font-size:24px}
+.result-rollout small{color:var(--muted)}
+@media(max-width:650px){.result-rollout{grid-template-columns:1fr}}
+.hero-look{white-space:nowrap}
+.masthead h1{font-size:clamp(46px,8vw,110px)!important;line-height:1}
+.hardware-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+.hardware-grid video,.hardware-photo{aspect-ratio:16/10;height:100%;min-width:0;margin:0;border-radius:12px;overflow:hidden}
+.hardware-grid video{object-fit:contain}
+.hardware-photo{display:grid;place-items:center;background:#fff}
+.hardware-photo img{display:block;width:100%;height:100%;object-fit:contain}
+.system .transfer{margin-top:30px;color:var(--ink)}
+.system .transfer p{color:#566068}
+.backpack-calibration{margin-top:45px;padding:clamp(14px,3vw,28px);background:#f6f5f0;color:#283036;border-radius:16px;scroll-margin-top:85px}
+.backpack-calibration>p{font-size:14px;color:#566168;margin-bottom:0}
+.backpack-calibration h3{font-size:clamp(27px,3.4vw,42px);margin-bottom:12px}
+#evaluation-lab{margin-block:26px 42px}
+#citation pre{white-space:pre-wrap;word-break:break-word;margin:20px 0}
+#citation{margin-top:35px;border-top:1px solid var(--line)}
+#citation h2{font-size:clamp(28px,3.5vw,42px)}
+@media(max-width:650px){.hardware-grid{grid-template-columns:1fr}.hardware-grid video,.hardware-photo{height:auto}.masthead h1{font-size:clamp(46px,9vw,68px)!important}}

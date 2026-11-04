@@ -1,135 +1,30 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ActiveScale: Scaling Active Perception for Robots across Model, Data, and Hardware</title>
-<meta name="description" content="ActiveScale advances robotic active perception through pose-grounded temporal modeling, human–robot mid-training, and the AMP mobile-manipulation platform.">
-<meta name="theme-color" content="#f5f7fc">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%235a20ce'/%3E%3Cpath d='M8 30 19 9h5l8 21h-6l-2-6h-9l-3 6zm9-11h6l-2-7z' fill='white'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=20260917-3"><script src="script.js?v=20260917-1" defer></script>
-</head>
-<body>
-<a class="skip" href="#abstract">Skip to content</a>
-<nav class="toc" aria-label="Contents"><a class="toc-brand" href="#top">Active<span>Scale</span></a><p class="toc-label">CONTENTS</p><a href="#videos">Videos</a><a href="#abstract">Abstract</a><a href="#contributions">Contributions</a><a href="#hardware">AMP platform</a><a href="#method">Model</a><a href="#training">Training recipe</a><a href="#results">Results</a><a href="#citation">BibTeX</a></nav>
-<main id="top">
-<header class="hero">
-<img class="wordmark" src="assets/logo.png" alt="ActiveScale — Scaling Active Perception" width="2169" height="725">
-<h1>ActiveScale: Scaling Active Perception for Robots<br class="desktop-break"> across <em>Model, Data,</em> and <em>Hardware</em></h1>
-<div class="authors"><span><a href="https://www.shuai-zhou.com/" target="_blank" rel="noopener noreferrer">Shuai Zhou</a><sup>1,*,†</sup></span><span><a href="https://kaishengpang.github.io/" target="_blank" rel="noopener noreferrer">Kaisheng Pang</a><sup>2,*</sup></span><span><a href="https://songwxuan.github.io/" target="_blank" rel="noopener noreferrer">Wenxuan Song</a><sup>2,‡</sup></span><span><a href="https://victor-roboneo.github.io/" target="_blank" rel="noopener noreferrer">Wenjie Zhang</a><sup>2</sup></span><span><a href="https://facultyprofiles.hkust-gz.edu.cn/faculty-personal-page/ZHENG-Xinhu/xinhuzheng" target="_blank" rel="noopener noreferrer">Xinhu Zheng</a><sup>2</sup></span><span><a href="https://sites.google.com/view/haoangli/homepage" target="_blank" rel="noopener noreferrer">Haoang Li</a><sup>2,‡</sup></span></div>
-<div class="affiliations"><p><sup>1</sup> Robotics Institute, Carnegie Mellon University</p><p><sup>2</sup> The Hong Kong University of Science and Technology (Guangzhou)</p></div>
-<div class="author-notes" aria-label="Author contributions"><span><sup>*</sup> Equal contribution</span><span><sup>†</sup> Project Lead</span><span><sup>‡</sup> Equal advising</span></div>
-<div class="hero-logos"><img src="assets/ri.png" alt="Carnegie Mellon University Robotics Institute" width="2490" height="849"><img src="assets/HKUST(GZ)_Logo.png" alt="The Hong Kong University of Science and Technology (Guangzhou)" width="400" height="109"></div>
-<div class="publication-links"><a class="pill" href="https://arxiv.org/abs/2609.18514" target="_blank" rel="noopener noreferrer"><svg class="pill-icon" viewBox="0 0 792 792" width="14" height="14" aria-hidden="true"><path fill="currentColor" transform="translate(0,792) scale(0.1,-0.1)" d="M1285 7906 c-90 -30 -153 -77 -199 -151 -74 -117 -73 -216 1 -337 13 -21 23 -42 23 -48 0 -5 4 -10 8 -10 4 0 16 -15 27 -32 10 -18 28 -42 38 -53 10 -11 31 -36 45 -55 15 -19 29 -37 32 -40 6 -6 149 -177 167 -200 11 -14 153 -186 212 -257 14 -17 40 -48 56 -69 17 -20 35 -42 40 -48 6 -6 23 -27 38 -46 58 -72 103 -124 120 -142 9 -10 14 -18 10 -18 -5 0 -3 -4 3 -8 6 -4 58 -63 114 -132 56 -69 106 -127 109 -130 4 -3 20 -23 37 -45 16 -22 34 -44 40 -50 6 -5 42 -48 80 -95 38 -47 73 -88 79 -92 5 -4 7 -8 3 -8 -4 0 8 -16 27 -35 19 -19 35 -37 35 -40 0 -4 24 -34 55 -69 6 -6 30 -36 55 -66 25 -30 49 -60 55 -66 5 -6 24 -28 40 -48 17 -21 42 -52 56 -70 49 -58 424 -512 459 -556 19 -24 49 -59 67 -79 17 -20 29 -38 27 -41 -3 -2 -8 1 -13 8 -5 8 -33 -12 -89 -65 -46 -43 -123 -116 -173 -163 -172 -161 -186 -175 -233 -239 -78 -107 -135 -257 -134 -351 0 -19 -1 -39 -3 -45 -6 -21 13 -122 33 -180 46 -130 90 -183 378 -455 78 -74 164 -155 190 -180 l48 -46 -41 -50 c-23 -27 -48 -56 -55 -64 -7 -8 -58 -71 -113 -140 -56 -69 -118 -145 -139 -170 -21 -25 -49 -58 -61 -75 -13 -16 -37 -46 -53 -66 -17 -20 -41 -49 -53 -65 -12 -16 -34 -42 -48 -59 -15 -16 -39 -45 -53 -64 -15 -19 -41 -51 -57 -70 -32 -38 -82 -99 -160 -196 -51 -64 -98 -121 -158 -194 -20 -25 -41 -51 -46 -57 -63 -80 -193 -237 -214 -260 -15 -16 -27 -32 -27 -35 0 -3 -10 -17 -22 -31 -47 -50 -127 -153 -127 -162 0 -5 -3 -12 -9 -15 -22 -14 -62 -143 -66 -208 -13 -287 347 -473 559 -288 26 23 153 140 259 240 45 41 244 226 281 259 17 15 57 53 90 84 33 31 112 104 174 162 62 58 137 128 166 155 29 28 93 86 141 130 49 44 114 105 146 135 31 30 79 75 106 100 26 25 97 90 156 145 60 55 119 110 132 123 13 12 27 22 33 22 5 0 34 -24 64 -52 30 -29 97 -93 148 -142 52 -48 166 -157 254 -241 186 -178 232 -222 419 -399 76 -72 174 -165 217 -206 179 -172 573 -546 809 -770 30 -29 125 -119 210 -200 85 -81 184 -175 220 -209 92 -87 155 -116 250 -116 60 0 85 5 124 25 86 44 141 107 170 197 36 110 11 179 -124 343 -25 30 -51 61 -58 68 -7 8 -25 30 -40 50 -15 20 -34 44 -42 53 -8 9 -24 27 -35 40 -75 91 -120 145 -124 149 -4 3 -24 28 -46 55 -22 28 -45 56 -52 63 -7 7 -29 34 -50 60 -21 26 -42 52 -48 58 -5 6 -26 30 -45 54 -19 24 -40 48 -45 54 -6 6 -30 36 -55 66 -25 30 -47 57 -50 60 -3 3 -22 26 -43 52 -21 26 -43 53 -50 60 -7 7 -44 51 -82 98 -38 47 -74 90 -80 96 -5 6 -23 28 -40 49 -16 20 -35 42 -40 49 -10 10 -260 311 -354 425 -20 24 -48 58 -63 75 -14 17 -155 186 -312 374 l-285 344 36 31 c20 18 53 48 73 67 21 19 81 76 135 125 194 177 284 271 327 340 46 74 85 168 92 226 3 19 5 34 6 34 1 0 3 29 4 65 2 67 -14 163 -35 215 -7 17 -13 36 -15 44 -4 21 -75 133 -109 170 -48 53 -326 324 -496 483 -21 20 -39 39 -39 43 0 5 134 171 150 185 3 3 25 30 50 60 25 30 52 61 60 70 8 8 33 38 55 65 22 28 45 55 51 60 6 6 33 37 60 70 27 33 61 74 75 90 15 17 44 51 65 76 82 96 129 152 139 163 6 6 32 38 59 71 28 33 60 71 72 85 13 14 42 48 64 75 23 28 54 64 69 80 14 17 47 55 71 85 25 30 59 71 77 90 17 19 42 48 55 65 13 16 30 37 38 46 8 8 24 26 35 40 11 13 57 68 103 122 110 130 139 171 172 240 61 127 14 242 -145 349 -104 70 -192 79 -284 27 -47 -26 -135 -96 -201 -159 -9 -8 -51 -46 -94 -85 -43 -38 -88 -79 -100 -90 -146 -134 -204 -186 -222 -202 -12 -10 -63 -56 -115 -103 -51 -47 -103 -94 -115 -105 -118 -106 -272 -246 -325 -295 -15 -14 -55 -50 -89 -80 -34 -30 -74 -66 -89 -80 -38 -35 -134 -123 -225 -205 -43 -38 -101 -91 -129 -117 -29 -27 -55 -48 -59 -48 -6 0 -70 60 -288 270 -43 41 -156 149 -250 240 -95 91 -215 206 -266 255 -52 50 -94 90 -94 89 0 0 -50 47 -110 106 -61 58 -176 169 -257 246 -80 76 -176 168 -213 204 -37 36 -119 114 -181 174 -63 60 -199 190 -303 290 -104 99 -210 201 -236 226 -26 25 -97 93 -158 153 -62 59 -119 107 -127 107 -8 0 -15 5 -15 10 0 6 -6 10 -12 10 -7 0 -24 6 -38 13 -34 17 -136 19 -185 3z m2014 -3200 c-2 -2 -13 8 -23 22 l-19 27 24 -22 c12 -12 21 -24 18 -27z"/></svg> arXiv</a><a class="pill" href="https://github.com/ShuaiZhou302/ActiveScale" target="_blank" rel="noopener noreferrer"><svg class="pill-icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg> Code</a><a class="pill" href="https://modelscope.cn/datasets/shuai302/ActiveScale" target="_blank" rel="noopener noreferrer"><span class="pill-icon" aria-hidden="true">🗂️</span> Dataset</a><a class="pill" href="https://huggingface.co/davidzhou302/ActiveScale" target="_blank" rel="noopener noreferrer"><span class="pill-icon" aria-hidden="true">🤗</span> Model</a><a class="pill" href="https://youtu.be/Iya0bSZ8Dko" target="_blank" rel="noopener noreferrer"><svg class="pill-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#FF0000" d="M23.498 6.186a2.994 2.994 0 0 0-2.107-2.12C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.391.521a2.994 2.994 0 0 0-2.107 2.12A31.34 31.34 0 0 0 0 12a31.34 31.34 0 0 0 .502 5.814 2.994 2.994 0 0 0 2.107 2.12c1.886.521 9.391.521 9.391.521s7.505 0 9.391-.521a2.994 2.994 0 0 0 2.107-2.12A31.34 31.34 0 0 0 24 12a31.34 31.34 0 0 0-.502-5.814z"/><path fill="#fff" d="M9.75 15.02 15.5 12 9.75 8.98v6.04z"/></svg> Video</a></div>
-</header>
-
-<section id="videos">
-<div class="section-heading"><h2>Real-World Demonstrations</h2></div>
-<div class="rollout-grid">
-<div class="rollout-row row-3">
-<div class="rollout">
-<video controls autoplay loop muted playsinline preload="auto" poster="assets/bag-poster.jpg?v=20260916-firstframe" width="1440" height="1080" aria-label="Bag — Autonomous rollout"><source src="assets/bag.mp4?v=20260916-trim15" type="video/mp4"></video>
-<div class="video-label"><h3>Bag</h3><p>Autonomous rollout</p></div>
-</div>
-<div class="rollout">
-<video controls autoplay loop muted playsinline preload="auto" poster="assets/drawer-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Drawer — Autonomous rollout"><source src="assets/drawer.mp4?v=20260916-new" type="video/mp4"></video>
-<div class="video-label"><h3>Drawer</h3><p>Autonomous rollout</p></div>
-</div>
-<div class="rollout">
-<video controls autoplay loop muted playsinline preload="auto" poster="assets/table-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Table — Autonomous rollout"><source src="assets/table.mp4?v=20260916-new" type="video/mp4"></video>
-<div class="video-label"><h3>Table</h3><p>Autonomous rollout</p></div>
-</div>
-</div>
-<div class="rollout-row row-2">
-<div class="rollout">
-<video controls autoplay loop muted playsinline preload="auto" poster="assets/pot-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Pot — Autonomous rollout"><source src="assets/pot.mp4?v=20260916-new" type="video/mp4"></video>
-<div class="video-label"><h3>Pot</h3><p>Autonomous rollout</p></div>
-</div>
-<div class="rollout">
-<video controls autoplay loop muted playsinline preload="auto" poster="assets/box-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="Box — Autonomous rollout"><source src="assets/box.mp4?v=20260916-new" type="video/mp4"></video>
-<div class="video-label"><h3>Box</h3><p>Autonomous rollout</p></div>
-</div>
-</div>
-</div>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Explore how ActiveScale robots learn to look and act. An interactive research field lab."><title>ActiveScale — Teaching robots to look</title><link rel="stylesheet" href="style.css?v=20261103e"><link rel="stylesheet" href="model-lab.css?v=20261103e"><link rel="stylesheet" href="data-recipe.css?v=20261103e"><link rel="stylesheet" href="sections.css?v=20261103e"><script defer src="script.js?v=20261103e"></script><script defer src="model-lab.js?v=20261103e"></script><script defer src="dataset-wall.js?v=20261103f"></script><script defer src="related-work.js?v=20261103e"></script><link rel="stylesheet" href="related-work.css?v=20261103e"><script type="module" src="field-lab.mjs?v=20261103e"></script></head><body>
+<a class="skip" href="#main">Skip to content</a><header><div class="nav wrap"><a class="brand" href="#"><img src="assets/logo.png" alt="ActiveScale — Scaling Active Perception" width="2169" height="725"></a><nav aria-label="Sections"><a href="#system">Hardware</a><a href="#data">Data</a><a href="#model">Model</a><a href="#results">Results</a></nav><a class="pill" href="https://arxiv.org/abs/2609.18514">Paper ↗</a></div></header>
+<main id="main"><section class="wrap section masthead"><p class="tag">ActiveScale: Scaling Active Perception for Robots across Model, Data, and Hardware</p><h1>Teaching robots <span class="hero-look">to <em>look.</em></span></h1><p class="lead">A recipe across data, models, and hardware.</p><div class="project-credits"><p class="authors"><a href="https://www.shuai-zhou.com/">Shuai Zhou</a><sup>1,*,†</sup> · <a href="https://kaishengpang.github.io/">Kaisheng Pang</a><sup>2,*</sup> · <a href="https://songwxuan.github.io/">Wenxuan Song</a><sup>2,‡</sup> · <a href="https://victor-roboneo.github.io/">Wenjie Zhang</a><sup>2</sup> · <a href="https://facultyprofiles.hkust-gz.edu.cn/faculty-personal-page/ZHENG-Xinhu/xinhuzheng">Xinhu Zheng</a><sup>2</sup> · <a href="https://sites.google.com/view/haoangli/homepage">Haoang Li</a><sup>2,‡</sup></p><p class="quiet">¹ Robotics Institute, Carnegie Mellon University · ² HKUST (Guangzhou)<br>* Equal contribution · † Project lead · ‡ Equal advising</p><div class="actions"><a href="https://arxiv.org/abs/2609.18514">Paper ↗</a><a href="https://github.com/ShuaiZhou302/ActiveScale">Code ↗</a><a href="https://modelscope.cn/datasets/shuai302/ActiveScale">Dataset ↗</a><a href="https://huggingface.co/davidzhou302/ActiveScale">Model ↗</a><a href="https://youtu.be/Iya0bSZ8Dko">Video ↗</a></div></div></section>
+<section id="system" class="system section"><div class="wrap"><h2>What lets the robot look?</h2><p class="section-copy">AMP has two manipulation arms, an independent camera arm, and a mobile base. One operator coordinates all three arms while moving through the workspace.</p><div class="hardware-grid">
+<video controls playsinline preload="none" poster="assets/trimmed/teleoperation-poster.jpg" src="assets/trimmed/teleoperation.mp4" aria-label="Single operator controls AMP"></video>
+<figure class="hardware-photo"><img src="assets/hardware/amp-system.png" alt="AMP system and operator with Meta Quest 2 and Touch controllers, with camera and manipulation arms labeled" loading="lazy"></figure>
+</div><div id="transfer" class="transfer"><h3>How does one operator control AMP?</h3><p>Switch between direct teleoperation and an egocentric recording example. The head and two hands each have a local XYZ frame.</p><div class="tabs"><button id="tele-mode" aria-pressed="true">Direct teleoperation</button><button id="ego-mode" aria-pressed="false">Egocentric data</button><button id="motion-play">Play motion</button></div><div class="transfer-label"><span id="human-label">Human / headset + controllers</span><span>AMP / camera + two grippers</span></div><canvas id="transfer-scene" aria-label="3D human and robot with local head and hand coordinate frames"></canvas><label for="motion">Motion timeline · <b style="color:#a42a3a">X</b> / <b style="color:#246c35">Y</b> / <b style="color:#3254a4">Z</b></label><input id="motion" type="range" min="0" max="100" value="12"><p id="transfer-note" class="quiet"></p></div>
+<section id="backpack-calibration" class="backpack-calibration">
+<h3>Build the Backpack scene.</h3>
+<p>Compare the first camera frames with the recorded robot motion. Adjust the draft table and backpack while matching the scene.</p>
+<div id="backpack-replay"></div>
 </section>
-
-<section id="abstract">
-<div class="section-heading"><h2>Abstract</h2></div>
-<figure class="paper-figure" style="--figure-width:920px"><a href="assets/teaser_1.webp?v=20260919" target="_blank" rel="noopener" aria-label="Open ActiveScale overview at full size"><img src="assets/teaser_1.webp?v=20260919" alt="ActiveScale overview" loading="lazy" width="1634" height="734"></a></figure>
-<p id="paper-abstract" class="abstract-text">Active perception is essential for robotic manipulation when fixed viewpoints leave task-relevant information occluded or unobserved. However, enabling vision-language-action (VLA) models to reason across changing viewpoints and actively acquire informative observations remains challenging. We present ActiveScale, a framework that advances active perception through <strong>coordinated model, data, and hardware designs</strong>. Our model augments a VLA with historical video observations and <strong>explicit camera-pose supervision</strong>, using per-frame pose tokens and a lightweight prediction head to associate observations across viewpoints and support a coherent understanding of the scene. To learn from the camera motion naturally present in human activity, we introduce a scalable human–robot mid-training recipe using <strong>1000 hours of egocentric and robotic data</strong>, adapting the model to temporal inputs and pose supervision. We further introduce the Active Perception Mobile Manipulation Platform (AMP), a robotic platform that supports active perception and mobile manipulation through <strong>single-operator teleoperation</strong>, enabling scalable collection of demonstrations that coordinate viewpoint changes and manipulation. Experiments demonstrate improved success rates on active-perception tasks, while ablation studies validate the contributions of camera-pose-aware modeling and egocentric mid-training. Together, these components provide an integrated foundation for studying and developing active perception in robotic manipulation.</p>
+<div id="why" class="hardware-viewpoint">
+<h3>Why move the camera?</h3>
+<p class="section-copy">Occlusion-driven manipulation reveals hidden task details. Active search and localization finds the instructed target across the workspace.</p>
+<div id="viewpoint-demo"></div>
+</div><details class="assembly" id="assembly"><summary>Inspect the Cobot Magic and PiPER assembly</summary><p>Vendor geometry with two stock follower mounts and an adjustable central camera-arm mounting study. Drag the view to orbit.</p><canvas id="assembly-scene" aria-label="Official Cobot Magic and PiPER geometry with a provisional camera-arm column"></canvas><label for="pillar-height">Column height <output id="pillar-value"></output></label><input id="pillar-height" type="range" min="0" max="65" value="30"></details></div></section><section id="data" class="wrap section"><h2>How can we leverage in-the-wild data at scale?</h2><div id="dataset-wall" class="dataset-wall"></div>
 </section>
-
-<section id="contributions">
-<div class="section-heading"><h2>Contributions</h2></div>
-<ol class="contributions">
-<li><span class="contribution-number" aria-hidden="true">1</span><div><h3>Model · Pose-grounded Temporal VLA</h3><p>We propose a pose-grounded temporal VLA for active perception and cross-view reasoning, achieving <strong>state-of-the-art performance</strong> across five real-world active-perception tasks.</p></div></li>
-<li><span class="contribution-number" aria-hidden="true">2</span><div><h3>Data · Human–Robot Mid-training</h3><p>We propose a human–robot mid-training recipe using large-scale egocentric human and robot data. To the best of our knowledge, it is the first approach to scale active-perception training to <strong>1000 hours of data</strong>—<strong>more than 5× larger</strong> than prior efforts. This recipe provides a scalable path for transferring human manipulation and active-view priors to robot policies.</p></div></li>
-<li><span class="contribution-number" aria-hidden="true">3</span><div><h3>Hardware · AMP</h3><p>We develop AMP for active perception and mobile manipulation, enabling <strong>single-operator scalable collection</strong> of demonstrations that jointly coordinate viewpoint, bimanual manipulation, and mobility.</p></div></li>
-</ol>
-</section>
-
-<section id="key-results">
-<div class="section-heading"><h2>Key Results</h2></div>
-<div class="metrics"><div><strong>70<span>%</span></strong><span>Mean task success<br>π<sub>0.5</sub>: 30.0%</span></div><div><strong>78.4<span>%</span></strong><span>Mean task progress<br>π<sub>0.5</sub>: 41.6%</span></div><div><strong>5</strong><span>Real-world task families<br>20 rollouts per task and method</span></div></div><p class="small-note">The complete ActiveScale pipeline is compared with directly post-trained π<sub>0.5</sub>, using the same task-specific post-training demonstrations and evaluation protocol.</p>
-</section>
-
-<section id="hardware">
-<div class="section-heading"><h2>AMP Platform</h2></div>
-<figure class="paper-figure" style="--figure-width:700px"><a href="assets/robot.webp?v=2" target="_blank" rel="noopener" aria-label="Open AMP hardware and teleoperation interface at full size"><img src="assets/robot.webp?v=2" alt="AMP hardware and teleoperation interface" loading="lazy" width="1457" height="782"></a></figure>
-<p>AMP extends AgileX Cobot-Magic with <strong>a third arm for the active camera</strong>, alongside two manipulation arms and a mobile base. A <strong>single operator</strong> uses Meta Quest 2 head and hand tracking to control the camera and arms, and controller buttons to move the base.</p>
-<div class="rollout-row row-1">
-<div class="rollout">
-<video controls muted playsinline preload="metadata" poster="assets/teleoperation-poster.jpg?v=20260916-new" width="1440" height="1080" aria-label="AMP Mobile Manipulation — Single-operator teleoperation"><source src="assets/teleoperation.mp4?v=20260916-new" type="video/mp4"></video>
-<div class="video-label"><h3>AMP Mobile Manipulation</h3><p>Single-operator teleoperation</p></div>
-</div>
-</div>
-</section>
-
-<section id="method">
-<div class="section-heading"><h2>Model Architecture</h2></div>
-<figure class="paper-figure" style="--figure-width:800px"><a href="assets/model.webp?v=2" target="_blank" rel="noopener" aria-label="Open ActiveScale model architecture at full size"><img src="assets/model.webp?v=2" alt="ActiveScale model architecture" loading="lazy" width="1577" height="852"></a></figure>
-<p>Built on π<sub>0.5</sub>, ActiveScale combines the current front-camera image with <strong>three historical frames</strong> sampled at 16-frame intervals. A camera token for each frame receives <strong>pose supervision</strong>, helping the model connect observations across viewpoints. The action expert jointly predicts manipulation and active-camera motion; the auxiliary camera-pose head is removed at inference.</p>
-</section>
-
-<section id="training">
-<div class="section-heading"><h2>Learning Active Perception from Human</h2></div>
-<h3>Stage 1 · Human–Robot Mid-training</h3>
-<p>We mid-train on <strong>1000 hours</strong> of human and robot data at a <strong>1:1 sampling ratio</strong>. <a href="https://arxiv.org/abs/2604.23570" target="_blank" rel="noopener noreferrer">EgoLive</a>, <a href="https://egoverse.ai/" target="_blank" rel="noopener noreferrer">EgoVerse</a>, and <a href="https://egosuite100k.lightwheel.ai/" target="_blank" rel="noopener noreferrer">EgoSuite</a> (captured with EgoStandard Pro) provide egocentric human experience; AgiBot World, RoboCOIN, and AMP provide robot demonstrations. Robot data acts as a <strong>domain-adaptation anchor</strong> during mid-training, keeping the model from forgetting the manipulation skills already learned by the base VLA. Human video, in turn, is treated as a distinct <strong>embodiment</strong>, letting the model jointly learn active-perception behavior — coordinating viewpoint and action across changing views — from both human and robot experience. Action learning and camera-pose supervision then develop these manipulation and active-view priors across the combined corpus.</p>
-<h3>Stage 2 · Task-Specific Post-training</h3>
-<p>We adapt the model to AMP with task-specific teleoperation demonstrations, retaining the same architecture and joint action and camera-pose objectives.</p>
-</section>
-
-<section id="results">
-<div class="section-heading"><h2>Task Suite and Experimental Results</h2></div>
-<figure class="paper-figure" style="--figure-width:900px"><a href="assets/task-nosence.webp?v=2" target="_blank" rel="noopener" aria-label="Open Five real-world active-perception task families at full size"><img src="assets/task-nosence.webp?v=2" alt="Five real-world active-perception task families" loading="lazy" width="1600" height="1128"></a></figure>
-<h3>Task Suite and Evaluation</h3>
-<p><strong>Bag, Drawer, and Table</strong> test manipulation under occlusion; <strong>Pot and Box</strong> test active search and localization across the workspace. We collect <strong>150 demonstrations per task</strong> and evaluate each method with <strong>20 real-world rollouts per task</strong>, scoring success rate (SR) for full completions and task progress (TP) for each completed stage.</p>
-<h3>Active Perception across Five Tasks</h3>
-<p>Under the same downstream demonstrations and evaluation protocol, ActiveScale improves mean SR from <strong>30.0% to 70.0%</strong> and mean TP from <strong>41.6% to 78.4%</strong> over directly post-trained π<sub>0.5</sub>. Both metrics improve across all five task families.</p><figure class="paper-figure" style="--figure-width:640px"><a href="assets/exp-pi05.webp?v=2" target="_blank" rel="noopener" aria-label="Open Main experimental results at full size"><img src="assets/exp-pi05.webp?v=2" alt="Main experimental results" loading="lazy" width="1071" height="597"></a></figure>
-<h3>Ablation Studies</h3>
-<div class="ablation-tabs" role="tablist">
-<button class="ablation-tab is-active" type="button" role="tab" aria-selected="true" data-target="ablation-mid">Human–Robot Mid-training</button>
-<button class="ablation-tab" type="button" role="tab" aria-selected="false" data-target="ablation-temporal">Temporal History and Camera Tokens</button>
-</div>
-<div class="ablation-panel" id="ablation-mid" role="tabpanel">
-<p>With the architecture and downstream training held fixed, mid-training raises mean SR from <strong>62.0% to 70.0%</strong> and TP from <strong>67.7% to 78.4%</strong>.</p>
-<figure class="paper-figure" style="--figure-width:640px"><a href="assets/exp-mid.webp?v=2" target="_blank" rel="noopener" aria-label="Open Human–robot mid-training ablation at full size"><img src="assets/exp-mid.webp?v=2" alt="Human–robot mid-training ablation" loading="lazy" width="1075" height="586"></a></figure>
-</div>
-<div class="ablation-panel" id="ablation-temporal" role="tabpanel" hidden>
-<p>With <strong>post-training only</strong>, mean SR rises from <strong>30.0%</strong> for π<sub>0.5</sub> to <strong>37.0%</strong> with history and <strong>62.0%</strong> with history and pose-grounded camera tokens. Pose supervision improves both SR and TP over history alone on every task.</p>
-<figure class="paper-figure" style="--figure-width:860px"><a href="assets/exp-abla.webp?v=2" target="_blank" rel="noopener" aria-label="Open Temporal history and camera-token ablation at full size"><img src="assets/exp-abla.webp?v=2" alt="Temporal history and camera-token ablation" loading="lazy" width="1686" height="564"></a></figure>
-</div>
-</section>
-<section id="citation">
-<div class="section-heading"><h2>BibTeX</h2></div>
-<p class="citation-note">Citation for the arXiv preprint.</p>
-<div class="citation-box"><button id="copy-citation" type="button" aria-live="polite">Copy BibTeX</button><pre id="bibtex">@article{zhou2026activescale,
-  title   = {ActiveScale: Scaling Active Perception for Robots
-             across Model, Data, and Hardware},
-  author  = {Zhou, Shuai and Pang, Kaisheng and Song, Wenxuan
-             and Zhang, Wenjie and Zheng, Xinhu and Li, Haoang},
+<section id="model" class="wrap section"><h2>Which observations inform each action?</h2><p class="section-copy">Follow camera history through the shared backbone to the training heads and the action expert.</p><div id="model-lab"></div></section><section id="results" class="wrap section"><h2>What requires active perception?</h2><p class="section-copy">Switch experiments and metrics, or focus on a single task. Bars show the reported values on a common 0–100 scale.</p><div id="evaluation-lab"></div><h3 id="experiment-question"></h3><div class="chart-card"><div class="chart-controls"><div id="experiments" class="tabs" aria-label="Experiment"></div><div id="metrics" class="tabs" aria-label="Metric"></div><label class="select">Task <select id="chart-task"><option value="all">All tasks</option><option value="occlusion">Occlusion-driven</option><option value="search">Active search</option><option>Average</option><option>Bag</option><option>Drawer</option><option>Table</option><option>Pot</option><option>Box</option></select></label></div><p id="chart-note" class="quiet"></p><div id="legend" class="legend"></div><div class="axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span></div><div id="chart" aria-label="Experiment results"></div></div><div class="efficiency">
+  <h3>Real-time execution</h3>
+  <p>Each new observation conditions the next action chunk while the robot executes the current one. Real-time chunking (RTC) keeps end-effector pose control continuous at <strong>30 Hz</strong>. ActiveScale generates <strong>264.5 actions/s</strong> on one RTX 4090.</p>
+</div></section>
+<section id="citation" class="wrap section citation"><h2>Cite ActiveScale</h2><pre id="bibtex">@article{zhou2026activescale,
+  title = {ActiveScale: Scaling Active Perception for Robots across Model, Data, and Hardware},
+  author = {Zhou, Shuai and Pang, Kaisheng and Song, Wenxuan and Zhang, Wenjie and Zheng, Xinhu and Li, Haoang},
   journal = {arXiv preprint arXiv:2609.18514},
-  year    = {2026}
-}</pre></div>
-</section><footer><span>Active<em>Scale</em></span><a href="#top">Back to top ↑</a></footer>
-</main>
-</body></html>
+  year = {2026}
+}</pre><button id="copy">Copy BibTeX</button></section>
+<section id="related-work" class="wrap section reading"></section>
+</main></body></html>

@@ -1,0 +1,22 @@
+.amp-adjust {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.9rem; margin:1rem 0}
+.amp-adjust fieldset {min-width:0; border:1px solid #c4abd8; border-radius:14px; padding:.75rem 1rem}
+.amp-adjust legend {padding:0 .3rem; font-weight:700}
+.amp-adjust label {display:grid; grid-template-columns:minmax(0,1fr) max-content; align-items:center; gap:.6rem; margin:.35rem 0}
+.amp-adjust input[type=number] {width:5.5rem; padding:.3rem .4rem; border:1px solid #c4abd8; border-radius:7px; color:#211631; background:#fff}
+.amp-adjust button {min-width:2rem; border:1px solid #c4abd8; border-radius:7px; padding:.3rem .55rem; background:#f6effc; color:#211631; cursor:pointer}
+.amp-adjust button:hover {background:#ebdcf8}
+.amp-adjust .amp-step {display:inline-flex; align-items:center; gap:.2rem}
+.amp-adjust .amp-actions {grid-column:1/-1; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center}
+.amp-adjust .amp-actions output {flex:1 1 12rem}
+#assembly-scene {touch-action:none; cursor:grab}
+#assembly-scene:active {cursor:grabbing}
+@media(max-width:650px) {.amp-adjust{grid-template-columns:1fr}}
+.amp-comparison {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+.amp-comparison h4 {margin:0 0 .5rem}
+.amp-comparison canvas {height:clamp(250px,34vw,400px)}
+@media(max-width:650px) {.amp-comparison{grid-template-columns:1fr}}
+.assembly{color:#283036;background:#f6f5f0;border-radius:14px;padding:clamp(12px,2vw,24px)}
+.assembly summary,.assembly p,.assembly .scene-fallback{color:#283036}
+.amp-adjust fieldset,.amp-adjust input[type=number],.amp-adjust button{border-color:#b9c2c5}
+.amp-adjust button{background:#f2f4f4;color:#283036}
+.amp-adjust button:hover{background:#e2e8e8}

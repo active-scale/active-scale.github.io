@@ -1,0 +1,8 @@
+# Source previews and superseded local derivatives; the site uses human-ego clips.
+assets/dataset-preview/egodex*
+assets/dataset-preview/EgoDex-source.txt
+assets/dataset-preview/egoverse-preview.mp4
+assets/dataset-preview/egoverse-poster.jpg
+assets/dataset-preview/egosuite-browser.mp4
+assets/dataset-preview/egosuite-poster.jpg
+assets/model-lab/
