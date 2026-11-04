@@ -223,4 +223,4 @@ initViewpointDemo();
 whenVisible($('transfer-scene'),()=>teleoperation().catch(error=>{console.error(error);$('transfer-note').textContent='The real hardware is shown in the photograph above.';}));
 whenVisible($('assembly'),()=>hardwareAssembly().catch(console.error));
 const replayMount=$('task-replay');
-if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104speed15c').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2,controlsMount:document.querySelector('#recorded-demo .recorded-header-controls')})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));
+if(replayMount)whenVisible(replayMount,()=>import('./recorded-replay.mjs?v=20261104speed2').then(module=>module.initRecordedReplay(replayMount,{episodeIndex:2,controlsMount:document.querySelector('#recorded-demo .recorded-header-controls')})).catch(error=>{console.error(error);replayMount.textContent='The recording could not load.';}));

@@ -9,7 +9,7 @@ const episodes = [
   ['Pot · episode 38', './assets/replay/pot-episode-38.json'],
 ];
 const cameraNames = ['cam_front', 'cam_left', 'cam_right'];
-const playbackRate = 1.5;
+const playbackRate = 2;
 
 function applyPlaybackRate(video) {
   video.defaultPlaybackRate = playbackRate;

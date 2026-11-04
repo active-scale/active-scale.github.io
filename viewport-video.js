@@ -2,7 +2,7 @@
   'use strict';
   const videos = new Map();
   const speedConfigured = new WeakSet();
-  const robotPlaybackRate = 1.5;
+  const robotPlaybackRate = 2;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   function configureRobotSpeed(video) {
     if (speedConfigured.has(video)) return;

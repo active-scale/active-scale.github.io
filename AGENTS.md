@@ -17,7 +17,7 @@ User-approved preferences collected while designing this project. Apply these to
 - Reveal content as it enters the viewport with a gentle fade and upward movement. Start the associated demonstration when it becomes visible so visitors do not miss the beginning.
 - Re-arm scroll entrances only after content fully leaves the viewport. Start chart growth when the actual bar rows are visible; clicks, chapter selection, and navigation must not permanently consume later entrances.
 - Pause offscreen animations and videos. Respect reduced-motion preferences. Keep content available if scripts or animations are unavailable.
-- Play real-robot footage at 1.5× by default, including task rollouts, hardware demonstrations, robot dataset previews, and recorded camera streams. Keep recorded 3D motion synchronized to its video source time; preserve chapter timestamps and manual controls.
+- Play real-robot footage at 2× by default, including task rollouts, hardware demonstrations, robot dataset previews, and recorded camera streams. Keep recorded 3D motion synchronized to its video source time; preserve chapter timestamps and manual controls.
 - Let the hardware mounting view orbit slowly on its own. Manual dragging takes priority, followed by a brief idle delay before automatic orbit resumes from the current view.
 - Slowly rotate all three hardware component previews. Show the stock Cobot Magic with the same initial side-arm joint poses and base orientations as AMP.
 - Use a robot emoji or small running-robot animation for timeline handles and reading progress. Retain native dragging and keyboard interaction.
