@@ -17,6 +17,7 @@ User-approved preferences collected while designing this project. Apply these to
 - Reveal content as it enters the viewport with a gentle fade and upward movement. Start the associated demonstration when it becomes visible so visitors do not miss the beginning.
 - Pause offscreen animations and videos. Respect reduced-motion preferences. Keep content available if scripts or animations are unavailable.
 - Let the hardware mounting view orbit slowly on its own. Manual dragging takes priority, followed by a brief idle delay before automatic orbit resumes from the current view.
+- Slowly rotate all three hardware component previews. Show the stock Cobot Magic with the same initial side-arm joint poses and base orientations as AMP.
 - Use a robot emoji or small running-robot animation for timeline handles and reading progress. Retain native dragging and keyboard interaction.
 - Model stages cycle automatically until the visitor selects a stage. Evaluation task videos progress in order until the visitor chooses a task or interacts with its timeline.
 - Teleoperation motion should be immediately legible: sufficiently large base movement and turning, clear hand/head motion, brisk pacing, and live pose readouts. Preserve Replay; omit speed settings.
